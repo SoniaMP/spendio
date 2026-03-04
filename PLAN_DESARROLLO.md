@@ -165,7 +165,7 @@ src/
 - `hooks/useCategories.ts`, `hooks/useExpenses.ts`, `hooks/useMonthFilter.ts`
 - Tests for hooks
 
-### Step 5: Layout + Routing
+### Step 5: Layout + Routing ✅
 - `AppLayout.tsx` with shadcn Tabs synced to React Router
 - `App.tsx` with routes, QueryClientProvider, Toaster
 - Placeholder pages

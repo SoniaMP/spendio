@@ -155,12 +155,12 @@ src/
 - Vite proxy `/api` → `http://localhost:3001`
 - `npm run dev` starts both client and server via concurrently
 
-### Step 3: Foundation Layer
+### Step 3: Foundation Layer ✅
 - `lib/queryClient.ts`
 - Type definitions in `types/` ✅ (already created)
 - Helper functions in `helpers/` + tests for each
 
-### Step 4: API + Hooks Layer
+### Step 4: API + Hooks Layer ✅
 - `api/categories.ts` and `api/expenses.ts` (fetch-based CRUD)
 - `hooks/useCategories.ts`, `hooks/useExpenses.ts`, `hooks/useMonthFilter.ts`
 - Tests for hooks

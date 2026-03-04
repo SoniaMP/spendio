@@ -21,7 +21,7 @@ export default function ExpenseRow({
       <TableCell className="whitespace-nowrap">
         {formatDate(expense.date)}
       </TableCell>
-      <TableCell>{expense.description || '—'}</TableCell>
+      <TableCell className="hidden sm:table-cell">{expense.description || '—'}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
           <span

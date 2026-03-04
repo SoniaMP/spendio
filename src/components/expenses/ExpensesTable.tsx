@@ -20,11 +20,12 @@ export default function ExpensesTable({
   onDelete,
 }: ExpensesTableProps) {
   return (
+    <div className="overflow-x-auto">
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Fecha</TableHead>
-          <TableHead>Descripción</TableHead>
+          <TableHead className="hidden sm:table-cell">Descripción</TableHead>
           <TableHead>Categoría</TableHead>
           <TableHead className="text-right">Importe</TableHead>
           <TableHead className="text-right">Acciones</TableHead>
@@ -41,5 +42,6 @@ export default function ExpensesTable({
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

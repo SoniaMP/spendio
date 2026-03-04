@@ -22,7 +22,7 @@ export default function MonthPicker({
       >
         <ChevronLeft />
       </Button>
-      <span className="min-w-[10rem] text-center text-sm font-medium capitalize">
+      <span className="min-w-[8rem] text-center text-sm font-medium capitalize sm:min-w-[10rem]">
         {label}
       </span>
       <Button

@@ -24,7 +24,7 @@ export default function ExportButton({
       onClick={handleExport}
       disabled={expenses.length === 0}
     >
-      <Download /> Exportar
+      <Download /> <span className="hidden sm:inline">Exportar</span>
     </Button>
   );
 }

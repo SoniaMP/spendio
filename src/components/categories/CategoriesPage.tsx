@@ -65,7 +65,7 @@ export default function CategoriesPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Categorías</h2>
         <Button size="sm" onClick={() => setIsFormOpen(true)}>
-          <Plus /> Nueva categoría
+          <Plus /> <span className="hidden sm:inline">Nueva categoría</span>
         </Button>
       </div>
 

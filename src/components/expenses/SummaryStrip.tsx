@@ -20,14 +20,14 @@ export default function SummaryStrip({
   topCategories,
 }: SummaryStripProps) {
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-lg border bg-card p-4">
+    <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-center">
       <MonthTotal total={currentTotal} />
       <MonthComparisonBadge
         comparison={comparison}
         previousMonthLabel={previousMonthLabel}
         isLoading={isComparisonLoading}
       />
-      <div className="ml-auto">
+      <div className="sm:ml-auto">
         <TopCategories categories={topCategories} />
       </div>
     </div>

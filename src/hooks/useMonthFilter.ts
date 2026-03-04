@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
-import { getCurrentMonth, getMonthKey, getMonthLabel } from '@/helpers/dateHelpers';
+import { getCurrentMonth, getMonthKey, getMonthLabel, getPreviousMonth } from '@/helpers/dateHelpers';
 
 export interface MonthFilter {
   year: number;
   month: number;
   monthKey: string;
   monthLabel: string;
+  previousMonthKey: string;
+  previousMonthLabel: string;
   goToPreviousMonth: () => void;
   goToNextMonth: () => void;
 }
@@ -31,11 +33,15 @@ export function useMonthFilter(): MonthFilter {
     });
   }, []);
 
+  const prev = getPreviousMonth(state.year, state.month);
+
   return {
     year: state.year,
     month: state.month,
     monthKey: getMonthKey(state.year, state.month),
     monthLabel: getMonthLabel(state.year, state.month),
+    previousMonthKey: getMonthKey(prev.year, prev.month),
+    previousMonthLabel: getMonthLabel(prev.year, prev.month),
     goToPreviousMonth,
     goToNextMonth,
   };

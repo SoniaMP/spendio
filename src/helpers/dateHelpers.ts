@@ -10,6 +10,13 @@ export function getMonthLabel(year: number, month: number): string {
   return format(date, 'MMMM yyyy', { locale: es });
 }
 
+export function getPreviousMonth(year: number, month: number): { year: number; month: number } {
+  if (month === 1) {
+    return { year: year - 1, month: 12 };
+  }
+  return { year, month: month - 1 };
+}
+
 export function getCurrentMonth(): { year: number; month: number } {
   const now = new Date();
   return { year: now.getFullYear(), month: now.getMonth() + 1 };

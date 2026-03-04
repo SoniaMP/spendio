@@ -104,6 +104,35 @@ describe('useMonthFilter', () => {
     expect(result.current.year).toBe(yearAtDecember + 1);
   });
 
+  it('provides previousMonthKey in YYYY-MM format', () => {
+    const { result } = renderHook(() => useMonthFilter());
+
+    expect(result.current.previousMonthKey).toMatch(/^\d{4}-\d{2}$/);
+  });
+
+  it('provides a Spanish previousMonthLabel', () => {
+    const { result } = renderHook(() => useMonthFilter());
+
+    expect(result.current.previousMonthLabel).toBeTruthy();
+    expect(typeof result.current.previousMonthLabel).toBe('string');
+  });
+
+  it('previousMonthKey wraps January to December of previous year', () => {
+    const { result } = renderHook(() => useMonthFilter());
+
+    // Navigate to January
+    const stepsToJanuary = result.current.month - 1;
+    act(() => {
+      for (let i = 0; i < stepsToJanuary; i++) {
+        result.current.goToPreviousMonth();
+      }
+    });
+    expect(result.current.month).toBe(1);
+
+    const yearAtJanuary = result.current.year;
+    expect(result.current.previousMonthKey).toBe(`${yearAtJanuary - 1}-12`);
+  });
+
   it('updates monthKey and monthLabel when navigating', () => {
     const { result } = renderHook(() => useMonthFilter());
 

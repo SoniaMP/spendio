@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
 import type { ExpenseWithCategory } from '@/types/expense';
 import MonthPicker from '@/components/layout/MonthPicker';
 import ExpensesTable from '@/components/expenses/ExpensesTable';
+import ExpensesTableSkeleton from '@/components/expenses/ExpensesTableSkeleton';
 import ExpenseFormDialog from '@/components/expenses/ExpenseFormDialog';
 import ExpenseDeleteDialog from '@/components/expenses/ExpenseDeleteDialog';
 import ExportButton from '@/components/expenses/ExportButton';
+import ExpenseChart from '@/components/expenses/ExpenseChart';
 
 export default function ExpensesPage() {
   const { monthKey, monthLabel, goToPreviousMonth, goToNextMonth } =
@@ -31,12 +33,40 @@ export default function ExpensesPage() {
     setEditingExpense(undefined);
   }
 
-  if (isLoading) {
-    return <p className="text-muted-foreground">Cargando gastos...</p>;
-  }
+  function renderContent() {
+    if (isLoading) return <ExpensesTableSkeleton />;
 
-  if (isError) {
-    return <p className="text-destructive">Error al cargar los gastos.</p>;
+    if (isError) {
+      return (
+        <p className="py-8 text-center text-destructive">
+          Error al cargar los gastos.
+        </p>
+      );
+    }
+
+    if (!expenses || expenses.length === 0) {
+      return (
+        <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
+          <Receipt className="h-10 w-10" />
+          <p>No hay gastos en este mes.</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsFormOpen(true)}
+          >
+            <Plus /> Añadir gasto
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <ExpensesTable
+        expenses={expenses}
+        onEdit={handleEdit}
+        onDelete={setDeletingExpense}
+      />
+    );
   }
 
   return (
@@ -55,15 +85,14 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      {expenses && expenses.length > 0 ? (
-        <ExpensesTable
-          expenses={expenses}
-          onEdit={handleEdit}
-          onDelete={setDeletingExpense}
-        />
-      ) : (
-        <p className="text-muted-foreground">No hay gastos en este mes.</p>
-      )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr,320px]">
+        <div className="order-2 md:order-1">{renderContent()}</div>
+        {expenses && expenses.length > 0 && (
+          <div className="order-1 md:order-2">
+            <ExpenseChart expenses={expenses} />
+          </div>
+        )}
+      </div>
 
       <ExpenseFormDialog
         expense={editingExpense}

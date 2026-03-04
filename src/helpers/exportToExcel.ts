@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import type { ExpenseWithCategory } from '@/types/expense';
 import { formatCurrency } from './formatCurrency';
+import { formatDate } from './formatDate';
 
 interface ExportRow {
   Fecha: string;
@@ -14,7 +15,7 @@ export function exportToExcel(
   fileName: string,
 ): void {
   const rows: ExportRow[] = expenses.map((e) => ({
-    Fecha: e.date,
+    Fecha: formatDate(e.date),
     Descripción: e.description,
     Categoría: e.category_name,
     Importe: formatCurrency(e.amount),

@@ -5,6 +5,7 @@ import {
   TableRow,
   TableHead,
 } from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import type { ExpenseWithCategory } from '@/types/expense';
 import ExpenseRow from '@/components/expenses/ExpenseRow';
 
@@ -20,29 +21,31 @@ export default function ExpensesTable({
   onDelete,
 }: ExpensesTableProps) {
   return (
-    <div className="overflow-x-auto">
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Fecha</TableHead>
-          <TableHead className="hidden sm:table-cell">Descripción</TableHead>
-          <TableHead>Categoría</TableHead>
-          <TableHead className="text-right">Importe</TableHead>
-          {(onEdit || onDelete) && <TableHead className="text-right">Acciones</TableHead>}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {expenses.map((expense) => (
-          <ExpenseRow
-            key={expense.id}
-            expense={expense}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            isReadOnly={!onEdit && !onDelete}
-          />
-        ))}
-      </TableBody>
-    </Table>
-    </div>
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Fecha</TableHead>
+              <TableHead className="hidden sm:table-cell">Descripción</TableHead>
+              <TableHead>Categoría</TableHead>
+              <TableHead className="text-right">Importe</TableHead>
+              {(onEdit || onDelete) && <TableHead className="text-right">Acciones</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {expenses.map((expense) => (
+              <ExpenseRow
+                key={expense.id}
+                expense={expense}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                isReadOnly={!onEdit && !onDelete}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,6 +1,7 @@
 import type { ExpenseWithCategory } from '@/types/expense';
 import { groupExpensesByCategory } from '@/helpers/groupExpensesByCategory';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import ExpensePieChart from '@/components/expenses/ExpensePieChart';
 import ExpenseBarChart from '@/components/expenses/ExpenseBarChart';
 import ChartLegend from '@/components/expenses/ChartLegend';
@@ -15,25 +16,40 @@ export default function ExpenseChart({ expenses }: ExpenseChartProps) {
   const data = groupExpensesByCategory(expenses);
 
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">Gastos por categoría</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Gastos por categoría</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="pie">
+          <TabsList>
+            <TabsTrigger value="pie">Circular</TabsTrigger>
+            <TabsTrigger value="bar">Barras</TabsTrigger>
+          </TabsList>
 
-      <Tabs defaultValue="pie">
-        <TabsList>
-          <TabsTrigger value="pie">Circular</TabsTrigger>
-          <TabsTrigger value="bar">Barras</TabsTrigger>
-        </TabsList>
+          <TabsContent value="pie">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+              <div className="w-full sm:w-1/2">
+                <ExpensePieChart data={data} />
+              </div>
+              <div className="w-full sm:w-1/2">
+                <ChartLegend items={data} />
+              </div>
+            </div>
+          </TabsContent>
 
-        <TabsContent value="pie">
-          <ExpensePieChart data={data} />
-        </TabsContent>
-
-        <TabsContent value="bar">
-          <ExpenseBarChart data={data} />
-        </TabsContent>
-      </Tabs>
-
-      <ChartLegend items={data} />
-    </div>
+          <TabsContent value="bar">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+              <div className="w-full sm:w-1/2">
+                <ExpenseBarChart data={data} />
+              </div>
+              <div className="w-full sm:w-1/2">
+                <ChartLegend items={data} />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }

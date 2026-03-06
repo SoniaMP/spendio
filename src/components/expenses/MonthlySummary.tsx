@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -55,16 +56,19 @@ export default function MonthlySummary({
   );
 
   return (
-    <div className="rounded-lg border bg-card p-4">
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <MonthTotal total={currentTotal} />
-        <MonthComparisonBadge
-          comparison={comparison}
-          previousMonthLabel={comparisonLabel}
-          isLoading={isComparisonLoading}
-        />
-      </div>
+    <Card>
+      <CardHeader>
+        <div className="flex flex-wrap items-center gap-3">
+          <MonthTotal total={currentTotal} />
+          <MonthComparisonBadge
+            comparison={comparison}
+            previousMonthLabel={comparisonLabel}
+            isLoading={isComparisonLoading}
+          />
+        </div>
+      </CardHeader>
 
+      <CardContent>
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="text-sm font-medium">Comparar por categoria</h3>
         <Select
@@ -97,7 +101,8 @@ export default function MonthlySummary({
           ))}
         </ul>
       )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 

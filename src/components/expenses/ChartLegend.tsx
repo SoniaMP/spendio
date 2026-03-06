@@ -7,15 +7,15 @@ interface ChartLegendProps {
 
 export default function ChartLegend({ items }: ChartLegendProps) {
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+    <div className="flex flex-col gap-2 text-sm">
       {items.map((item) => (
-        <div key={item.categoryName} className="flex items-center gap-2">
+        <div key={item.categoryName} className="flex items-center gap-1.5">
           <span
             className="size-3 shrink-0 rounded-full"
             style={{ backgroundColor: item.color }}
           />
           <span className="truncate">{item.categoryName}</span>
-          <span className="ml-auto text-muted-foreground">
+          <span className="shrink-0 text-muted-foreground">
             {formatCurrency(item.amount)} ({item.percentage.toFixed(1)}%)
           </span>
         </div>

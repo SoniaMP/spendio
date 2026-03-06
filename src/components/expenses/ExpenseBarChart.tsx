@@ -18,20 +18,22 @@ interface ExpenseBarChartProps {
 export default function ExpenseBarChart({ data }: ExpenseBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
+      <BarChart data={data} margin={{ bottom: 40 }}>
         <XAxis
+          type="category"
+          dataKey="categoryName"
+          fontSize={11}
+          angle={-35}
+          textAnchor="end"
+          interval={0}
+        />
+        <YAxis
           type="number"
           tickFormatter={(value: number) => formatCurrency(value)}
           fontSize={12}
         />
-        <YAxis
-          type="category"
-          dataKey="categoryName"
-          width={100}
-          fontSize={12}
-        />
         <Tooltip content={<ChartTooltip />} />
-        <Bar dataKey="amount" radius={[0, 4, 4, 0]}>
+        <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
           {data.map((entry) => (
             <Cell key={entry.categoryName} fill={entry.color} />
           ))}

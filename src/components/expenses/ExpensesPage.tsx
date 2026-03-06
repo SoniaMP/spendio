@@ -159,23 +159,22 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr,320px] xl:grid-cols-[1fr,380px]">
-        <div className="order-2 lg:order-1">{renderContent()}</div>
-        {expenses && expenses.length > 0 && (
-          <div className="order-1 flex flex-col gap-4 lg:order-2">
-            <ExpenseChart expenses={filteredExpenses} />
-            <MonthlySummary
-              currentTotal={currentTotal}
-              currentBreakdown={categoryBreakdown}
-              comparisonBreakdown={comparisonBreakdown}
-              comparisonMonthKey={comparisonMonthKey}
-              monthOptions={comparisonMonthOptions}
-              isComparisonLoading={isComparisonBreakdownLoading}
-              onComparisonMonthChange={handleComparisonMonthChange}
-            />
-          </div>
-        )}
-      </div>
+      {renderContent()}
+
+      {expenses && expenses.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <ExpenseChart expenses={filteredExpenses} />
+          <MonthlySummary
+            currentTotal={currentTotal}
+            currentBreakdown={categoryBreakdown}
+            comparisonBreakdown={comparisonBreakdown}
+            comparisonMonthKey={comparisonMonthKey}
+            monthOptions={comparisonMonthOptions}
+            isComparisonLoading={isComparisonBreakdownLoading}
+            onComparisonMonthChange={handleComparisonMonthChange}
+          />
+        </div>
+      )}
 
       <ExpenseFormDialog
         sheetId={activeSheetId}

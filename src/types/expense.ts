@@ -4,6 +4,7 @@ export interface Expense {
   description: string;
   date: string;
   category_id: number;
+  sheet_id: number;
   created_at: string;
   updated_at: string;
 }

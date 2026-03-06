@@ -3,10 +3,12 @@ import type { Expense, ExpenseWithCategory } from '@/types/expense';
 const BASE_URL = '/api/expenses';
 
 export async function fetchExpenses(
+  sheetId: number,
   month?: string,
 ): Promise<ExpenseWithCategory[]> {
-  const url = month ? `${BASE_URL}?month=${month}` : BASE_URL;
-  const res = await fetch(url);
+  const params = new URLSearchParams({ sheetId: String(sheetId) });
+  if (month) params.set('month', month);
+  const res = await fetch(`${BASE_URL}?${params}`);
   if (!res.ok) throw new Error('Failed to fetch expenses');
   return res.json();
 }
@@ -16,6 +18,7 @@ export interface CreateExpenseInput {
   description?: string;
   date: string;
   categoryId: number;
+  sheetId: number;
 }
 
 export async function createExpense(

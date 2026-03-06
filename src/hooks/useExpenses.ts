@@ -10,14 +10,16 @@ import {
 
 const EXPENSES_KEY = ['expenses'] as const;
 
-function expensesQueryKey(month?: string) {
-  return month ? [...EXPENSES_KEY, month] : [...EXPENSES_KEY];
+function expensesQueryKey(sheetId: number, month?: string) {
+  return month
+    ? [...EXPENSES_KEY, sheetId, month]
+    : [...EXPENSES_KEY, sheetId];
 }
 
-export function useExpenses(month?: string) {
+export function useExpenses(sheetId: number, month?: string) {
   return useQuery({
-    queryKey: expensesQueryKey(month),
-    queryFn: () => fetchExpenses(month),
+    queryKey: expensesQueryKey(sheetId, month),
+    queryFn: () => fetchExpenses(sheetId, month),
   });
 }
 

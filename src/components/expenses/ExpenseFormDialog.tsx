@@ -11,12 +11,14 @@ import type { ExpenseWithCategory } from '@/types/expense';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
 
 interface ExpenseFormDialogProps {
+  sheetId: number;
   expense?: ExpenseWithCategory;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function ExpenseFormDialog({
+  sheetId,
   expense,
   isOpen,
   onClose,
@@ -44,13 +46,16 @@ export default function ExpenseFormDialog({
         },
       );
     } else {
-      createMutation.mutate(values, {
-        onSuccess: () => {
-          toast.success('Gasto creado');
-          onClose();
+      createMutation.mutate(
+        { ...values, sheetId },
+        {
+          onSuccess: () => {
+            toast.success('Gasto creado');
+            onClose();
+          },
+          onError: (err) => toast.error(err.message),
         },
-        onError: (err) => toast.error(err.message),
-      });
+      );
     }
   }
 

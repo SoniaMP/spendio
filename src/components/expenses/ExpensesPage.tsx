@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Plus, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useExpenses } from '@/hooks/useExpenses';
@@ -7,6 +8,7 @@ import { useCategoryComparison } from '@/hooks/useCategoryComparison';
 import { calcMonthTotal } from '@/helpers/calcMonthTotal';
 import { groupExpensesByCategory } from '@/helpers/groupExpensesByCategory';
 import type { ExpenseWithCategory } from '@/types/expense';
+import type { OutletContext } from '@/components/layout/AppLayout';
 import MonthPicker from '@/components/layout/MonthPicker';
 import ExpensesTable from '@/components/expenses/ExpensesTable';
 import ExpensesTableSkeleton from '@/components/expenses/ExpensesTableSkeleton';
@@ -18,6 +20,8 @@ import MonthlySummary from '@/components/expenses/MonthlySummary';
 import CategoryFilter from '@/components/expenses/CategoryFilter';
 
 export default function ExpensesPage() {
+  const { activeSheetId } = useOutletContext<OutletContext>();
+
   const {
     year,
     month,
@@ -28,9 +32,9 @@ export default function ExpensesPage() {
     goToNextMonth,
   } = useMonthFilter();
 
-  const { data: expenses, isLoading, isError } = useExpenses(monthKey);
+  const { data: expenses, isLoading, isError } = useExpenses(activeSheetId, monthKey);
   const { data: previousExpenses, isLoading: isPreviousLoading } =
-    useExpenses(previousMonthKey);
+    useExpenses(activeSheetId, previousMonthKey);
 
   const {
     comparisonMonthKey,
@@ -39,6 +43,7 @@ export default function ExpensesPage() {
     isComparisonLoading: isComparisonBreakdownLoading,
     handleComparisonMonthChange,
   } = useCategoryComparison({
+    sheetId: activeSheetId,
     year,
     month,
     monthKey,
@@ -168,6 +173,7 @@ export default function ExpensesPage() {
       </div>
 
       <ExpenseFormDialog
+        sheetId={activeSheetId}
         expense={editingExpense}
         isOpen={isFormOpen}
         onClose={handleCloseForm}

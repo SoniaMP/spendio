@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import categoriesRouter from './routes/categories.ts';
 import expensesRouter from './routes/expenses.ts';
+import sheetsRouter from './routes/sheets.ts';
 import { errorHandler } from './middleware/errorHandler.ts';
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use('/api/categories', categoriesRouter);
 app.use('/api/expenses', expensesRouter);
+app.use('/api/sheets', sheetsRouter);
 
 app.use(errorHandler);
 

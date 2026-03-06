@@ -12,6 +12,7 @@ export interface ExpenseRow {
   description: string;
   date: string;
   category_id: number;
+  sheet_id: number;
   created_at: string;
   updated_at: string;
 }
@@ -31,11 +32,28 @@ export interface UpdateCategoryBody {
   color?: string;
 }
 
+export interface SheetRow {
+  id: number;
+  name: string;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSheetBody {
+  name: string;
+}
+
+export interface UpdateSheetBody {
+  name?: string;
+}
+
 export interface CreateExpenseBody {
   amount: number;
   description?: string;
   date: string;
   categoryId: number;
+  sheetId: number;
 }
 
 export interface UpdateExpenseBody {

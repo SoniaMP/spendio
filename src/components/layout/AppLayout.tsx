@@ -1,17 +1,35 @@
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSheets } from '@/hooks/useSheets';
+import SheetTabs from '@/components/sheets/SheetTabs';
+
+export interface OutletContext {
+  activeSheetId: number;
+}
 
 export default function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { data: sheets } = useSheets();
 
-  const currentTab = location.pathname.startsWith('/categories')
-    ? 'categories'
-    : 'expenses';
+  const isExpensesRoute = !location.pathname.startsWith('/categories');
+  const currentTab = isExpensesRoute ? 'expenses' : 'categories';
+
+  const sheetParam = Number(searchParams.get('sheet'));
+  const firstSheetId = sheets?.[0]?.id ?? 1;
+  const isValidSheet = sheets?.some((s) => s.id === sheetParam);
+  const activeSheetId = isValidSheet ? sheetParam : firstSheetId;
 
   function handleTabChange(value: string) {
     navigate(`/${value}`);
   }
+
+  function handleSheetChange(id: number) {
+    setSearchParams({ sheet: String(id) });
+  }
+
+  const context: OutletContext = { activeSheetId };
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -24,8 +42,16 @@ export default function AppLayout() {
           </TabsList>
         </Tabs>
       </header>
+      {isExpensesRoute && (
+        <div className="mb-4">
+          <SheetTabs
+            activeSheetId={activeSheetId}
+            onSheetChange={handleSheetChange}
+          />
+        </div>
+      )}
       <main>
-        <Outlet />
+        <Outlet context={context} />
       </main>
     </div>
   );

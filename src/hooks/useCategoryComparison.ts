@@ -7,6 +7,7 @@ import type { CategoryBreakdown } from '@/types/chartData';
 import type { MonthOption } from '@/helpers/getComparisonMonths';
 
 interface UseCategoryComparisonOptions {
+  sheetId: number;
   year: number;
   month: number;
   monthKey: string;
@@ -24,6 +25,7 @@ interface UseCategoryComparisonResult {
 }
 
 export function useCategoryComparison({
+  sheetId,
   year,
   month,
   monthKey,
@@ -44,7 +46,10 @@ export function useCategoryComparison({
   const isComparisonSameAsPrevious = comparisonMonthKey === previousMonthKey;
 
   const { data: comparisonExpenses, isLoading: isComparisonLoading } =
-    useExpenses(isComparisonSameAsPrevious ? undefined : comparisonMonthKey);
+    useExpenses(
+      sheetId,
+      isComparisonSameAsPrevious ? undefined : comparisonMonthKey,
+    );
 
   const effectiveExpenses = isComparisonSameAsPrevious
     ? previousExpenses

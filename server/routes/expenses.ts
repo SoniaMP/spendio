@@ -11,17 +11,28 @@ const router = Router();
 
 router.get('/', (req, res) => {
   const month = req.query.month as string | undefined;
+  const sheetId = req.query.sheetId as string | undefined;
 
   let sql = `
     SELECT e.*, c.name AS category_name, c.color AS category_color
     FROM expenses e
     JOIN categories c ON c.id = e.category_id
   `;
+  const conditions: string[] = [];
   const params: string[] = [];
 
+  if (sheetId) {
+    conditions.push('e.sheet_id = ?');
+    params.push(sheetId);
+  }
+
   if (month) {
-    sql += ` WHERE e.date LIKE ? || '%'`;
+    conditions.push(`e.date LIKE ? || '%'`);
     params.push(month);
+  }
+
+  if (conditions.length > 0) {
+    sql += ` WHERE ${conditions.join(' AND ')}`;
   }
 
   sql += ' ORDER BY e.date DESC, e.id DESC';
@@ -32,17 +43,17 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res, next) => {
   try {
-    const { amount, description, date, categoryId } = req.body as CreateExpenseBody;
+    const { amount, description, date, categoryId, sheetId } = req.body as CreateExpenseBody;
 
-    if (!amount || !date || !categoryId) {
-      res.status(400).json({ error: 'amount, date, and categoryId are required' });
+    if (!amount || !date || !categoryId || !sheetId) {
+      res.status(400).json({ error: 'amount, date, categoryId, and sheetId are required' });
       return;
     }
 
     const stmt = db.prepare(
-      'INSERT INTO expenses (amount, description, date, category_id) VALUES (?, ?, ?, ?)',
+      'INSERT INTO expenses (amount, description, date, category_id, sheet_id) VALUES (?, ?, ?, ?, ?)',
     );
-    const result = stmt.run(amount, description ?? '', date, categoryId);
+    const result = stmt.run(amount, description ?? '', date, categoryId, sheetId);
 
     const row = db.prepare('SELECT * FROM expenses WHERE id = ?').get(result.lastInsertRowid) as ExpenseRow;
     res.status(201).json(row);

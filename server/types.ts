@@ -1,7 +1,18 @@
+export interface UserRow {
+  id: number;
+  google_id: string;
+  email: string;
+  name: string;
+  picture: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CategoryRow {
   id: number;
   name: string;
   color: string;
+  user_id: number;
   created_at: string;
   updated_at: string;
 }
@@ -13,6 +24,7 @@ export interface ExpenseRow {
   date: string;
   category_id: number;
   sheet_id: number;
+  user_id: number;
   created_at: string;
   updated_at: string;
 }
@@ -36,6 +48,7 @@ export interface SheetRow {
   id: number;
   name: string;
   position: number;
+  user_id: number;
   created_at: string;
   updated_at: string;
 }

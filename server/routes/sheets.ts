@@ -4,10 +4,10 @@ import type { SheetRow, CreateSheetBody, UpdateSheetBody } from '../types.ts';
 
 const router = Router();
 
-router.get('/', (_req, res) => {
+router.get('/', (req, res) => {
   const rows = db
-    .prepare('SELECT * FROM sheets ORDER BY position, id')
-    .all() as SheetRow[];
+    .prepare('SELECT * FROM sheets WHERE user_id = ? ORDER BY position, id')
+    .all(req.userId) as SheetRow[];
   res.json(rows);
 });
 
@@ -21,12 +21,12 @@ router.post('/', (req, res, next) => {
     }
 
     const maxPos = db
-      .prepare('SELECT COALESCE(MAX(position), -1) AS mp FROM sheets')
-      .get() as { mp: number };
+      .prepare('SELECT COALESCE(MAX(position), -1) AS mp FROM sheets WHERE user_id = ?')
+      .get(req.userId) as { mp: number };
 
     const result = db
-      .prepare('INSERT INTO sheets (name, position) VALUES (?, ?)')
-      .run(name.trim(), maxPos.mp + 1);
+      .prepare('INSERT INTO sheets (name, position, user_id) VALUES (?, ?, ?)')
+      .run(name.trim(), maxPos.mp + 1, req.userId);
 
     const row = db
       .prepare('SELECT * FROM sheets WHERE id = ?')
@@ -43,15 +43,19 @@ router.put('/:id', (req, res, next) => {
     const { name } = req.body as UpdateSheetBody;
 
     const existing = db
-      .prepare('SELECT * FROM sheets WHERE id = ?')
-      .get(id) as SheetRow | undefined;
+      .prepare('SELECT * FROM sheets WHERE id = ? AND user_id = ?')
+      .get(id, req.userId) as SheetRow | undefined;
     if (!existing) {
       res.status(404).json({ error: 'Sheet not found' });
       return;
     }
 
     const updatedName = name?.trim() ?? existing.name;
-    db.prepare('UPDATE sheets SET name = ? WHERE id = ?').run(updatedName, id);
+    db.prepare('UPDATE sheets SET name = ? WHERE id = ? AND user_id = ?').run(
+      updatedName,
+      id,
+      req.userId,
+    );
 
     const row = db
       .prepare('SELECT * FROM sheets WHERE id = ?')
@@ -67,8 +71,8 @@ router.delete('/:id', (req, res, next) => {
     const { id } = req.params;
 
     const count = db
-      .prepare('SELECT COUNT(*) AS cnt FROM sheets')
-      .get() as { cnt: number };
+      .prepare('SELECT COUNT(*) AS cnt FROM sheets WHERE user_id = ?')
+      .get(req.userId) as { cnt: number };
     if (count.cnt <= 1) {
       res
         .status(409)
@@ -76,7 +80,9 @@ router.delete('/:id', (req, res, next) => {
       return;
     }
 
-    const result = db.prepare('DELETE FROM sheets WHERE id = ?').run(id);
+    const result = db
+      .prepare('DELETE FROM sheets WHERE id = ? AND user_id = ?')
+      .run(id, req.userId);
     if (result.changes === 0) {
       res.status(404).json({ error: 'Sheet not found' });
       return;

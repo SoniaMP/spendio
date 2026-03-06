@@ -1,16 +1,29 @@
 export const CREATE_TABLES = `
-  CREATE TABLE IF NOT EXISTS categories (
+  CREATE TABLE IF NOT EXISTS users (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    name       TEXT    UNIQUE NOT NULL,
-    color      TEXT    NOT NULL DEFAULT '#6B7280',
+    google_id  TEXT    UNIQUE NOT NULL,
+    email      TEXT    UNIQUE NOT NULL,
+    name       TEXT    NOT NULL DEFAULT '',
+    picture    TEXT    NOT NULL DEFAULT '',
     created_at TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS categories (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT    NOT NULL,
+    color      TEXT    NOT NULL DEFAULT '#6B7280',
+    user_id    INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(name, user_id)
   );
 
   CREATE TABLE IF NOT EXISTS sheets (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT    NOT NULL,
     position   INTEGER NOT NULL DEFAULT 0,
+    user_id    INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
     created_at TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
@@ -22,6 +35,7 @@ export const CREATE_TABLES = `
     date        TEXT    NOT NULL DEFAULT (date('now')),
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     sheet_id    INTEGER NOT NULL DEFAULT 1 REFERENCES sheets(id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
     created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
@@ -32,6 +46,12 @@ export const CREATE_TABLES = `
     ON expenses(category_id);
   CREATE INDEX IF NOT EXISTS idx_expenses_sheet_id
     ON expenses(sheet_id);
+  CREATE INDEX IF NOT EXISTS idx_categories_user_id
+    ON categories(user_id);
+  CREATE INDEX IF NOT EXISTS idx_sheets_user_id
+    ON sheets(user_id);
+  CREATE INDEX IF NOT EXISTS idx_expenses_user_id
+    ON expenses(user_id);
 
   CREATE TRIGGER IF NOT EXISTS categories_updated_at
     AFTER UPDATE ON categories
@@ -55,14 +75,13 @@ export const CREATE_TABLES = `
     END;
 `;
 
-export const SEED_CATEGORIES = `
-  INSERT OR IGNORE INTO categories (name, color) VALUES
-    ('Alimentación', '#EF4444'),
-    ('Transporte',   '#F97316'),
-    ('Vivienda',     '#EAB308'),
-    ('Suministros',  '#22C55E'),
-    ('Ocio',         '#3B82F6'),
-    ('Salud',        '#8B5CF6'),
-    ('Educación',    '#EC4899'),
-    ('Otros',        '#6B7280');
-`;
+export const DEFAULT_CATEGORIES = [
+  { name: 'Alimentación', color: '#EF4444' },
+  { name: 'Transporte', color: '#F97316' },
+  { name: 'Vivienda', color: '#EAB308' },
+  { name: 'Suministros', color: '#22C55E' },
+  { name: 'Ocio', color: '#3B82F6' },
+  { name: 'Salud', color: '#8B5CF6' },
+  { name: 'Educación', color: '#EC4899' },
+  { name: 'Otros', color: '#6B7280' },
+];

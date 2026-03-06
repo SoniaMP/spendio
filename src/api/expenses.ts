@@ -1,4 +1,5 @@
 import type { Expense, ExpenseWithCategory } from '@/types/expense';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const BASE_URL = '/api/expenses';
 
@@ -8,7 +9,7 @@ export async function fetchExpenses(
 ): Promise<ExpenseWithCategory[]> {
   const params = new URLSearchParams({ sheetId: String(sheetId) });
   if (month) params.set('month', month);
-  const res = await fetch(`${BASE_URL}?${params}`);
+  const res = await fetchWithAuth(`${BASE_URL}?${params}`);
   if (!res.ok) throw new Error('Failed to fetch expenses');
   return res.json();
 }
@@ -24,7 +25,7 @@ export interface CreateExpenseInput {
 export async function createExpense(
   body: CreateExpenseInput,
 ): Promise<Expense> {
-  const res = await fetch(BASE_URL, {
+  const res = await fetchWithAuth(BASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -47,7 +48,7 @@ export async function updateExpense(
   id: number,
   body: UpdateExpenseInput,
 ): Promise<Expense> {
-  const res = await fetch(`${BASE_URL}/${id}`, {
+  const res = await fetchWithAuth(`${BASE_URL}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -60,7 +61,7 @@ export async function updateExpense(
 }
 
 export async function deleteExpense(id: number): Promise<void> {
-  const res = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+  const res = await fetchWithAuth(`${BASE_URL}/${id}`, { method: 'DELETE' });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
     throw new Error(data?.error ?? 'Failed to delete expense');

@@ -17,22 +17,18 @@ router.get('/', (req, res) => {
     SELECT e.*, c.name AS category_name, c.color AS category_color
     FROM expenses e
     JOIN categories c ON c.id = e.category_id
+    WHERE e.user_id = ?
   `;
-  const conditions: string[] = [];
-  const params: string[] = [];
+  const params: (string | number)[] = [req.userId];
 
   if (sheetId) {
-    conditions.push('e.sheet_id = ?');
+    sql += ' AND e.sheet_id = ?';
     params.push(sheetId);
   }
 
   if (month) {
-    conditions.push(`e.date LIKE ? || '%'`);
+    sql += ` AND e.date LIKE ? || '%'`;
     params.push(month);
-  }
-
-  if (conditions.length > 0) {
-    sql += ` WHERE ${conditions.join(' AND ')}`;
   }
 
   sql += ' ORDER BY e.date DESC, e.id DESC';
@@ -51,11 +47,13 @@ router.post('/', (req, res, next) => {
     }
 
     const stmt = db.prepare(
-      'INSERT INTO expenses (amount, description, date, category_id, sheet_id) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO expenses (amount, description, date, category_id, sheet_id, user_id) VALUES (?, ?, ?, ?, ?, ?)',
     );
-    const result = stmt.run(amount, description ?? '', date, categoryId, sheetId);
+    const result = stmt.run(amount, description ?? '', date, categoryId, sheetId, req.userId);
 
-    const row = db.prepare('SELECT * FROM expenses WHERE id = ?').get(result.lastInsertRowid) as ExpenseRow;
+    const row = db
+      .prepare('SELECT * FROM expenses WHERE id = ?')
+      .get(result.lastInsertRowid) as ExpenseRow;
     res.status(201).json(row);
   } catch (err) {
     next(err);
@@ -67,20 +65,23 @@ router.put('/:id', (req, res, next) => {
     const { id } = req.params;
     const { amount, description, date, categoryId } = req.body as UpdateExpenseBody;
 
-    const existing = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as ExpenseRow | undefined;
+    const existing = db
+      .prepare('SELECT * FROM expenses WHERE id = ? AND user_id = ?')
+      .get(id, req.userId) as ExpenseRow | undefined;
     if (!existing) {
       res.status(404).json({ error: 'Expense not found' });
       return;
     }
 
     db.prepare(
-      'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ? WHERE id = ?',
+      'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ? WHERE id = ? AND user_id = ?',
     ).run(
       amount ?? existing.amount,
       description ?? existing.description,
       date ?? existing.date,
       categoryId ?? existing.category_id,
       id,
+      req.userId,
     );
 
     const row = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as ExpenseRow;
@@ -93,7 +94,9 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
+    const result = db
+      .prepare('DELETE FROM expenses WHERE id = ? AND user_id = ?')
+      .run(id, req.userId);
 
     if (result.changes === 0) {
       res.status(404).json({ error: 'Expense not found' });

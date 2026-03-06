@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import db from '../db.ts';
+import { hasSheetAccess } from '../helpers/sheetAccess.ts';
 import type {
   ExpenseRow,
   ExpenseWithCategoryRow,
@@ -13,17 +14,24 @@ router.get('/', (req, res) => {
   const month = req.query.month as string | undefined;
   const sheetId = req.query.sheetId as string | undefined;
 
+  if (sheetId && !hasSheetAccess(db, Number(sheetId), req.userId, 'read')) {
+    res.status(403).json({ error: 'Not authorized' });
+    return;
+  }
+
   let sql = `
     SELECT e.*, c.name AS category_name, c.color AS category_color
     FROM expenses e
     JOIN categories c ON c.id = e.category_id
-    WHERE e.user_id = ?
   `;
-  const params: (string | number)[] = [req.userId];
+  const params: (string | number)[] = [];
 
   if (sheetId) {
-    sql += ' AND e.sheet_id = ?';
+    sql += ' WHERE e.sheet_id = ?';
     params.push(sheetId);
+  } else {
+    sql += ' WHERE e.user_id = ?';
+    params.push(req.userId);
   }
 
   if (month) {
@@ -43,6 +51,11 @@ router.post('/', (req, res, next) => {
 
     if (!amount || !date || !categoryId || !sheetId) {
       res.status(400).json({ error: 'amount, date, categoryId, and sheetId are required' });
+      return;
+    }
+
+    if (!hasSheetAccess(db, sheetId, req.userId, 'edit')) {
+      res.status(403).json({ error: 'Not authorized' });
       return;
     }
 
@@ -66,22 +79,21 @@ router.put('/:id', (req, res, next) => {
     const { amount, description, date, categoryId } = req.body as UpdateExpenseBody;
 
     const existing = db
-      .prepare('SELECT * FROM expenses WHERE id = ? AND user_id = ?')
-      .get(id, req.userId) as ExpenseRow | undefined;
-    if (!existing) {
+      .prepare('SELECT * FROM expenses WHERE id = ?')
+      .get(id) as ExpenseRow | undefined;
+    if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
       res.status(404).json({ error: 'Expense not found' });
       return;
     }
 
     db.prepare(
-      'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ? WHERE id = ? AND user_id = ?',
+      'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ? WHERE id = ?',
     ).run(
       amount ?? existing.amount,
       description ?? existing.description,
       date ?? existing.date,
       categoryId ?? existing.category_id,
       id,
-      req.userId,
     );
 
     const row = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as ExpenseRow;
@@ -94,15 +106,16 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = db
-      .prepare('DELETE FROM expenses WHERE id = ? AND user_id = ?')
-      .run(id, req.userId);
 
-    if (result.changes === 0) {
+    const existing = db
+      .prepare('SELECT * FROM expenses WHERE id = ?')
+      .get(id) as ExpenseRow | undefined;
+    if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
       res.status(404).json({ error: 'Expense not found' });
       return;
     }
 
+    db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
     res.json({ success: true });
   } catch (err) {
     next(err);

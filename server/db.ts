@@ -114,6 +114,26 @@ function migrate(database: Database.Database) {
     database.pragma('foreign_keys = ON');
     database.pragma('user_version = 2');
   }
+
+  if (version < 3) {
+    database.exec(`
+      CREATE TABLE IF NOT EXISTS sheet_shares (
+        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+        sheet_id            INTEGER NOT NULL REFERENCES sheets(id) ON DELETE CASCADE,
+        shared_by_user_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        shared_with_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        permission          TEXT    NOT NULL CHECK (permission IN ('read', 'edit')),
+        created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
+        updated_at          TEXT    NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(sheet_id, shared_with_user_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_sheet_shares_shared_with_user_id
+        ON sheet_shares(shared_with_user_id);
+      CREATE INDEX IF NOT EXISTS idx_sheet_shares_sheet_id
+        ON sheet_shares(sheet_id);
+    `);
+    database.pragma('user_version = 3');
+  }
 }
 
 export function seedCategoriesForUser(userId: number) {

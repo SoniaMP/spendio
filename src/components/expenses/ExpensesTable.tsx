@@ -10,8 +10,8 @@ import ExpenseRow from '@/components/expenses/ExpenseRow';
 
 interface ExpensesTableProps {
   expenses: ExpenseWithCategory[];
-  onEdit: (expense: ExpenseWithCategory) => void;
-  onDelete: (expense: ExpenseWithCategory) => void;
+  onEdit?: (expense: ExpenseWithCategory) => void;
+  onDelete?: (expense: ExpenseWithCategory) => void;
 }
 
 export default function ExpensesTable({
@@ -28,7 +28,7 @@ export default function ExpensesTable({
           <TableHead className="hidden sm:table-cell">Descripción</TableHead>
           <TableHead>Categoría</TableHead>
           <TableHead className="text-right">Importe</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
+          {(onEdit || onDelete) && <TableHead className="text-right">Acciones</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -38,6 +38,7 @@ export default function ExpensesTable({
             expense={expense}
             onEdit={onEdit}
             onDelete={onDelete}
+            isReadOnly={!onEdit && !onDelete}
           />
         ))}
       </TableBody>

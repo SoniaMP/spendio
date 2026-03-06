@@ -7,6 +7,8 @@ const mockSheet = {
   id: 1,
   name: 'General',
   position: 0,
+  permission: 'owner' as const,
+  shared_by_name: null,
   created_at: '',
   updated_at: '',
 };
@@ -15,6 +17,7 @@ describe('SheetTabItem', () => {
   const defaultProps = {
     sheet: mockSheet,
     isActive: false,
+    permission: 'owner' as const,
     onSelect: vi.fn(),
     onRename: vi.fn(),
     onDelete: vi.fn(),

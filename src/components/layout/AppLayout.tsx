@@ -6,8 +6,11 @@ import { useSheets } from '@/hooks/useSheets';
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import SheetTabs from '@/components/sheets/SheetTabs';
 
+import type { SheetPermission } from '@/types/sheet';
+
 export interface OutletContext {
   activeSheetId: number;
+  activeSheetPermission: SheetPermission;
 }
 
 export default function AppLayout() {
@@ -40,7 +43,9 @@ export default function AppLayout() {
     });
   }
 
-  const context: OutletContext = { activeSheetId };
+  const activeSheet = sheets?.find((s) => s.id === activeSheetId);
+  const activeSheetPermission: SheetPermission = activeSheet?.permission ?? 'owner';
+  const context: OutletContext = { activeSheetId, activeSheetPermission };
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 lg:px-8">

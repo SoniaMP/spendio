@@ -8,10 +8,12 @@ import {
   useUpdateSheet,
   useDeleteSheet,
 } from '@/hooks/useSheets';
+import { useLeaveSheet } from '@/hooks/useSheetShares';
 import type { Sheet } from '@/types/sheet';
 import SheetTabItem from '@/components/sheets/SheetTabItem';
 import SheetCreateDialog from '@/components/sheets/SheetCreateDialog';
 import SheetDeleteDialog from '@/components/sheets/SheetDeleteDialog';
+import SheetShareDialog from '@/components/sheets/SheetShareDialog';
 
 interface SheetTabsProps {
   activeSheetId: number;
@@ -27,8 +29,11 @@ export default function SheetTabs({
   const updateMutation = useUpdateSheet();
   const deleteMutation = useDeleteSheet();
 
+  const leaveMutation = useLeaveSheet();
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deletingSheet, setDeletingSheet] = useState<Sheet | null>(null);
+  const [sharingSheet, setSharingSheet] = useState<Sheet | null>(null);
 
   function handleCreate(name: string) {
     createMutation.mutate(name, {
@@ -67,6 +72,19 @@ export default function SheetTabs({
     });
   }
 
+  function handleLeave(sheet: Sheet) {
+    leaveMutation.mutate(sheet.id, {
+      onSuccess: () => {
+        toast.success('Has dejado la hoja');
+        if (activeSheetId === sheet.id && sheets) {
+          const remaining = sheets.filter((s) => s.id !== sheet.id);
+          if (remaining.length > 0) onSheetChange(remaining[0].id);
+        }
+      },
+      onError: (err) => toast.error(err.message),
+    });
+  }
+
   if (!sheets) return null;
 
   return (
@@ -77,9 +95,12 @@ export default function SheetTabs({
             key={sheet.id}
             sheet={sheet}
             isActive={sheet.id === activeSheetId}
+            permission={sheet.permission}
             onSelect={() => onSheetChange(sheet.id)}
             onRename={(name) => handleRename(sheet.id, name)}
             onDelete={() => setDeletingSheet(sheet)}
+            onShare={sheet.permission === 'owner' ? () => setSharingSheet(sheet) : undefined}
+            onLeave={sheet.permission !== 'owner' ? () => handleLeave(sheet) : undefined}
           />
         ))}
         <Button
@@ -106,6 +127,14 @@ export default function SheetTabs({
         onClose={() => setDeletingSheet(null)}
         onConfirm={handleDeleteConfirm}
       />
+
+      {sharingSheet && (
+        <SheetShareDialog
+          sheet={sharingSheet}
+          isOpen={!!sharingSheet}
+          onClose={() => setSharingSheet(null)}
+        />
+      )}
     </>
   );
 }

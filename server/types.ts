@@ -75,3 +75,22 @@ export interface UpdateExpenseBody {
   date?: string;
   categoryId?: number;
 }
+
+export interface SheetShareRow {
+  id: number;
+  sheet_id: number;
+  shared_by_user_id: number;
+  shared_with_user_id: number;
+  permission: 'read' | 'edit';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSheetShareBody {
+  email: string;
+  permission: 'read' | 'edit';
+}
+
+export interface UpdateSheetShareBody {
+  permission: 'read' | 'edit';
+}

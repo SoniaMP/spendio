@@ -20,7 +20,8 @@ import MonthlySummary from '@/components/expenses/MonthlySummary';
 import CategoryFilter from '@/components/expenses/CategoryFilter';
 
 export default function ExpensesPage() {
-  const { activeSheetId } = useOutletContext<OutletContext>();
+  const { activeSheetId, activeSheetPermission } = useOutletContext<OutletContext>();
+  const isReadOnly = activeSheetPermission === 'read';
 
   const {
     year,
@@ -114,13 +115,15 @@ export default function ExpensesPage() {
         <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
           <Receipt className="h-10 w-10" />
           <p>No hay gastos en este mes.</p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsFormOpen(true)}
-          >
-            <Plus /> Añadir gasto
-          </Button>
+          {!isReadOnly && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFormOpen(true)}
+            >
+              <Plus /> Añadir gasto
+            </Button>
+          )}
         </div>
       );
     }
@@ -128,8 +131,8 @@ export default function ExpensesPage() {
     return (
       <ExpensesTable
         expenses={filteredExpenses}
-        onEdit={handleEdit}
-        onDelete={setDeletingExpense}
+        onEdit={isReadOnly ? undefined : handleEdit}
+        onDelete={isReadOnly ? undefined : setDeletingExpense}
       />
     );
   }
@@ -148,9 +151,11 @@ export default function ExpensesPage() {
             onChange={handleFilterChange}
           />
           <ExportButton expenses={expenses ?? []} monthLabel={monthLabel} />
-          <Button size="sm" onClick={() => setIsFormOpen(true)}>
-            <Plus /> <span className="hidden sm:inline">Nuevo gasto</span>
-          </Button>
+          {!isReadOnly && (
+            <Button size="sm" onClick={() => setIsFormOpen(true)}>
+              <Plus /> <span className="hidden sm:inline">Nuevo gasto</span>
+            </Button>
+          )}
         </div>
       </div>
 

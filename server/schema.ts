@@ -53,6 +53,22 @@ export const CREATE_TABLES = `
   CREATE INDEX IF NOT EXISTS idx_expenses_user_id
     ON expenses(user_id);
 
+  CREATE TABLE IF NOT EXISTS sheet_shares (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    sheet_id            INTEGER NOT NULL REFERENCES sheets(id) ON DELETE CASCADE,
+    shared_by_user_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    shared_with_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    permission          TEXT    NOT NULL CHECK (permission IN ('read', 'edit')),
+    created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at          TEXT    NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(sheet_id, shared_with_user_id)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_sheet_shares_shared_with_user_id
+    ON sheet_shares(shared_with_user_id);
+  CREATE INDEX IF NOT EXISTS idx_sheet_shares_sheet_id
+    ON sheet_shares(sheet_id);
+
   CREATE TRIGGER IF NOT EXISTS categories_updated_at
     AFTER UPDATE ON categories
     FOR EACH ROW
@@ -72,6 +88,13 @@ export const CREATE_TABLES = `
     FOR EACH ROW
     BEGIN
       UPDATE expenses SET updated_at = datetime('now') WHERE id = NEW.id;
+    END;
+
+  CREATE TRIGGER IF NOT EXISTS sheet_shares_updated_at
+    AFTER UPDATE ON sheet_shares
+    FOR EACH ROW
+    BEGIN
+      UPDATE sheet_shares SET updated_at = datetime('now') WHERE id = NEW.id;
     END;
 `;
 

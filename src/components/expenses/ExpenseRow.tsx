@@ -7,14 +7,16 @@ import { formatDate } from '@/helpers/formatDate';
 
 interface ExpenseRowProps {
   expense: ExpenseWithCategory;
-  onEdit: (expense: ExpenseWithCategory) => void;
-  onDelete: (expense: ExpenseWithCategory) => void;
+  onEdit?: (expense: ExpenseWithCategory) => void;
+  onDelete?: (expense: ExpenseWithCategory) => void;
+  isReadOnly?: boolean;
 }
 
 export default function ExpenseRow({
   expense,
   onEdit,
   onDelete,
+  isReadOnly,
 }: ExpenseRowProps) {
   return (
     <TableRow>
@@ -34,26 +36,32 @@ export default function ExpenseRow({
       <TableCell className="text-right font-medium">
         {formatCurrency(expense.amount)}
       </TableCell>
-      <TableCell className="text-right">
-        <div className="flex justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => onEdit(expense)}
-            aria-label="Editar gasto"
-          >
-            <Pencil />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => onDelete(expense)}
-            aria-label="Eliminar gasto"
-          >
-            <Trash2 />
-          </Button>
-        </div>
-      </TableCell>
+      {!isReadOnly && (
+        <TableCell className="text-right">
+          <div className="flex justify-end gap-1">
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => onEdit(expense)}
+                aria-label="Editar gasto"
+              >
+                <Pencil />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => onDelete(expense)}
+                aria-label="Eliminar gasto"
+              >
+                <Trash2 />
+              </Button>
+            )}
+          </div>
+        </TableCell>
+      )}
     </TableRow>
   );
 }

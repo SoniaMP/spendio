@@ -9,6 +9,7 @@ const mockSheet = {
   position: 0,
   permission: 'owner' as const,
   shared_by_name: null,
+  has_shares: 0,
   created_at: '',
   updated_at: '',
 };

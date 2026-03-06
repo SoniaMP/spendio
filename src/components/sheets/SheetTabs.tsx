@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import {
   useCreateSheet,
   useUpdateSheet,
   useDeleteSheet,
+  useReorderSheets,
 } from '@/hooks/useSheets';
 import { useLeaveSheet } from '@/hooks/useSheetShares';
 import type { Sheet } from '@/types/sheet';
@@ -28,12 +29,52 @@ export default function SheetTabs({
   const createMutation = useCreateSheet();
   const updateMutation = useUpdateSheet();
   const deleteMutation = useDeleteSheet();
+  const reorderMutation = useReorderSheets();
 
   const leaveMutation = useLeaveSheet();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deletingSheet, setDeletingSheet] = useState<Sheet | null>(null);
   const [sharingSheet, setSharingSheet] = useState<Sheet | null>(null);
+
+  const dragItemId = useRef<number | null>(null);
+  const dragOverId = useRef<number | null>(null);
+
+  const handleDragStart = useCallback((sheetId: number) => {
+    dragItemId.current = sheetId;
+  }, []);
+
+  const handleDragOver = useCallback((sheetId: number) => {
+    dragOverId.current = sheetId;
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    if (
+      dragItemId.current === null ||
+      dragOverId.current === null ||
+      dragItemId.current === dragOverId.current ||
+      !sheets
+    ) {
+      dragItemId.current = null;
+      dragOverId.current = null;
+      return;
+    }
+
+    const ids = sheets.map((s) => s.id);
+    const fromIdx = ids.indexOf(dragItemId.current);
+    const toIdx = ids.indexOf(dragOverId.current);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    ids.splice(fromIdx, 1);
+    ids.splice(toIdx, 0, dragItemId.current);
+
+    reorderMutation.mutate(ids, {
+      onError: (err) => toast.error(err.message),
+    });
+
+    dragItemId.current = null;
+    dragOverId.current = null;
+  }, [sheets, reorderMutation]);
 
   function handleCreate(name: string) {
     createMutation.mutate(name, {
@@ -101,6 +142,9 @@ export default function SheetTabs({
             onDelete={() => setDeletingSheet(sheet)}
             onShare={sheet.permission === 'owner' ? () => setSharingSheet(sheet) : undefined}
             onLeave={sheet.permission !== 'owner' ? () => handleLeave(sheet) : undefined}
+            onDragStart={() => handleDragStart(sheet.id)}
+            onDragOver={() => handleDragOver(sheet.id)}
+            onDragEnd={handleDragEnd}
           />
         ))}
         <Button

@@ -49,6 +49,32 @@ router.post('/', (req, res, next) => {
   }
 });
 
+router.put('/reorder', (req, res, next) => {
+  try {
+    const { orderedIds } = req.body as { orderedIds: number[] };
+
+    if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+      res.status(400).json({ error: 'orderedIds is required' });
+      return;
+    }
+
+    const updateStmt = db.prepare(
+      'UPDATE sheets SET position = ? WHERE id = ? AND user_id = ?',
+    );
+
+    const runAll = db.transaction(() => {
+      for (let i = 0; i < orderedIds.length; i++) {
+        updateStmt.run(i, orderedIds[i], req.userId);
+      }
+    });
+    runAll();
+
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.put('/:id', (req, res, next) => {
   try {
     const { id } = req.params;

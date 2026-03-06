@@ -19,6 +19,9 @@ interface SheetTabItemProps {
   onDelete: () => void;
   onShare?: () => void;
   onLeave?: () => void;
+  onDragStart?: () => void;
+  onDragOver?: () => void;
+  onDragEnd?: () => void;
 }
 
 export default function SheetTabItem({
@@ -30,6 +33,9 @@ export default function SheetTabItem({
   onDelete,
   onShare,
   onLeave,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
 }: SheetTabItemProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(sheet.name);
@@ -69,7 +75,19 @@ export default function SheetTabItem({
   }
 
   return (
-    <div className="group flex items-center gap-0.5">
+    <div
+      className="group flex items-center gap-0.5"
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move';
+        onDragStart?.();
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        onDragOver?.();
+      }}
+      onDragEnd={() => onDragEnd?.()}
+    >
       <button
         onClick={onSelect}
         className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium transition-colors ${

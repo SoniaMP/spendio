@@ -38,6 +38,18 @@ export async function updateSheet(
   return res.json();
 }
 
+export async function reorderSheets(orderedIds: number[]): Promise<void> {
+  const res = await fetchWithAuth(`${BASE_URL}/reorder`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderedIds }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'Failed to reorder sheets');
+  }
+}
+
 export async function deleteSheet(id: number): Promise<void> {
   const res = await fetchWithAuth(`${BASE_URL}/${id}`, { method: 'DELETE' });
   if (!res.ok) {

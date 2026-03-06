@@ -34,6 +34,7 @@ export function useCreateSheetShare(sheetId: number) {
     onSuccess: (data) => {
       if (!data.needsConfirmation) {
         queryClient.invalidateQueries({ queryKey: sharesKey(sheetId) });
+        queryClient.invalidateQueries({ queryKey: ['sheets'] });
       }
     },
   });

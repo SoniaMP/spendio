@@ -13,12 +13,23 @@ const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
+const LATEST_VERSION = 3;
+
 migrate(db);
 
 db.exec(CREATE_TABLES);
 
 function migrate(database: Database.Database) {
   const version = database.pragma('user_version', { simple: true }) as number;
+
+  const isFreshDb = !database
+    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='expenses'")
+    .get();
+
+  if (isFreshDb) {
+    database.pragma(`user_version = ${LATEST_VERSION}`);
+    return;
+  }
 
   if (version < 1) {
     database.pragma('foreign_keys = OFF');

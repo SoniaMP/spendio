@@ -41,6 +41,6 @@ describe('LoginPage', () => {
 
   it('renders sign-in description', () => {
     renderLoginPage();
-    expect(screen.getByText('Sign in to manage your expenses')).toBeInTheDocument();
+    expect(screen.getByText('Controla tus gastos, visualiza tu dinero')).toBeInTheDocument();
   });
 });

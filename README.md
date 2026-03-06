@@ -42,6 +42,22 @@ cd spendio
 npm install
 ```
 
+### Environment Variables
+
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_GOOGLE_CLIENT_ID` | Yes | Google OAuth client ID for authentication |
+| `SESSION_SECRET` | Yes | Secret used to sign session cookies (change in production) |
+| `VITE_AUTH_BYPASS` | No | Set to `true` to enable the Dev Login button (skips Google auth) |
+
+The `.env` file is loaded automatically by the `dev:server` script via `--env-file`.
+
 ### Running Locally
 
 Start both the client (Vite dev server) and the API server concurrently:
@@ -57,13 +73,7 @@ The SQLite database is created automatically in the `data/` directory on first r
 
 ### Dev Login (bypass Google auth)
 
-To skip Google sign-in during development, create a `.env.development` file in the project root:
-
-```bash
-VITE_AUTH_BYPASS=true
-```
-
-When active, the login page shows a **Dev Login** button that authenticates as a local dev user without needing Google credentials. Remove the file or set the value to `false` to restore the normal Google login flow.
+When `VITE_AUTH_BYPASS=true` is set in `.env`, the login page shows a **Dev Login** button that authenticates as a local dev user without needing Google credentials. Remove the variable or set it to `false` to restore the normal Google login flow.
 
 ### Other Commands
 

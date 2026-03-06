@@ -20,6 +20,18 @@ export async function loginWithGoogle(credential: string): Promise<User> {
   return res.json();
 }
 
+export async function devLogin(): Promise<User> {
+  const res = await fetch('/api/auth/dev-login', {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'Dev login failed');
+  }
+  return res.json();
+}
+
 export async function logout(): Promise<void> {
   await fetch('/api/auth/logout', {
     method: 'POST',

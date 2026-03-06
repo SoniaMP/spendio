@@ -86,6 +86,39 @@ router.post('/google', async (req, res, next) => {
   }
 });
 
+router.post('/dev-login', (req, res) => {
+  if (process.env.VITE_AUTH_BYPASS !== 'true') {
+    res.status(404).json({ error: 'Not found' });
+    return;
+  }
+
+  const devGoogleId = '__dev_user__';
+  let user = db
+    .prepare('SELECT * FROM users WHERE google_id = ?')
+    .get(devGoogleId) as UserRow | undefined;
+
+  if (!user) {
+    const result = db
+      .prepare('INSERT INTO users (google_id, email, name, picture) VALUES (?, ?, ?, ?)')
+      .run(devGoogleId, 'dev@spendio.local', 'Dev User', '');
+    user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid) as UserRow;
+    seedCategoriesForUser(user.id);
+    db.prepare('INSERT INTO sheets (name, position, user_id) VALUES (?, ?, ?)').run(
+      'General',
+      0,
+      user.id,
+    );
+  }
+
+  req.session.userId = user.id;
+  res.json({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    picture: user.picture,
+  });
+});
+
 router.get('/me', (req, res) => {
   if (!req.session.userId) {
     res.status(401).json({ error: 'Not authenticated' });

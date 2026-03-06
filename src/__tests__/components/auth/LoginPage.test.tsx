@@ -10,6 +10,11 @@ vi.mock('@/hooks/useAuth', () => ({
     mutate: vi.fn(),
     isError: false,
   }),
+  useDevLogin: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+  }),
 }));
 
 function renderLoginPage() {

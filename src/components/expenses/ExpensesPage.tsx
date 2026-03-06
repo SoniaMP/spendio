@@ -3,8 +3,8 @@ import { Plus, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
+import { useCategoryComparison } from '@/hooks/useCategoryComparison';
 import { calcMonthTotal } from '@/helpers/calcMonthTotal';
-import { calcMonthComparison } from '@/helpers/calcMonthComparison';
 import { groupExpensesByCategory } from '@/helpers/groupExpensesByCategory';
 import type { ExpenseWithCategory } from '@/types/expense';
 import MonthPicker from '@/components/layout/MonthPicker';
@@ -14,15 +14,16 @@ import ExpenseFormDialog from '@/components/expenses/ExpenseFormDialog';
 import ExpenseDeleteDialog from '@/components/expenses/ExpenseDeleteDialog';
 import ExportButton from '@/components/expenses/ExportButton';
 import ExpenseChart from '@/components/expenses/ExpenseChart';
-import SummaryStrip from '@/components/expenses/SummaryStrip';
+import MonthlySummary from '@/components/expenses/MonthlySummary';
 import CategoryFilter from '@/components/expenses/CategoryFilter';
 
 export default function ExpensesPage() {
   const {
+    year,
+    month,
     monthKey,
     monthLabel,
     previousMonthKey,
-    previousMonthLabel,
     goToPreviousMonth,
     goToNextMonth,
   } = useMonthFilter();
@@ -30,6 +31,21 @@ export default function ExpensesPage() {
   const { data: expenses, isLoading, isError } = useExpenses(monthKey);
   const { data: previousExpenses, isLoading: isPreviousLoading } =
     useExpenses(previousMonthKey);
+
+  const {
+    comparisonMonthKey,
+    comparisonBreakdown,
+    comparisonMonthOptions,
+    isComparisonLoading: isComparisonBreakdownLoading,
+    handleComparisonMonthChange,
+  } = useCategoryComparison({
+    year,
+    month,
+    monthKey,
+    previousMonthKey,
+    previousExpenses,
+    isPreviousLoading,
+  });
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<
@@ -52,14 +68,6 @@ export default function ExpensesPage() {
   const currentTotal = useMemo(
     () => calcMonthTotal(expenses ?? []),
     [expenses],
-  );
-  const previousTotal = useMemo(
-    () => calcMonthTotal(previousExpenses ?? []),
-    [previousExpenses],
-  );
-  const comparison = useMemo(
-    () => calcMonthComparison(currentTotal, previousTotal),
-    [currentTotal, previousTotal],
   );
   const categoryBreakdown = useMemo(
     () => groupExpensesByCategory(expenses ?? []),
@@ -141,21 +149,20 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      {expenses && expenses.length > 0 && (
-        <SummaryStrip
-          currentTotal={currentTotal}
-          comparison={comparison}
-          previousMonthLabel={previousMonthLabel}
-          isComparisonLoading={isPreviousLoading}
-          topCategories={categoryBreakdown.slice(0, 3)}
-        />
-      )}
-
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr,320px] xl:grid-cols-[1fr,380px]">
         <div className="order-2 lg:order-1">{renderContent()}</div>
         {expenses && expenses.length > 0 && (
-          <div className="order-1 lg:order-2">
+          <div className="order-1 flex flex-col gap-4 lg:order-2">
             <ExpenseChart expenses={filteredExpenses} />
+            <MonthlySummary
+              currentTotal={currentTotal}
+              currentBreakdown={categoryBreakdown}
+              comparisonBreakdown={comparisonBreakdown}
+              comparisonMonthKey={comparisonMonthKey}
+              monthOptions={comparisonMonthOptions}
+              isComparisonLoading={isComparisonBreakdownLoading}
+              onComparisonMonthChange={handleComparisonMonthChange}
+            />
           </div>
         )}
       </div>

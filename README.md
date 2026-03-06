@@ -1,4 +1,4 @@
-# Personal Finances
+# Spendio
 
 A full-stack web application to track personal expenses. Organize spending into categories and sheets, visualize monthly breakdowns with charts, compare spending across months, and export data to Excel.
 
@@ -38,7 +38,7 @@ A full-stack web application to track personal expenses. Organize spending into 
 
 ```bash
 git clone <repo-url>
-cd personal-finances
+cd spendio
 npm install
 ```
 

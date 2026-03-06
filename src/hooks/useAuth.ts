@@ -23,7 +23,7 @@ export function useLogin() {
 export function useDevLogin() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: devLogin,
+    mutationFn: (devUser: 'dev1' | 'dev2') => devLogin(devUser),
     onSuccess: (user) => {
       queryClient.setQueryData(['auth'], user);
     },

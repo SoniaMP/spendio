@@ -6,6 +6,7 @@ export interface Sheet {
   position: number;
   permission: SheetPermission;
   shared_by_name: string | null;
+  has_shares: number;
   created_at: string;
   updated_at: string;
 }

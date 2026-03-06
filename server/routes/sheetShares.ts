@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
 router.post('/', (req, res, next) => {
   try {
     const sheetId = Number(req.params.id);
-    const { email, permission } = req.body as CreateSheetShareBody;
+    const { email, permission, confirm } = req.body as CreateSheetShareBody;
 
     if (!email?.trim() || !['read', 'edit'].includes(permission)) {
       res.status(400).json({ error: 'Valid email and permission (read|edit) are required' });
@@ -51,12 +51,25 @@ router.post('/', (req, res, next) => {
       return;
     }
 
-    const targetUser = db
+    let targetUser = db
       .prepare('SELECT * FROM users WHERE email = ?')
       .get(email.trim()) as UserRow | undefined;
+
     if (!targetUser) {
-      res.status(404).json({ error: 'User not found' });
-      return;
+      if (!confirm) {
+        res.json({ needsConfirmation: true, email: email.trim() });
+        return;
+      }
+
+      const trimmedEmail = email.trim();
+      const invitedGoogleId = `__invited_${trimmedEmail}__`;
+      const emailName = trimmedEmail.split('@')[0];
+      const result = db
+        .prepare('INSERT INTO users (google_id, email, name, picture) VALUES (?, ?, ?, ?)')
+        .run(invitedGoogleId, trimmedEmail, emailName, '');
+      targetUser = db
+        .prepare('SELECT * FROM users WHERE id = ?')
+        .get(result.lastInsertRowid) as UserRow;
     }
 
     if (targetUser.id === req.userId) {

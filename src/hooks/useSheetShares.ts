@@ -22,9 +22,20 @@ export function useSheetShares(sheetId: number) {
 export function useCreateSheetShare(sheetId: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ email, permission }: { email: string; permission: 'read' | 'edit' }) =>
-      createSheetShare(sheetId, email, permission),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: sharesKey(sheetId) }),
+    mutationFn: ({
+      email,
+      permission,
+      confirm,
+    }: {
+      email: string;
+      permission: 'read' | 'edit';
+      confirm?: boolean;
+    }) => createSheetShare(sheetId, email, permission, confirm),
+    onSuccess: (data) => {
+      if (!data.needsConfirmation) {
+        queryClient.invalidateQueries({ queryKey: sharesKey(sheetId) });
+      }
+    },
   });
 }
 

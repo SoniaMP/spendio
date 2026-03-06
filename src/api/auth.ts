@@ -20,10 +20,12 @@ export async function loginWithGoogle(credential: string): Promise<User> {
   return res.json();
 }
 
-export async function devLogin(): Promise<User> {
+export async function devLogin(devUser: 'dev1' | 'dev2' = 'dev1'): Promise<User> {
   const res = await fetch('/api/auth/dev-login', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
+    body: JSON.stringify({ devUser }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => null);

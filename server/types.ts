@@ -89,6 +89,7 @@ export interface SheetShareRow {
 export interface CreateSheetShareBody {
   email: string;
   permission: 'read' | 'edit';
+  confirm?: boolean;
 }
 
 export interface UpdateSheetShareBody {

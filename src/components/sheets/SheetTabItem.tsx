@@ -78,7 +78,7 @@ export default function SheetTabItem({
             : 'text-muted-foreground hover:text-foreground'
         }`}
       >
-        {permission !== 'owner' && <Users className="h-3 w-3" />}
+        {(permission !== 'owner' || sheet.has_shares > 0) && <Users className="h-3 w-3" />}
         {sheet.name}
       </button>
       <DropdownMenu>

@@ -8,10 +8,11 @@ const router = Router();
 router.get('/', (req, res) => {
   const rows = db
     .prepare(
-      `SELECT s.*, 'owner' AS permission, NULL AS shared_by_name
+      `SELECT s.*, 'owner' AS permission, NULL AS shared_by_name,
+              EXISTS(SELECT 1 FROM sheet_shares WHERE sheet_id = s.id) AS has_shares
        FROM sheets s WHERE s.user_id = ?
        UNION ALL
-       SELECT s.*, ss.permission, u.name AS shared_by_name
+       SELECT s.*, ss.permission, u.name AS shared_by_name, 0 AS has_shares
        FROM sheet_shares ss
        JOIN sheets s ON s.id = ss.sheet_id
        JOIN users u ON u.id = ss.shared_by_user_id

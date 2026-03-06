@@ -24,8 +24,8 @@ export default function LoginPage() {
   const login = useLogin();
   const devLoginMutation = useDevLogin();
 
-  const handleDevLogin = () => {
-    devLoginMutation.mutate(undefined, {
+  const handleDevLogin = (devUser: 'dev1' | 'dev2') => {
+    devLoginMutation.mutate(devUser, {
       onSuccess: () => navigate('/expenses'),
     });
   };
@@ -56,13 +56,23 @@ export default function LoginPage() {
 
           <div className="flex justify-center">
             {isAuthBypassed ? (
-              <Button
-                className="w-full"
-                onClick={handleDevLogin}
-                disabled={devLoginMutation.isPending}
-              >
-                {devLoginMutation.isPending ? 'Entrando...' : 'Entrar como Dev'}
-              </Button>
+              <div className="flex w-full gap-2">
+                <Button
+                  className="flex-1"
+                  onClick={() => handleDevLogin('dev1')}
+                  disabled={devLoginMutation.isPending}
+                >
+                  {devLoginMutation.isPending ? 'Entrando...' : 'Dev 1'}
+                </Button>
+                <Button
+                  className="flex-1"
+                  variant="secondary"
+                  onClick={() => handleDevLogin('dev2')}
+                  disabled={devLoginMutation.isPending}
+                >
+                  {devLoginMutation.isPending ? 'Entrando...' : 'Dev 2'}
+                </Button>
+              </div>
             ) : (
               <GoogleLogin
                 onSuccess={(response) => {

@@ -39,15 +39,15 @@ router.post('/google', async (req, res, next) => {
       .get(googleId) as UserRow | undefined;
 
     if (!user) {
-      const placeholder = db
-        .prepare('SELECT * FROM users WHERE google_id = ?')
-        .get('__placeholder__') as UserRow | undefined;
+      const invited = db
+        .prepare("SELECT * FROM users WHERE email = ? AND google_id LIKE '__invited_%'")
+        .get(email) as UserRow | undefined;
 
-      if (placeholder) {
+      if (invited) {
         db.prepare(
-          'UPDATE users SET google_id = ?, email = ?, name = ?, picture = ?, updated_at = datetime(\'now\') WHERE id = ?',
-        ).run(googleId, email, name ?? '', picture ?? '', placeholder.id);
-        user = db.prepare('SELECT * FROM users WHERE id = ?').get(placeholder.id) as UserRow;
+          'UPDATE users SET google_id = ?, name = ?, picture = ?, updated_at = datetime(\'now\') WHERE id = ?',
+        ).run(googleId, name ?? '', picture ?? '', invited.id);
+        user = db.prepare('SELECT * FROM users WHERE id = ?').get(invited.id) as UserRow;
       } else {
         const result = db
           .prepare('INSERT INTO users (google_id, email, name, picture) VALUES (?, ?, ?, ?)')
@@ -86,28 +86,56 @@ router.post('/google', async (req, res, next) => {
   }
 });
 
+const DEV_USERS = {
+  dev1: { googleId: '__dev_user_1__', email: 'dev1@spendio.local', name: 'Dev 1' },
+  dev2: { googleId: '__dev_user_2__', email: 'dev2@spendio.local', name: 'Dev 2' },
+} as const;
+
 router.post('/dev-login', (req, res) => {
   if (process.env.VITE_AUTH_BYPASS !== 'true') {
     res.status(404).json({ error: 'Not found' });
     return;
   }
 
-  const devGoogleId = '__dev_user__';
+  const devUser = (req.body as { devUser?: string })?.devUser === 'dev2' ? 'dev2' : 'dev1';
+  const config = DEV_USERS[devUser];
+
+  // Migrate old __dev_user__ to __dev_user_1__
+  const oldDev = db
+    .prepare('SELECT * FROM users WHERE google_id = ?')
+    .get('__dev_user__') as UserRow | undefined;
+  if (oldDev) {
+    db.prepare(
+      "UPDATE users SET google_id = ?, email = ?, name = ?, updated_at = datetime('now') WHERE id = ?",
+    ).run(DEV_USERS.dev1.googleId, DEV_USERS.dev1.email, DEV_USERS.dev1.name, oldDev.id);
+  }
+
   let user = db
     .prepare('SELECT * FROM users WHERE google_id = ?')
-    .get(devGoogleId) as UserRow | undefined;
+    .get(config.googleId) as UserRow | undefined;
 
   if (!user) {
-    const result = db
-      .prepare('INSERT INTO users (google_id, email, name, picture) VALUES (?, ?, ?, ?)')
-      .run(devGoogleId, 'dev@spendio.local', 'Dev User', '');
-    user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid) as UserRow;
-    seedCategoriesForUser(user.id);
-    db.prepare('INSERT INTO sheets (name, position, user_id) VALUES (?, ?, ?)').run(
-      'General',
-      0,
-      user.id,
-    );
+    const existingByEmail = db
+      .prepare('SELECT * FROM users WHERE email = ?')
+      .get(config.email) as UserRow | undefined;
+
+    if (existingByEmail) {
+      db.prepare(
+        "UPDATE users SET google_id = ?, name = ?, updated_at = datetime('now') WHERE id = ?",
+      ).run(config.googleId, config.name, existingByEmail.id);
+      user = db.prepare('SELECT * FROM users WHERE id = ?').get(existingByEmail.id) as UserRow;
+    } else {
+      const result = db
+        .prepare('INSERT INTO users (google_id, email, name, picture) VALUES (?, ?, ?, ?)')
+        .run(config.googleId, config.email, config.name, '');
+      user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid) as UserRow;
+      seedCategoriesForUser(user.id);
+      db.prepare('INSERT INTO sheets (name, position, user_id) VALUES (?, ?, ?)').run(
+        'General',
+        0,
+        user.id,
+      );
+    }
   }
 
   req.session.userId = user.id;

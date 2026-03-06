@@ -11,20 +11,28 @@ export async function fetchSheetShares(sheetId: number): Promise<SheetShare[]> {
   return res.json();
 }
 
+interface CreateSheetShareResult {
+  needsConfirmation?: boolean;
+  email?: string;
+  success?: boolean;
+}
+
 export async function createSheetShare(
   sheetId: number,
   email: string,
   permission: 'read' | 'edit',
-): Promise<void> {
+  confirm?: boolean,
+): Promise<CreateSheetShareResult> {
   const res = await fetchWithAuth(baseUrl(sheetId), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, permission }),
+    body: JSON.stringify({ email, permission, confirm }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
     throw new Error(data?.error ?? 'Failed to share sheet');
   }
+  return res.json();
 }
 
 export async function updateSheetShare(

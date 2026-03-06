@@ -43,4 +43,10 @@ describe('LoginPage', () => {
     renderLoginPage();
     expect(screen.getByText('Controla tus gastos, visualiza tu dinero')).toBeInTheDocument();
   });
+
+  it('renders two dev login buttons when auth is bypassed', () => {
+    renderLoginPage();
+    expect(screen.getByRole('button', { name: 'Dev 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Dev 2' })).toBeInTheDocument();
+  });
 });

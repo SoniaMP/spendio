@@ -39,15 +39,24 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
   const updateMutation = useUpdateSheetShare(sheet.id);
   const deleteMutation = useDeleteSheetShare(sheet.id);
 
-  function handleSubmit(e: React.FormEvent) {
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+
+  function handleSubmit(e: React.FormEvent, confirm?: boolean) {
     e.preventDefault();
-    if (!email.trim()) return;
+    const targetEmail = confirm ? pendingEmail : email.trim();
+    if (!targetEmail) return;
+
     createMutation.mutate(
-      { email: email.trim(), permission },
+      { email: targetEmail, permission, confirm },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          if (data.needsConfirmation) {
+            setPendingEmail(data.email ?? targetEmail);
+            return;
+          }
           toast.success('Hoja compartida');
           setEmail('');
+          setPendingEmail(null);
         },
         onError: (err) => toast.error(err.message),
       },
@@ -61,7 +70,7 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
           <DialogTitle>Compartir &quot;{sheet.name}&quot;</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={(e) => handleSubmit(e)} className="flex gap-2">
           <Input
             type="email"
             placeholder="Email del usuario"
@@ -82,6 +91,26 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
             Compartir
           </Button>
         </form>
+
+        {pendingEmail && (
+          <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm dark:border-yellow-700 dark:bg-yellow-950">
+            <p className="text-yellow-800 dark:text-yellow-200">
+              <strong>{pendingEmail}</strong> no tiene cuenta. Se le compartira cuando se registre.
+            </p>
+            <div className="mt-2 flex gap-2">
+              <Button
+                size="sm"
+                onClick={(e) => handleSubmit(e as unknown as React.FormEvent, true)}
+                disabled={createMutation.isPending}
+              >
+                Confirmar
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setPendingEmail(null)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
 
         {shares && shares.length > 0 && (
           <ShareList

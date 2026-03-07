@@ -1,14 +1,21 @@
-import { useState, useRef, useEffect } from 'react';
-import { MoreHorizontal, Pencil, Trash2, Users, LogOut, Share2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useRef, useEffect } from "react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Users,
+  LogOut,
+  Share2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import type { Sheet, SheetPermission } from '@/types/sheet';
+} from "@/components/ui/dropdown-menu";
+import type { Sheet, SheetPermission } from "@/types/sheet";
 
 interface SheetTabItemProps {
   sheet: Sheet;
@@ -54,8 +61,8 @@ export default function SheetTabItem({
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter') handleRenameSubmit();
-    if (e.key === 'Escape') {
+    if (e.key === "Enter") handleRenameSubmit();
+    if (e.key === "Escape") {
       setRenameValue(sheet.name);
       setIsRenaming(false);
     }
@@ -79,7 +86,7 @@ export default function SheetTabItem({
       className="group flex items-center gap-0.5"
       draggable
       onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.effectAllowed = "move";
         onDragStart?.();
       }}
       onDragOver={(e) => {
@@ -92,62 +99,60 @@ export default function SheetTabItem({
         onClick={onSelect}
         className={`flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium transition-colors ${
           isActive
-            ? 'bg-background text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
         }`}
       >
-        {(permission !== 'owner' || sheet.has_shares > 0) && <Users className="h-3 w-3" />}
+        {(permission !== "owner" || sheet.has_shares > 0) && (
+          <Users className="h-3 w-3 mr-1" />
+        )}
         {sheet.name}
-      </button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100"
-          >
-            <MoreHorizontal className="h-3 w-3" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {permission !== 'read' && (
-            <DropdownMenuItem
-              onClick={() => {
-                setRenameValue(sheet.name);
-                setIsRenaming(true);
-              }}
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Renombrar
-            </DropdownMenuItem>
-          )}
-          {permission === 'owner' && onShare && (
-            <DropdownMenuItem onClick={onShare}>
-              <Share2 className="mr-2 h-4 w-4" />
-              Compartir
-            </DropdownMenuItem>
-          )}
-          {permission === 'owner' ? (
-            <DropdownMenuItem
-              onClick={onDelete}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Eliminar
-            </DropdownMenuItem>
-          ) : (
-            onLeave && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-6 w-auto">
+              <MoreHorizontal className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {permission !== "read" && (
               <DropdownMenuItem
-                onClick={onLeave}
+                onClick={() => {
+                  setRenameValue(sheet.name);
+                  setIsRenaming(true);
+                }}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Renombrar
+              </DropdownMenuItem>
+            )}
+            {permission === "owner" && onShare && (
+              <DropdownMenuItem onClick={onShare}>
+                <Share2 className="mr-2 h-4 w-4" />
+                Compartir
+              </DropdownMenuItem>
+            )}
+            {permission === "owner" ? (
+              <DropdownMenuItem
+                onClick={onDelete}
                 className="text-destructive focus:text-destructive"
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Dejar hoja
+                <Trash2 className="mr-2 h-4 w-4" />
+                Eliminar
               </DropdownMenuItem>
-            )
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            ) : (
+              onLeave && (
+                <DropdownMenuItem
+                  onClick={onLeave}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Dejar hoja
+                </DropdownMenuItem>
+              )
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </button>
     </div>
   );
 }

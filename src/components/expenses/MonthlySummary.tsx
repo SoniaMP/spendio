@@ -1,20 +1,20 @@
-import { useMemo } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { formatCurrency } from '@/helpers/formatCurrency';
-import { calcMonthComparison } from '@/helpers/calcMonthComparison';
-import { calcCategoryComparison } from '@/helpers/calcCategoryComparison';
-import type { CategoryBreakdown } from '@/types/chartData';
-import type { MonthOption } from '@/helpers/getComparisonMonths';
-import MonthTotal from '@/components/expenses/MonthTotal';
-import MonthComparisonBadge from '@/components/expenses/MonthComparisonBadge';
+} from "@/components/ui/select";
+import { formatCurrency } from "@/helpers/formatCurrency";
+import { calcMonthComparison } from "@/helpers/calcMonthComparison";
+import { calcCategoryComparison } from "@/helpers/calcCategoryComparison";
+import type { CategoryBreakdown } from "@/types/chartData";
+import type { MonthOption } from "@/helpers/getComparisonMonths";
+import MonthTotal from "@/components/expenses/MonthTotal";
+import MonthComparisonBadge from "@/components/expenses/MonthComparisonBadge";
 
 interface MonthlySummaryProps {
   currentTotal: number;
@@ -46,7 +46,7 @@ export default function MonthlySummary({
   );
 
   const comparisonLabel = useMemo(
-    () => monthOptions.find((o) => o.key === comparisonMonthKey)?.label ?? '',
+    () => monthOptions.find((o) => o.key === comparisonMonthKey)?.label ?? "",
     [monthOptions, comparisonMonthKey],
   );
 
@@ -58,6 +58,7 @@ export default function MonthlySummary({
   return (
     <Card>
       <CardHeader>
+        <CardTitle>Comparativa por categoría</CardTitle>
         <div className="flex flex-wrap items-center gap-3">
           <MonthTotal total={currentTotal} />
           <MonthComparisonBadge
@@ -69,38 +70,37 @@ export default function MonthlySummary({
       </CardHeader>
 
       <CardContent>
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium">Comparar por categoria</h3>
-        <Select
-          value={comparisonMonthKey}
-          onValueChange={onComparisonMonthChange}
-        >
-          <SelectTrigger size="sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {monthOptions.map((opt) => (
-              <SelectItem key={opt.key} value={opt.key}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <Select
+            value={comparisonMonthKey}
+            onValueChange={onComparisonMonthChange}
+          >
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {monthOptions.map((opt) => (
+                <SelectItem key={opt.key} value={opt.key}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      {isComparisonLoading ? (
-        <p className="text-sm text-muted-foreground animate-pulse">
-          Cargando...
-        </p>
-      ) : items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Sin datos</p>
-      ) : (
-        <ul className="space-y-2">
-          {items.map((item) => (
-            <ComparisonRow key={item.categoryName} item={item} />
-          ))}
-        </ul>
-      )}
+        {isComparisonLoading ? (
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Cargando...
+          </p>
+        ) : items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Sin datos</p>
+        ) : (
+          <ul className="space-y-2">
+            {items.map((item) => (
+              <ComparisonRow key={item.categoryName} item={item} />
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   );
@@ -130,10 +130,10 @@ function ComparisonRow({ item }: ComparisonRowProps) {
         </Badge>
       ) : (
         <Badge
-          variant={isDown ? 'default' : 'destructive'}
+          variant={isDown ? "default" : "destructive"}
           className="min-w-16 justify-center tabular-nums"
         >
-          {isUp ? '+' : ''}
+          {isUp ? "+" : ""}
           {formatCurrency(difference)}
           {percentageChange !== null &&
             ` (${Math.abs(percentageChange).toFixed(0)}%)`}

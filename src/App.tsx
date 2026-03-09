@@ -8,7 +8,6 @@ import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/components/auth/LoginPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import ExpensesPage from '@/components/expenses/ExpensesPage';
-import CategoriesPage from '@/components/categories/CategoriesPage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 
@@ -23,7 +22,6 @@ export default function App() {
               <Route element={<AppLayout />}>
                 <Route index element={<Navigate to="/expenses" replace />} />
                 <Route path="expenses" element={<ExpensesPage />} />
-                <Route path="categories" element={<CategoriesPage />} />
               </Route>
             </Route>
           </Routes>

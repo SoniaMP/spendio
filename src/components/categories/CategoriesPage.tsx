@@ -62,10 +62,9 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Categorías</h2>
+      <div className="flex items-center justify-end">
         <Button size="sm" onClick={() => setIsFormOpen(true)}>
-          <Plus /> <span className="hidden sm:inline">Nueva categoría</span>
+          <Plus /> Nueva categoría
         </Button>
       </div>
 

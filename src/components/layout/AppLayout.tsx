@@ -1,10 +1,17 @@
-import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useSheets } from '@/hooks/useSheets';
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import SheetTabs from '@/components/sheets/SheetTabs';
+import CategoriesPage from '@/components/categories/CategoriesPage';
 
 import type { SheetPermission } from '@/types/sheet';
 
@@ -14,24 +21,17 @@ export interface OutletContext {
 }
 
 export default function AppLayout() {
-  const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: sheets } = useSheets();
   const { data: user } = useAuth();
   const logoutMutation = useLogout();
-
-  const isExpensesRoute = !location.pathname.startsWith('/categories');
-  const currentTab = isExpensesRoute ? 'expenses' : 'categories';
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 
   const sheetParam = Number(searchParams.get('sheet'));
   const firstSheetId = sheets?.[0]?.id ?? 1;
   const isValidSheet = sheets?.some((s) => s.id === sheetParam);
   const activeSheetId = isValidSheet ? sheetParam : firstSheetId;
-
-  function handleTabChange(value: string) {
-    navigate(`/${value}`);
-  }
 
   function handleSheetChange(id: number) {
     setSearchParams({ sheet: String(id) });
@@ -65,30 +65,39 @@ export default function AppLayout() {
               <span className="text-muted-foreground hidden text-sm sm:inline">
                 {user.name}
               </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsCategoriesOpen(true)}
+                title="Categorías"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
           )}
         </div>
-        <Tabs value={currentTab} onValueChange={handleTabChange}>
-          <TabsList>
-            <TabsTrigger value="expenses">Gastos</TabsTrigger>
-            <TabsTrigger value="categories">Categorias</TabsTrigger>
-          </TabsList>
-        </Tabs>
       </header>
-      {isExpensesRoute && (
-        <div className="mb-4">
-          <SheetTabs
-            activeSheetId={activeSheetId}
-            onSheetChange={handleSheetChange}
-          />
-        </div>
-      )}
+      <div className="mb-4">
+        <SheetTabs
+          activeSheetId={activeSheetId}
+          onSheetChange={handleSheetChange}
+        />
+      </div>
       <main>
         <Outlet context={context} />
       </main>
+
+      <Dialog open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Categorías</DialogTitle>
+          </DialogHeader>
+          <CategoriesPage />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

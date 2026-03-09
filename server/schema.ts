@@ -59,6 +59,7 @@ export const CREATE_TABLES = `
     shared_by_user_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     shared_with_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     permission          TEXT    NOT NULL CHECK (permission IN ('read', 'edit')),
+    custom_name         TEXT    DEFAULT NULL,
     created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at          TEXT    NOT NULL DEFAULT (datetime('now')),
     UNIQUE(sheet_id, shared_with_user_id)

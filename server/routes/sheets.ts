@@ -12,7 +12,9 @@ router.get('/', (req, res) => {
               EXISTS(SELECT 1 FROM sheet_shares WHERE sheet_id = s.id) AS has_shares
        FROM sheets s WHERE s.user_id = ?
        UNION ALL
-       SELECT s.*, ss.permission, u.name AS shared_by_name, 0 AS has_shares
+       SELECT s.id, COALESCE(ss.custom_name, s.name) AS name, s.position, s.user_id,
+              s.created_at, s.updated_at,
+              ss.permission, u.name AS shared_by_name, 0 AS has_shares
        FROM sheet_shares ss
        JOIN sheets s ON s.id = ss.sheet_id
        JOIN users u ON u.id = ss.shared_by_user_id
@@ -89,12 +91,20 @@ router.put('/:id', (req, res, next) => {
     }
 
     const updatedName = name?.trim() ?? existing.name;
-    db.prepare('UPDATE sheets SET name = ? WHERE id = ?').run(updatedName, id);
+    const isOwner = existing.user_id === req.userId;
+
+    if (isOwner) {
+      db.prepare('UPDATE sheets SET name = ? WHERE id = ?').run(updatedName, id);
+    } else {
+      db.prepare(
+        'UPDATE sheet_shares SET custom_name = ? WHERE sheet_id = ? AND shared_with_user_id = ?',
+      ).run(updatedName, id, req.userId);
+    }
 
     const row = db
       .prepare('SELECT * FROM sheets WHERE id = ?')
       .get(id) as SheetRow;
-    res.json(row);
+    res.json({ ...row, name: updatedName });
   } catch (err) {
     next(err);
   }

@@ -46,6 +46,10 @@ function runMigrations(database: Database.Database) {
     }
   }
 
+  if (tableExists(database, 'sheet_shares') && !hasColumn(database, 'sheet_shares', 'custom_name')) {
+    database.exec('ALTER TABLE sheet_shares ADD COLUMN custom_name TEXT DEFAULT NULL');
+  }
+
   database.pragma('foreign_keys = ON');
 }
 

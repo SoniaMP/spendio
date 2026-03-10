@@ -13,8 +13,13 @@ import { errorHandler } from './middleware/errorHandler.ts';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
+const isProduction = process.env.NODE_ENV === 'production';
 
-if (process.env.NODE_ENV !== 'production') {
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
+if (!isProduction) {
   app.use(cors({ origin: true, credentials: true }));
 }
 

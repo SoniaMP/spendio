@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    container_name: spendio
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - app-data:/app/data
+
+volumes:
+  app-data:

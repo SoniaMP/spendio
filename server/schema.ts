@@ -1,12 +1,13 @@
 export const CREATE_TABLES = `
   CREATE TABLE IF NOT EXISTS users (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    google_id  TEXT    UNIQUE NOT NULL,
-    email      TEXT    UNIQUE NOT NULL,
-    name       TEXT    NOT NULL DEFAULT '',
-    picture    TEXT    NOT NULL DEFAULT '',
-    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    google_id     TEXT    UNIQUE,
+    email         TEXT    UNIQUE NOT NULL,
+    name          TEXT    NOT NULL DEFAULT '',
+    picture       TEXT    NOT NULL DEFAULT '',
+    password_hash TEXT,
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS categories (

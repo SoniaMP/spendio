@@ -21,6 +21,12 @@ function hasColumn(database: Database.Database, table: string, column: string): 
   return cols.some((c) => c.name === column);
 }
 
+function isColumnNotNull(database: Database.Database, table: string, column: string): boolean {
+  const cols = database.pragma(`table_info(${table})`) as { name: string; notnull: number }[];
+  const col = cols.find((c) => c.name === column);
+  return col?.notnull === 1;
+}
+
 function tableExists(database: Database.Database, table: string): boolean {
   const row = database
     .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?")
@@ -48,6 +54,29 @@ function runMigrations(database: Database.Database) {
 
   if (tableExists(database, 'sheet_shares') && !hasColumn(database, 'sheet_shares', 'custom_name')) {
     database.exec('ALTER TABLE sheet_shares ADD COLUMN custom_name TEXT DEFAULT NULL');
+  }
+
+  if (tableExists(database, 'users') && !hasColumn(database, 'users', 'password_hash')) {
+    database.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
+  }
+
+  if (tableExists(database, 'users') && isColumnNotNull(database, 'users', 'google_id')) {
+    database.exec(`
+      CREATE TABLE users_new (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        google_id     TEXT    UNIQUE,
+        email         TEXT    UNIQUE NOT NULL,
+        name          TEXT    NOT NULL DEFAULT '',
+        picture       TEXT    NOT NULL DEFAULT '',
+        password_hash TEXT,
+        created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+        updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO users_new (id, google_id, email, name, picture, password_hash, created_at, updated_at)
+        SELECT id, google_id, email, name, picture, password_hash, created_at, updated_at FROM users;
+      DROP TABLE users;
+      ALTER TABLE users_new RENAME TO users;
+    `);
   }
 
   database.pragma('foreign_keys = ON');

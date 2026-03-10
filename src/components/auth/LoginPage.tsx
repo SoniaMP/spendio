@@ -1,12 +1,12 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { Wallet } from 'lucide-react';
-import { useLogin, useDevLogin } from '@/hooks/useAuth';
+import { useEmailLogin, useRegister } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-
-const isAuthBypassed = import.meta.env.VITE_AUTH_BYPASS === 'true';
 
 function FeatureItem({ label }: { label: string }) {
   return (
@@ -21,16 +21,31 @@ function FeatureItem({ label }: { label: string }) {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const login = useLogin();
-  const devLoginMutation = useDevLogin();
+  const loginMutation = useEmailLogin();
+  const registerMutation = useRegister();
 
-  const handleDevLogin = (devUser: 'dev1' | 'dev2') => {
-    devLoginMutation.mutate(devUser, {
-      onSuccess: () => navigate('/expenses'),
-    });
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
+  const isPending = loginMutation.isPending || registerMutation.isPending;
+  const error = loginMutation.error ?? registerMutation.error;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isRegister) {
+      registerMutation.mutate(
+        { email, password, name },
+        { onSuccess: () => navigate('/expenses') },
+      );
+    } else {
+      loginMutation.mutate(
+        { email, password },
+        { onSuccess: () => navigate('/expenses') },
+      );
+    }
   };
-
-  const isError = login.isError || devLoginMutation.isError;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/50 px-4">
@@ -54,46 +69,60 @@ export default function LoginPage() {
 
           <Separator />
 
-          <div className="flex justify-center">
-            {isAuthBypassed ? (
-              <div className="flex w-full gap-2">
-                <Button
-                  className="flex-1"
-                  onClick={() => handleDevLogin('dev1')}
-                  disabled={devLoginMutation.isPending}
-                >
-                  {devLoginMutation.isPending ? 'Entrando...' : 'Dev 1'}
-                </Button>
-                <Button
-                  className="flex-1"
-                  variant="secondary"
-                  onClick={() => handleDevLogin('dev2')}
-                  disabled={devLoginMutation.isPending}
-                >
-                  {devLoginMutation.isPending ? 'Entrando...' : 'Dev 2'}
-                </Button>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            {isRegister && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="name">Nombre</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
               </div>
-            ) : (
-              <GoogleLogin
-                onSuccess={(response) => {
-                  if (response.credential) {
-                    login.mutate(response.credential, {
-                      onSuccess: () => navigate('/expenses'),
-                    });
-                  }
-                }}
-                onError={() => {
-                  console.error('Google login failed');
-                }}
-              />
             )}
-          </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? 'Entrando...' : isRegister ? 'Crear cuenta' : 'Iniciar sesion'}
+            </Button>
+          </form>
 
-          {isError && (
-            <p className="text-destructive text-center text-sm">
-              Error al iniciar sesion. Intentalo de nuevo.
-            </p>
+          {error && (
+            <p className="text-destructive text-center text-sm">{error.message}</p>
           )}
+
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground text-center text-sm underline-offset-4 hover:underline"
+            onClick={() => {
+              setIsRegister((v) => !v);
+              loginMutation.reset();
+              registerMutation.reset();
+            }}
+          >
+            {isRegister ? 'Ya tengo cuenta' : 'Crear cuenta nueva'}
+          </button>
         </CardContent>
 
         <CardFooter className="justify-center pb-6">

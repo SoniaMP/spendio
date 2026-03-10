@@ -6,12 +6,12 @@ export async function fetchCurrentUser(): Promise<User> {
   return res.json();
 }
 
-export async function loginWithGoogle(credential: string): Promise<User> {
-  const res = await fetch('/api/auth/google', {
+export async function login(email: string, password: string): Promise<User> {
+  const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ credential }),
+    body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
@@ -20,16 +20,16 @@ export async function loginWithGoogle(credential: string): Promise<User> {
   return res.json();
 }
 
-export async function devLogin(devUser: 'dev1' | 'dev2' = 'dev1'): Promise<User> {
-  const res = await fetch('/api/auth/dev-login', {
+export async function register(email: string, password: string, name: string): Promise<User> {
+  const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ devUser }),
+    body: JSON.stringify({ email, password, name }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
-    throw new Error(data?.error ?? 'Dev login failed');
+    throw new Error(data?.error ?? 'Registration failed');
   }
   return res.json();
 }

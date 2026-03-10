@@ -2,18 +2,20 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import LoginPage from '@/components/auth/LoginPage';
 
 vi.mock('@/hooks/useAuth', () => ({
-  useLogin: () => ({
-    mutate: vi.fn(),
-    isError: false,
-  }),
-  useDevLogin: () => ({
+  useEmailLogin: () => ({
     mutate: vi.fn(),
     isPending: false,
-    isError: false,
+    error: null,
+    reset: vi.fn(),
+  }),
+  useRegister: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+    error: null,
+    reset: vi.fn(),
   }),
 }));
 
@@ -23,13 +25,11 @@ function renderLoginPage() {
   });
 
   return render(
-    <GoogleOAuthProvider clientId="test-client-id">
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <LoginPage />
-        </MemoryRouter>
-      </QueryClientProvider>
-    </GoogleOAuthProvider>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -44,9 +44,19 @@ describe('LoginPage', () => {
     expect(screen.getByText('Controla tus gastos, visualiza tu dinero')).toBeInTheDocument();
   });
 
-  it('renders two dev login buttons when auth is bypassed', () => {
+  it('renders email and password inputs', () => {
     renderLoginPage();
-    expect(screen.getByRole('button', { name: 'Dev 1' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Dev 2' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
+  });
+
+  it('renders login button', () => {
+    renderLoginPage();
+    expect(screen.getByRole('button', { name: 'Iniciar sesion' })).toBeInTheDocument();
+  });
+
+  it('renders register toggle link', () => {
+    renderLoginPage();
+    expect(screen.getByText('Crear cuenta nueva')).toBeInTheDocument();
   });
 });

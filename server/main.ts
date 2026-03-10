@@ -1,6 +1,7 @@
 import './types/session.ts';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { sessionMiddleware } from './session.ts';
 import authRouter from './routes/auth.ts';
 import { requireAuth } from './middleware/requireAuth.ts';
@@ -13,7 +14,10 @@ import { errorHandler } from './middleware/errorHandler.ts';
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
-app.use(cors({ origin: true, credentials: true }));
+if (process.env.NODE_ENV !== 'production') {
+  app.use(cors({ origin: true, credentials: true }));
+}
+
 app.use(express.json());
 app.use(sessionMiddleware);
 
@@ -25,6 +29,14 @@ app.use('/api/categories', categoriesRouter);
 app.use('/api/expenses', expensesRouter);
 app.use('/api/sheets', sheetsRouter);
 app.use('/api/sheets/:id/shares', sheetSharesRouter);
+
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.resolve(import.meta.dirname, '..', 'dist');
+  app.use(express.static(distPath));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 app.use(errorHandler);
 

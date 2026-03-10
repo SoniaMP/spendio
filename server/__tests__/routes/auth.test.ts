@@ -7,11 +7,15 @@ vi.mock('../../db.ts', () => ({
   default: mockDb,
   seedCategoriesForUser: vi.fn(),
 }));
-vi.mock('google-auth-library', () => ({
-  OAuth2Client: class {},
+vi.mock('bcrypt', () => ({
+  default: {
+    hash: vi.fn().mockResolvedValue('hashed_password'),
+    compare: vi.fn().mockResolvedValue(true),
+  },
 }));
 
 import router from '../../routes/auth.ts';
+import bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
 
 function createMockReqRes(body: Record<string, unknown> = {}) {
@@ -26,10 +30,11 @@ function createMockReqRes(body: Record<string, unknown> = {}) {
     clearCookie: vi.fn(),
   } as unknown as Response;
 
-  return { req, res };
+  const next = vi.fn();
+  return { req, res, next };
 }
 
-type RouteHandler = (req: Request, res: Response, next?: unknown) => void;
+type RouteHandler = (req: Request, res: Response, next: unknown) => void;
 
 function getRouteHandler(method: string, path: string) {
   const layer = (router as unknown as { stack: Array<{ route: { path: string; methods: Record<string, boolean>; stack: Array<{ handle: RouteHandler }> } }> }).stack.find(
@@ -38,94 +43,78 @@ function getRouteHandler(method: string, path: string) {
   return layer?.route.stack[0].handle;
 }
 
-describe('POST /dev-login', () => {
-  const handler = getRouteHandler('post', '/dev-login')!;
+describe('POST /register', () => {
+  const handler = getRouteHandler('post', '/register')!;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.VITE_AUTH_BYPASS = 'true';
   });
 
-  it('creates dev1 user by default', () => {
-    const { req, res } = createMockReqRes({});
-    const dev1User = { id: 1, google_id: '__dev_user_1__', email: 'dev1@spendio.local', name: 'Dev 1', picture: '' };
-    const mockGet = vi.fn()
-      .mockReturnValueOnce(undefined) // old __dev_user__ migration check
-      .mockReturnValueOnce(undefined) // lookup by google_id
-      .mockReturnValueOnce(undefined) // lookup by email (existingByEmail)
-      .mockReturnValueOnce(dev1User); // read back after insert
+  it('returns 400 when fields are missing', async () => {
+    const { req, res, next } = createMockReqRes({ email: 'a@b.com' });
+    await handler(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('returns 409 when email already exists', async () => {
+    const { req, res, next } = createMockReqRes({ email: 'a@b.com', password: '123456', name: 'Test' });
+    mockDb.prepare.mockReturnValue({ get: vi.fn().mockReturnValue({ id: 1 }), run: vi.fn() });
+    await handler(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(409);
+  });
+
+  it('creates a user and sets session', async () => {
+    const user = { id: 1, email: 'a@b.com', name: 'Test', picture: '' };
+    const mockGet = vi.fn().mockReturnValueOnce(undefined).mockReturnValueOnce(user);
     const mockRun = vi.fn().mockReturnValue({ lastInsertRowid: 1 });
     mockDb.prepare.mockReturnValue({ get: mockGet, run: mockRun });
 
-    handler(req, res);
+    const { req, res, next } = createMockReqRes({ email: 'a@b.com', password: '123456', name: 'Test' });
+    await handler(req, res, next);
 
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'dev1@spendio.local', name: 'Dev 1' }),
-    );
+    expect(req.session.userId).toBe(1);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ email: 'a@b.com' }));
+  });
+});
+
+describe('POST /login', () => {
+  const handler = getRouteHandler('post', '/login')!;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('creates dev2 user when devUser=dev2', () => {
-    const { req, res } = createMockReqRes({ devUser: 'dev2' });
-    const dev2User = { id: 2, google_id: '__dev_user_2__', email: 'dev2@spendio.local', name: 'Dev 2', picture: '' };
-    const mockGet = vi.fn()
-      .mockReturnValueOnce(undefined) // old __dev_user__ migration check
-      .mockReturnValueOnce(undefined) // lookup by google_id
-      .mockReturnValueOnce(undefined) // lookup by email
-      .mockReturnValueOnce(dev2User); // read back after insert
-    const mockRun = vi.fn().mockReturnValue({ lastInsertRowid: 2 });
-    mockDb.prepare.mockReturnValue({ get: mockGet, run: mockRun });
-
-    handler(req, res);
-
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'dev2@spendio.local', name: 'Dev 2' }),
-    );
+  it('returns 400 when fields are missing', async () => {
+    const { req, res, next } = createMockReqRes({});
+    await handler(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(400);
   });
 
-  it('upgrades placeholder user when email already exists', () => {
-    const { req, res } = createMockReqRes({ devUser: 'dev2' });
-    const placeholder = { id: 5, google_id: '__invited_dev2@spendio.local__', email: 'dev2@spendio.local', name: 'dev2', picture: '' };
-    const upgraded = { id: 5, google_id: '__dev_user_2__', email: 'dev2@spendio.local', name: 'Dev 2', picture: '' };
-    const mockGet = vi.fn()
-      .mockReturnValueOnce(undefined) // old __dev_user__ migration check
-      .mockReturnValueOnce(undefined) // lookup by google_id
-      .mockReturnValueOnce(placeholder) // lookup by email - found placeholder
-      .mockReturnValueOnce(upgraded); // read back after update
-    const mockRun = vi.fn();
-    mockDb.prepare.mockReturnValue({ get: mockGet, run: mockRun });
-
-    handler(req, res);
-
-    expect(mockRun).toHaveBeenCalled();
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'dev2@spendio.local', name: 'Dev 2' }),
-    );
+  it('returns 401 when user not found', async () => {
+    mockDb.prepare.mockReturnValue({ get: vi.fn().mockReturnValue(undefined) });
+    const { req, res, next } = createMockReqRes({ email: 'a@b.com', password: '123456' });
+    await handler(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  it('migrates old __dev_user__ to __dev_user_1__', () => {
-    const { req, res } = createMockReqRes({});
-    const oldUser = { id: 99, google_id: '__dev_user__', email: 'dev@spendio.local', name: 'Dev User', picture: '' };
-    const migratedUser = { id: 99, google_id: '__dev_user_1__', email: 'dev1@spendio.local', name: 'Dev 1', picture: '' };
-    const mockGet = vi.fn()
-      .mockReturnValueOnce(oldUser) // old __dev_user__ found
-      .mockReturnValueOnce(migratedUser); // after migration, found __dev_user_1__
-    const mockRun = vi.fn();
-    mockDb.prepare.mockReturnValue({ get: mockGet, run: mockRun });
+  it('returns 401 when password is wrong', async () => {
+    const user = { id: 1, email: 'a@b.com', password_hash: 'hashed', name: 'Test', picture: '' };
+    mockDb.prepare.mockReturnValue({ get: vi.fn().mockReturnValue(user) });
+    vi.mocked(bcrypt.compare).mockResolvedValueOnce(false as never);
 
-    handler(req, res);
-
-    expect(mockRun).toHaveBeenCalled();
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'dev1@spendio.local' }),
-    );
+    const { req, res, next } = createMockReqRes({ email: 'a@b.com', password: 'wrong' });
+    await handler(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  it('returns 404 when VITE_AUTH_BYPASS is not true', () => {
-    process.env.VITE_AUTH_BYPASS = 'false';
-    const { req, res } = createMockReqRes({});
+  it('logs in successfully with correct credentials', async () => {
+    const user = { id: 1, email: 'a@b.com', password_hash: 'hashed', name: 'Test', picture: '' };
+    mockDb.prepare.mockReturnValue({ get: vi.fn().mockReturnValue(user) });
 
-    handler(req, res);
+    const { req, res, next } = createMockReqRes({ email: 'a@b.com', password: '123456' });
+    await handler(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(req.session.userId).toBe(1);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ email: 'a@b.com' }));
   });
 });

@@ -1,9 +1,10 @@
 export interface UserRow {
   id: number;
-  google_id: string;
+  google_id: string | null;
   email: string;
   name: string;
   picture: string;
+  password_hash: string | null;
   created_at: string;
   updated_at: string;
 }

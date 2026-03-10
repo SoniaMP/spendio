@@ -21,6 +21,11 @@ if (process.env.NODE_ENV !== 'production') {
 app.use(express.json());
 app.use(sessionMiddleware);
 
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.resolve(import.meta.dirname, '..', 'dist');
+  app.use(express.static(distPath));
+}
+
 app.use('/api/auth', authRouter);
 
 app.use(requireAuth);
@@ -30,15 +35,14 @@ app.use('/api/expenses', expensesRouter);
 app.use('/api/sheets', sheetsRouter);
 app.use('/api/sheets/:id/shares', sheetSharesRouter);
 
+app.use(errorHandler);
+
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.resolve(import.meta.dirname, '..', 'dist');
-  app.use(express.static(distPath));
   app.get('{*path}', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }
-
-app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);

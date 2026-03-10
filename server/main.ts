@@ -27,9 +27,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use('/api/auth', authRouter);
-
-app.use(requireAuth);
-
+app.use('/api', requireAuth);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/expenses', expensesRouter);
 app.use('/api/sheets', sheetsRouter);

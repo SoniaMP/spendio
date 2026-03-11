@@ -9,7 +9,4 @@ services:
     environment:
       - NODE_ENV=production
     volumes:
-      - app-data:/app/data
-
-volumes:
-  app-data:
+      - ./data:/app/data

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { useSheets } from '@/hooks/useSheets';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
@@ -13,8 +13,16 @@ import TotalSummaryCard from '@/components/summary/TotalSummaryCard';
 export default function SummaryPage() {
   const { data: sheets } = useSheets();
   const { monthKey, monthLabel, goToPreviousMonth, goToNextMonth } = useMonthFilter();
-  const { config, toggleSheet, toggleCategory, selectAllSheets, clearSheets } =
-    useSummaryConfig();
+  const {
+    config,
+    toggleSheet,
+    toggleCategory,
+    initCategories,
+    selectAllSheets,
+    clearSheets,
+    selectAllCategories,
+    clearCategories,
+  } = useSummaryConfig();
 
   const { data, isLoading } = useSummary(config.selectedSheetIds, monthKey);
 
@@ -23,19 +31,26 @@ export default function SummaryPage() {
     [data],
   );
 
+  useEffect(() => {
+    if (allCategories.length > 0) {
+      initCategories(allCategories.map((c) => c.categoryId));
+    }
+  }, [allCategories, initCategories]);
+
+  const selectedCategoryIds = config.selectedCategoryIds ?? [];
+
   const filteredSheets = useMemo(() => {
     if (!data?.sheets) return [];
-    if (config.selectedCategoryIds.length === 0) return data.sheets;
+    if (selectedCategoryIds.length === 0) return [];
+    const selected = new Set(selectedCategoryIds);
     return data.sheets.map((sheet) => ({
       ...sheet,
-      categories: sheet.categories.filter((c) =>
-        config.selectedCategoryIds.includes(c.categoryId),
-      ),
+      categories: sheet.categories.filter((c) => selected.has(c.categoryId)),
       total: sheet.categories
-        .filter((c) => config.selectedCategoryIds.includes(c.categoryId))
+        .filter((c) => selected.has(c.categoryId))
         .reduce((sum, c) => sum + c.total, 0),
     }));
-  }, [data, config.selectedCategoryIds]);
+  }, [data, selectedCategoryIds]);
 
   const filteredCategories = useMemo(
     () => mergeCategoryTotals(filteredSheets),
@@ -58,11 +73,13 @@ export default function SummaryPage() {
         sheets={sheets ?? []}
         selectedSheetIds={config.selectedSheetIds}
         categories={allCategories}
-        selectedCategoryIds={config.selectedCategoryIds}
+        selectedCategoryIds={selectedCategoryIds}
         onToggleSheet={toggleSheet}
         onToggleCategory={toggleCategory}
         onSelectAllSheets={selectAllSheets}
         onClearSheets={clearSheets}
+        onSelectAllCategories={selectAllCategories}
+        onClearCategories={clearCategories}
       />
 
       {isLoading && (

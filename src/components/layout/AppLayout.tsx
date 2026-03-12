@@ -108,7 +108,7 @@ export default function AppLayout() {
           />
         </div>
       )}
-      <main>
+      <main className="min-w-0">
         <Outlet context={context} />
       </main>
 

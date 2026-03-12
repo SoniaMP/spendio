@@ -8,6 +8,8 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import type { ExpenseWithCategory } from '@/types/expense';
 import ExpenseRow from '@/components/expenses/ExpenseRow';
+import TablePagination from '@/components/ui/TablePagination';
+import { usePagination } from '@/hooks/usePagination';
 
 interface ExpensesTableProps {
   expenses: ExpenseWithCategory[];
@@ -20,21 +22,31 @@ export default function ExpensesTable({
   onEdit,
   onDelete,
 }: ExpensesTableProps) {
+  const pagination = usePagination({ totalItems: expenses.length });
+  const visibleExpenses = expenses.slice(
+    pagination.startIndex,
+    pagination.endIndex,
+  );
+
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
+    <Card className="overflow-hidden py-0">
+      <CardContent className="p-4">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Fecha</TableHead>
-              <TableHead className="hidden sm:table-cell">Descripción</TableHead>
+              <TableHead className="hidden sm:table-cell">
+                Descripción
+              </TableHead>
               <TableHead>Categoría</TableHead>
               <TableHead className="text-right">Importe</TableHead>
-              {(onEdit || onDelete) && <TableHead className="text-right">Acciones</TableHead>}
+              {(onEdit || onDelete) && (
+                <TableHead className="text-right">Acciones</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {expenses.map((expense) => (
+            {visibleExpenses.map((expense) => (
               <ExpenseRow
                 key={expense.id}
                 expense={expense}
@@ -45,6 +57,21 @@ export default function ExpensesTable({
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          pageSize={pagination.pageSize}
+          pageSizeOptions={pagination.pageSizeOptions}
+          canGoPrevious={pagination.canGoPrevious}
+          canGoNext={pagination.canGoNext}
+          canGoFirst={pagination.canGoFirst}
+          canGoLast={pagination.canGoLast}
+          onFirst={pagination.goFirst}
+          onLast={pagination.goLast}
+          onPrevious={pagination.goPrevious}
+          onNext={pagination.goNext}
+          onPageSizeChange={pagination.changePageSize}
+        />
       </CardContent>
     </Card>
   );

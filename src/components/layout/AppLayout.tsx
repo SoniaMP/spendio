@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,7 +26,9 @@ export default function AppLayout() {
   const { data: sheets } = useSheets();
   const { data: user } = useAuth();
   const logoutMutation = useLogout();
+  const location = useLocation();
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const isExpensesRoute = location.pathname.startsWith('/expenses');
 
   const sheetParam = Number(searchParams.get('sheet'));
   const firstSheetId = sheets?.[0]?.id ?? 1;
@@ -80,12 +82,32 @@ export default function AppLayout() {
           )}
         </div>
       </header>
-      <div className="mb-4">
-        <SheetTabs
-          activeSheetId={activeSheetId}
-          onSheetChange={handleSheetChange}
-        />
-      </div>
+      <nav className="mb-4 flex gap-4 border-b">
+        <NavLink
+          to="/expenses"
+          className={({ isActive }) =>
+            `pb-2 text-sm font-medium transition-colors ${isActive ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`
+          }
+        >
+          Gastos
+        </NavLink>
+        <NavLink
+          to="/summary"
+          className={({ isActive }) =>
+            `pb-2 text-sm font-medium transition-colors ${isActive ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`
+          }
+        >
+          Resumen
+        </NavLink>
+      </nav>
+      {isExpensesRoute && (
+        <div className="mb-4">
+          <SheetTabs
+            activeSheetId={activeSheetId}
+            onSheetChange={handleSheetChange}
+          />
+        </div>
+      )}
       <main>
         <Outlet context={context} />
       </main>

@@ -7,6 +7,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/components/auth/LoginPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import ExpensesPage from '@/components/expenses/ExpensesPage';
+import SummaryPage from '@/components/summary/SummaryPage';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index element={<Navigate to="/expenses" replace />} />
               <Route path="expenses" element={<ExpensesPage />} />
+              <Route path="summary" element={<SummaryPage />} />
             </Route>
           </Route>
         </Routes>

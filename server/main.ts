@@ -9,6 +9,7 @@ import categoriesRouter from './routes/categories.ts';
 import expensesRouter from './routes/expenses.ts';
 import sheetsRouter from './routes/sheets.ts';
 import sheetSharesRouter from './routes/sheetShares.ts';
+import summaryRouter from './routes/summary.ts';
 import { errorHandler } from './middleware/errorHandler.ts';
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/api/categories', categoriesRouter);
 app.use('/api/expenses', expensesRouter);
 app.use('/api/sheets', sheetsRouter);
 app.use('/api/sheets/:id/shares', sheetSharesRouter);
+app.use('/api/summary', summaryRouter);
 
 app.use(errorHandler);
 

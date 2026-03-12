@@ -1,8 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
+import SessionWarning from '@/components/auth/SessionWarning';
 
 export default function ProtectedRoute() {
   const { data: user, isLoading, isError } = useAuth();
+  const { isWarningVisible, secondsLeft, extendSession } = useSessionTimeout();
 
   if (isLoading) {
     return (
@@ -16,5 +19,14 @@ export default function ProtectedRoute() {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <SessionWarning
+        isOpen={isWarningVisible}
+        secondsLeft={secondsLeft}
+        onExtend={extendSession}
+      />
+    </>
+  );
 }

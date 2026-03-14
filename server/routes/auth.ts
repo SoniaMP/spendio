@@ -20,7 +20,9 @@ router.post('/register', async (req, res, next) => {
       return;
     }
 
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email) as
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(normalizedEmail) as
       | { id: number }
       | undefined;
 
@@ -33,7 +35,7 @@ router.post('/register', async (req, res, next) => {
 
     const result = db
       .prepare('INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)')
-      .run(email, name, passwordHash);
+      .run(normalizedEmail, name, passwordHash);
 
     const user = db
       .prepare('SELECT * FROM users WHERE id = ?')
@@ -63,7 +65,9 @@ router.post('/login', async (req, res, next) => {
       return;
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(normalizedEmail) as
       | UserRow
       | undefined;
 

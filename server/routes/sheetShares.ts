@@ -51,22 +51,23 @@ router.post('/', (req, res, next) => {
       return;
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     let targetUser = db
       .prepare('SELECT * FROM users WHERE email = ?')
-      .get(email.trim()) as UserRow | undefined;
+      .get(normalizedEmail) as UserRow | undefined;
 
     if (!targetUser) {
       if (!confirm) {
-        res.json({ needsConfirmation: true, email: email.trim() });
+        res.json({ needsConfirmation: true, email: normalizedEmail });
         return;
       }
 
-      const trimmedEmail = email.trim();
-      const invitedGoogleId = `__invited_${trimmedEmail}__`;
-      const emailName = trimmedEmail.split('@')[0];
+      const invitedGoogleId = `__invited_${normalizedEmail}__`;
+      const emailName = normalizedEmail.split('@')[0];
       const result = db
         .prepare('INSERT INTO users (google_id, email, name, picture) VALUES (?, ?, ?, ?)')
-        .run(invitedGoogleId, trimmedEmail, emailName, '');
+        .run(invitedGoogleId, normalizedEmail, emailName, '');
       targetUser = db
         .prepare('SELECT * FROM users WHERE id = ?')
         .get(result.lastInsertRowid) as UserRow;

@@ -5,6 +5,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { queryClient } from '@/lib/queryClient';
 import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/components/auth/LoginPage';
+import ForgotPasswordPage from '@/components/auth/ForgotPasswordPage';
+import ResetPasswordPage from '@/components/auth/ResetPasswordPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import ExpensesPage from '@/components/expenses/ExpensesPage';
 import SummaryPage from '@/components/summary/SummaryPage';
@@ -15,6 +17,8 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <Routes>
           <Route path="login" element={<LoginPage />} />
+          <Route path="forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="reset-password/:token" element={<ResetPasswordPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index element={<Navigate to="/expenses" replace />} />

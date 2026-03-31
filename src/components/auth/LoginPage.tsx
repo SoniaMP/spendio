@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 import { useEmailLogin, useRegister } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -106,6 +106,14 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? 'Entrando...' : isRegister ? 'Crear cuenta' : 'Iniciar sesion'}
             </Button>
+            {!isRegister && (
+              <Link
+                to="/forgot-password"
+                className="text-muted-foreground hover:text-foreground text-right text-sm underline-offset-4 hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            )}
           </form>
 
           {error && (

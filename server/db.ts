@@ -60,6 +60,10 @@ function runMigrations(database: Database.Database) {
     database.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
   }
 
+  if (tableExists(database, 'password_reset_tokens') && !hasColumn(database, 'password_reset_tokens', 'used_at')) {
+    database.exec('ALTER TABLE password_reset_tokens ADD COLUMN used_at TEXT');
+  }
+
   if (tableExists(database, 'users') && isColumnNotNull(database, 'users', 'google_id')) {
     database.exec(`
       CREATE TABLE users_new (

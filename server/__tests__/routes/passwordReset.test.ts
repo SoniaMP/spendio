@@ -177,7 +177,7 @@ describe('POST /reset-password', () => {
     await handler(req, res, next);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'Invalid or expired reset link' }),
+      expect.objectContaining({ error: 'Enlace de restablecimiento inválido o expirado' }),
     );
   });
 
@@ -193,7 +193,7 @@ describe('POST /reset-password', () => {
     await handler(req, res, next);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'This reset link has already been used' }),
+      expect.objectContaining({ error: 'Este enlace ya ha sido utilizado' }),
     );
   });
 
@@ -209,7 +209,7 @@ describe('POST /reset-password', () => {
     await handler(req, res, next);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'This reset link has expired' }),
+      expect.objectContaining({ error: 'Este enlace ha expirado' }),
     );
   });
 
@@ -226,7 +226,7 @@ describe('POST /reset-password', () => {
     const { req, res, next } = createMockReqRes({ token: 'abc', password: '123456' });
     await handler(req, res, next);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Password has been reset successfully' }),
+      expect.objectContaining({ message: 'Contraseña restablecida correctamente' }),
     );
   });
 });

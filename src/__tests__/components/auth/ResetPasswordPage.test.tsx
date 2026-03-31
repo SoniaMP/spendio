@@ -32,10 +32,10 @@ describe('ResetPasswordPage', () => {
   it('renders the form with password fields', () => {
     mockState = { isPending: false, isSuccess: false, error: null };
     renderPage();
-    expect(screen.getByText('Set New Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('New Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Confirm Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Reset Password' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Nueva contraseña' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Nueva contraseña')).toBeInTheDocument();
+    expect(screen.getByLabelText('Confirmar contraseña')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Restablecer contraseña' })).toBeInTheDocument();
   });
 
   it('shows validation error when passwords do not match', async () => {
@@ -43,11 +43,11 @@ describe('ResetPasswordPage', () => {
     renderPage();
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText('New Password'), 'password1');
-    await user.type(screen.getByLabelText('Confirm Password'), 'password2');
-    await user.click(screen.getByRole('button', { name: 'Reset Password' }));
+    await user.type(screen.getByLabelText('Nueva contraseña'), 'password1');
+    await user.type(screen.getByLabelText('Confirmar contraseña'), 'password2');
+    await user.click(screen.getByRole('button', { name: 'Restablecer contraseña' }));
 
-    expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+    expect(screen.getByText('Las contraseñas no coinciden')).toBeInTheDocument();
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
@@ -56,9 +56,9 @@ describe('ResetPasswordPage', () => {
     renderPage();
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText('New Password'), 'newpassword');
-    await user.type(screen.getByLabelText('Confirm Password'), 'newpassword');
-    await user.click(screen.getByRole('button', { name: 'Reset Password' }));
+    await user.type(screen.getByLabelText('Nueva contraseña'), 'newpassword');
+    await user.type(screen.getByLabelText('Confirmar contraseña'), 'newpassword');
+    await user.click(screen.getByRole('button', { name: 'Restablecer contraseña' }));
 
     expect(mockMutate).toHaveBeenCalledWith(
       expect.objectContaining({ token: 'test-token-123', password: 'newpassword' }),
@@ -69,19 +69,19 @@ describe('ResetPasswordPage', () => {
   it('shows success message after reset', () => {
     mockState = { isPending: false, isSuccess: true, error: null };
     renderPage();
-    expect(screen.getByText(/reset successfully/i)).toBeInTheDocument();
-    expect(screen.getByText('Go to login')).toBeInTheDocument();
+    expect(screen.getByText(/restableció correctamente/i)).toBeInTheDocument();
+    expect(screen.getByText('Ir al inicio de sesión')).toBeInTheDocument();
   });
 
   it('shows API error message', () => {
-    mockState = { isPending: false, isSuccess: false, error: new Error('Invalid or expired reset link') };
+    mockState = { isPending: false, isSuccess: false, error: new Error('Enlace de restablecimiento inválido o expirado') };
     renderPage();
-    expect(screen.getByText('Invalid or expired reset link')).toBeInTheDocument();
+    expect(screen.getByText('Enlace de restablecimiento inválido o expirado')).toBeInTheDocument();
   });
 
   it('has a link back to login', () => {
     mockState = { isPending: false, isSuccess: false, error: null };
     renderPage();
-    expect(screen.getByText('Back to login')).toBeInTheDocument();
+    expect(screen.getByText('Volver al inicio de sesión')).toBeInTheDocument();
   });
 });

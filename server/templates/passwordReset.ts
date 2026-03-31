@@ -4,32 +4,32 @@ interface PasswordResetEmailParams {
 }
 
 export function passwordResetEmail({ resetUrl, userName }: PasswordResetEmailParams) {
-  const subject = 'Reset your Spendio password';
+  const subject = 'Restablecer tu contraseña de Spendio';
 
   const html = `
     <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
-      <h2 style="color: #111; margin-bottom: 16px;">Password Reset</h2>
-      <p>Hi ${userName || 'there'},</p>
-      <p>We received a request to reset your Spendio password. Click the button below to set a new password:</p>
+      <h2 style="color: #111; margin-bottom: 16px;">Restablecer contraseña</h2>
+      <p>Hola ${userName || ''},</p>
+      <p>Recibimos una solicitud para restablecer tu contraseña de Spendio. Haz clic en el botón para establecer una nueva contraseña:</p>
       <a href="${resetUrl}"
          style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0;">
-        Reset Password
+        Restablecer contraseña
       </a>
-      <p style="color: #666; font-size: 14px;">This link expires in 30 minutes. If you did not request this, you can safely ignore this email.</p>
+      <p style="color: #666; font-size: 14px;">Este enlace caduca en 30 minutos. Si no solicitaste este cambio, puedes ignorar este correo.</p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
       <p style="color: #999; font-size: 12px;">Spendio — Controla tus gastos, visualiza tu dinero</p>
     </div>
   `.trim();
 
   const text = [
-    `Hi ${userName || 'there'},`,
+    `Hola ${userName || ''},`,
     '',
-    'We received a request to reset your Spendio password.',
-    'Click the link below to set a new password:',
+    'Recibimos una solicitud para restablecer tu contraseña de Spendio.',
+    'Haz clic en el enlace para establecer una nueva contraseña:',
     '',
     resetUrl,
     '',
-    'This link expires in 30 minutes. If you did not request this, you can safely ignore this email.',
+    'Este enlace caduca en 30 minutos. Si no solicitaste este cambio, puedes ignorar este correo.',
   ].join('\n');
 
   return { subject, html, text };

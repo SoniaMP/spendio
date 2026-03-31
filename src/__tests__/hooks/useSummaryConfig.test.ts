@@ -10,7 +10,7 @@ describe('useSummaryConfig', () => {
   it('starts with empty selections', () => {
     const { result } = renderHook(() => useSummaryConfig());
     expect(result.current.config.selectedSheetIds).toEqual([]);
-    expect(result.current.config.selectedCategoryIds).toEqual([]);
+    expect(result.current.config.selectedCategoryIds).toBeNull();
   });
 
   it('toggles a sheet on and off', () => {

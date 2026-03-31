@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
     .prepare('SELECT * FROM sheets WHERE id = ? AND user_id = ?')
     .get(sheetId, req.userId) as SheetRow | undefined;
   if (!sheet) {
-    res.status(404).json({ error: 'Sheet not found' });
+    res.status(404).json({ error: 'Hoja no encontrada' });
     return;
   }
 
@@ -39,7 +39,7 @@ router.post('/', (req, res, next) => {
     const { email, permission, confirm } = req.body as CreateSheetShareBody;
 
     if (!email?.trim() || !['read', 'edit'].includes(permission)) {
-      res.status(400).json({ error: 'Valid email and permission (read|edit) are required' });
+      res.status(400).json({ error: 'Email válido y permiso (read|edit) son obligatorios' });
       return;
     }
 
@@ -47,7 +47,7 @@ router.post('/', (req, res, next) => {
       .prepare('SELECT * FROM sheets WHERE id = ? AND user_id = ?')
       .get(sheetId, req.userId) as SheetRow | undefined;
     if (!sheet) {
-      res.status(404).json({ error: 'Sheet not found' });
+      res.status(404).json({ error: 'Hoja no encontrada' });
       return;
     }
 
@@ -74,7 +74,7 @@ router.post('/', (req, res, next) => {
     }
 
     if (targetUser.id === req.userId) {
-      res.status(400).json({ error: 'Cannot share with yourself' });
+      res.status(400).json({ error: 'No puedes compartir contigo mismo' });
       return;
     }
 
@@ -82,7 +82,7 @@ router.post('/', (req, res, next) => {
       .prepare('SELECT id FROM sheet_shares WHERE sheet_id = ? AND shared_with_user_id = ?')
       .get(sheetId, targetUser.id);
     if (existing) {
-      res.status(409).json({ error: 'Sheet already shared with this user' });
+      res.status(409).json({ error: 'La hoja ya está compartida con este usuario' });
       return;
     }
 
@@ -103,7 +103,7 @@ router.put('/:shareId', (req, res, next) => {
     const { permission } = req.body as UpdateSheetShareBody;
 
     if (!['read', 'edit'].includes(permission)) {
-      res.status(400).json({ error: 'Valid permission (read|edit) is required' });
+      res.status(400).json({ error: 'Permiso válido (read|edit) es obligatorio' });
       return;
     }
 
@@ -111,7 +111,7 @@ router.put('/:shareId', (req, res, next) => {
       .prepare('SELECT * FROM sheets WHERE id = ? AND user_id = ?')
       .get(sheetId, req.userId) as SheetRow | undefined;
     if (!sheet) {
-      res.status(404).json({ error: 'Sheet not found' });
+      res.status(404).json({ error: 'Hoja no encontrada' });
       return;
     }
 
@@ -119,7 +119,7 @@ router.put('/:shareId', (req, res, next) => {
       .prepare('UPDATE sheet_shares SET permission = ? WHERE id = ? AND sheet_id = ?')
       .run(permission, shareId, sheetId);
     if (result.changes === 0) {
-      res.status(404).json({ error: 'Share not found' });
+      res.status(404).json({ error: 'Compartición no encontrada' });
       return;
     }
 
@@ -136,7 +136,7 @@ router.delete('/leave', (req, res, next) => {
       .prepare('DELETE FROM sheet_shares WHERE sheet_id = ? AND shared_with_user_id = ?')
       .run(sheetId, req.userId);
     if (result.changes === 0) {
-      res.status(404).json({ error: 'Share not found' });
+      res.status(404).json({ error: 'Compartición no encontrada' });
       return;
     }
     res.json({ success: true });
@@ -154,7 +154,7 @@ router.delete('/:shareId', (req, res, next) => {
       .prepare('SELECT * FROM sheet_shares WHERE id = ? AND sheet_id = ?')
       .get(shareId, sheetId) as SheetShareRow | undefined;
     if (!share) {
-      res.status(404).json({ error: 'Share not found' });
+      res.status(404).json({ error: 'Compartición no encontrada' });
       return;
     }
 
@@ -165,7 +165,7 @@ router.delete('/:shareId', (req, res, next) => {
     const isOwner = sheet?.user_id === req.userId;
     const isRecipient = share.shared_with_user_id === req.userId;
     if (!isOwner && !isRecipient) {
-      res.status(403).json({ error: 'Not authorized' });
+      res.status(403).json({ error: 'No autorizado' });
       return;
     }
 

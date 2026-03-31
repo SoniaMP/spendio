@@ -30,9 +30,9 @@ describe('ForgotPasswordPage', () => {
   it('renders the form with email input', () => {
     mockState = { isPending: false, isSuccess: false, error: null };
     renderPage();
-    expect(screen.getByText('Reset Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Send reset link' })).toBeInTheDocument();
+    expect(screen.getByText('Recuperar contraseña')).toBeInTheDocument();
+    expect(screen.getByLabelText('Correo electrónico')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enviar enlace de recuperación' })).toBeInTheDocument();
   });
 
   it('submits the form with email', async () => {
@@ -40,8 +40,8 @@ describe('ForgotPasswordPage', () => {
     renderPage();
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText('Email'), 'test@example.com');
-    await user.click(screen.getByRole('button', { name: 'Send reset link' }));
+    await user.type(screen.getByLabelText('Correo electrónico'), 'test@example.com');
+    await user.click(screen.getByRole('button', { name: 'Enviar enlace de recuperación' }));
 
     expect(mockMutate).toHaveBeenCalledWith({ email: 'test@example.com' });
   });
@@ -49,8 +49,8 @@ describe('ForgotPasswordPage', () => {
   it('shows success message after submission', () => {
     mockState = { isPending: false, isSuccess: true, error: null };
     renderPage();
-    expect(screen.getByText(/reset link shortly/i)).toBeInTheDocument();
-    expect(screen.getByText('Back to login')).toBeInTheDocument();
+    expect(screen.getByText(/enlace de recuperación en breve/i)).toBeInTheDocument();
+    expect(screen.getByText('Volver al inicio de sesión')).toBeInTheDocument();
   });
 
   it('shows error message on failure', () => {
@@ -62,6 +62,6 @@ describe('ForgotPasswordPage', () => {
   it('has a link back to login', () => {
     mockState = { isPending: false, isSuccess: false, error: null };
     renderPage();
-    expect(screen.getByText('Back to login')).toBeInTheDocument();
+    expect(screen.getByText('Volver al inicio de sesión')).toBeInTheDocument();
   });
 });

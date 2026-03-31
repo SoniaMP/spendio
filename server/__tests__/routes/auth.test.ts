@@ -14,6 +14,26 @@ vi.mock('bcrypt', () => ({
   },
 }));
 
+vi.mock('../../services/email.ts', () => ({
+  sendEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../../templates/passwordReset.ts', () => ({
+  passwordResetEmail: vi.fn().mockReturnValue({
+    subject: 'Reset',
+    html: '<p>reset</p>',
+    text: 'reset',
+  }),
+}));
+
+vi.mock('../../templates/accountActivation.ts', () => ({
+  accountActivationEmail: vi.fn().mockReturnValue({
+    subject: 'Activate',
+    html: '<p>activate</p>',
+    text: 'activate',
+  }),
+}));
+
 import router from '../../routes/auth.ts';
 import bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';

@@ -23,7 +23,7 @@ router.post('/register', async (req, res, next) => {
     };
 
     if (!email || !password || !name) {
-      res.status(400).json({ error: 'email, password and name are required' });
+      res.status(400).json({ error: 'Email, contraseña y nombre son obligatorios' });
       return;
     }
 
@@ -34,7 +34,7 @@ router.post('/register', async (req, res, next) => {
       | undefined;
 
     if (existing) {
-      res.status(409).json({ error: 'Email already registered' });
+      res.status(409).json({ error: 'El email ya está registrado' });
       return;
     }
 
@@ -68,7 +68,7 @@ router.post('/login', async (req, res, next) => {
     const { email, password } = req.body as { email?: string; password?: string };
 
     if (!email || !password) {
-      res.status(400).json({ error: 'email and password are required' });
+      res.status(400).json({ error: 'Email y contraseña son obligatorios' });
       return;
     }
 
@@ -79,13 +79,13 @@ router.post('/login', async (req, res, next) => {
       | undefined;
 
     if (!user?.password_hash) {
-      res.status(401).json({ error: 'Invalid email or password' });
+      res.status(401).json({ error: 'Email o contraseña incorrectos' });
       return;
     }
 
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
-      res.status(401).json({ error: 'Invalid email or password' });
+      res.status(401).json({ error: 'Email o contraseña incorrectos' });
       return;
     }
 
@@ -98,7 +98,7 @@ router.post('/login', async (req, res, next) => {
 
 router.get('/me', (req, res) => {
   if (!req.session.userId) {
-    res.status(401).json({ error: 'Not authenticated' });
+    res.status(401).json({ error: 'No autenticado' });
     return;
   }
 
@@ -108,7 +108,7 @@ router.get('/me', (req, res) => {
 
   if (!user) {
     req.session.destroy(() => {});
-    res.status(401).json({ error: 'User not found' });
+    res.status(401).json({ error: 'Usuario no encontrado' });
     return;
   }
 
@@ -125,7 +125,7 @@ router.post('/logout', (req, res) => {
 router.post('/forgot-password', async (req, res, next) => {
   try {
     const { email } = req.body as { email?: string };
-    const message = 'If that email is registered, you will receive a reset link shortly.';
+    const message = 'Si el correo está registrado, recibirás un enlace de recuperación en breve.';
 
     if (!email) {
       res.json({ message });
@@ -152,7 +152,7 @@ router.post('/forgot-password', async (req, res, next) => {
     ).count;
 
     if (recentCount >= RATE_LIMIT_MAX) {
-      res.status(429).json({ error: 'Too many reset requests. Try again later.' });
+      res.status(429).json({ error: 'Demasiadas solicitudes. Inténtalo más tarde.' });
       return;
     }
 
@@ -194,12 +194,12 @@ router.post('/reset-password', async (req, res, next) => {
     const { token, password } = req.body as { token?: string; password?: string };
 
     if (!token || !password) {
-      res.status(400).json({ error: 'Token and password are required' });
+      res.status(400).json({ error: 'Token y contraseña son obligatorios' });
       return;
     }
 
     if (password.length < 6) {
-      res.status(400).json({ error: 'Password must be at least 6 characters' });
+      res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
       return;
     }
 
@@ -216,17 +216,17 @@ router.post('/reset-password', async (req, res, next) => {
       | undefined;
 
     if (!row) {
-      res.status(400).json({ error: 'Invalid or expired reset link' });
+      res.status(400).json({ error: 'Enlace de restablecimiento inválido o expirado' });
       return;
     }
 
     if (row.used_at) {
-      res.status(400).json({ error: 'This reset link has already been used' });
+      res.status(400).json({ error: 'Este enlace ya ha sido utilizado' });
       return;
     }
 
     if (new Date(row.expires_at) < new Date()) {
-      res.status(400).json({ error: 'This reset link has expired' });
+      res.status(400).json({ error: 'Este enlace ha expirado' });
       return;
     }
 
@@ -244,7 +244,7 @@ router.post('/reset-password', async (req, res, next) => {
     });
     applyReset();
 
-    res.json({ message: 'Password has been reset successfully' });
+    res.json({ message: 'Contraseña restablecida correctamente' });
   } catch (err) {
     next(err);
   }

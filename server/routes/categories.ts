@@ -16,7 +16,7 @@ router.post('/', (req, res, next) => {
     const { name, color } = req.body as CreateCategoryBody;
 
     if (!name?.trim()) {
-      res.status(400).json({ error: 'name is required' });
+      res.status(400).json({ error: 'El nombre es obligatorio' });
       return;
     }
 
@@ -43,7 +43,7 @@ router.put('/:id', (req, res, next) => {
       .prepare('SELECT * FROM categories WHERE id = ? AND user_id = ?')
       .get(id, req.userId) as CategoryRow | undefined;
     if (!existing) {
-      res.status(404).json({ error: 'Category not found' });
+      res.status(404).json({ error: 'Categoría no encontrada' });
       return;
     }
 
@@ -72,7 +72,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('SELECT 1 FROM expenses WHERE category_id = ? AND user_id = ? LIMIT 1')
       .get(id, req.userId);
     if (hasExpenses) {
-      res.status(409).json({ error: 'Category has expenses and cannot be deleted' });
+      res.status(409).json({ error: 'No se puede eliminar: tiene gastos asociados' });
       return;
     }
 
@@ -80,7 +80,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('DELETE FROM categories WHERE id = ? AND user_id = ?')
       .run(id, req.userId);
     if (result.changes === 0) {
-      res.status(404).json({ error: 'Category not found' });
+      res.status(404).json({ error: 'Categoría no encontrada' });
       return;
     }
 

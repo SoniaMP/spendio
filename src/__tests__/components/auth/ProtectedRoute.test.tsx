@@ -6,6 +6,15 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
+  useLogout: () => ({ mutate: vi.fn() }),
+}));
+
+vi.mock('@/hooks/useSessionTimeout', () => ({
+  useSessionTimeout: () => ({
+    isWarningVisible: false,
+    secondsLeft: 0,
+    extendSession: vi.fn(),
+  }),
 }));
 
 import { useAuth } from '@/hooks/useAuth';

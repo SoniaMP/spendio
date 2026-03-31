@@ -136,6 +136,6 @@ describe('POST / (create share)', () => {
     handler(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Cannot share with yourself' });
+    expect(res.json).toHaveBeenCalledWith({ error: 'No puedes compartir contigo mismo' });
   });
 });

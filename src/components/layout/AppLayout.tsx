@@ -75,7 +75,7 @@ export default function AppLayout() {
               >
                 <Settings className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+              <Button variant="ghost" size="icon" onClick={handleLogout} title="Cerrar sesión">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>

@@ -34,7 +34,7 @@ router.get('/', (req, res) => {
   const month = req.query.month as string | undefined;
 
   if (!sheetIdsParam || !month) {
-    res.status(400).json({ error: 'sheetIds and month are required' });
+    res.status(400).json({ error: 'sheetIds y month son obligatorios' });
     return;
   }
 
@@ -42,7 +42,7 @@ router.get('/', (req, res) => {
 
   for (const id of sheetIds) {
     if (!hasSheetAccess(db, id, req.userId, 'read')) {
-      res.status(403).json({ error: 'Not authorized' });
+      res.status(403).json({ error: 'No autorizado' });
       return;
     }
   }

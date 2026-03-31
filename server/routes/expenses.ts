@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
   const sheetId = req.query.sheetId as string | undefined;
 
   if (sheetId && !hasSheetAccess(db, Number(sheetId), req.userId, 'read')) {
-    res.status(403).json({ error: 'Not authorized' });
+    res.status(403).json({ error: 'No autorizado' });
     return;
   }
 
@@ -50,12 +50,12 @@ router.post('/', (req, res, next) => {
     const { amount, description, date, categoryId, sheetId } = req.body as CreateExpenseBody;
 
     if (!amount || !date || !categoryId || !sheetId) {
-      res.status(400).json({ error: 'amount, date, categoryId, and sheetId are required' });
+      res.status(400).json({ error: 'Importe, fecha, categoría y hoja son obligatorios' });
       return;
     }
 
     if (!hasSheetAccess(db, sheetId, req.userId, 'edit')) {
-      res.status(403).json({ error: 'Not authorized' });
+      res.status(403).json({ error: 'No autorizado' });
       return;
     }
 
@@ -82,7 +82,7 @@ router.put('/:id', (req, res, next) => {
       .prepare('SELECT * FROM expenses WHERE id = ?')
       .get(id) as ExpenseRow | undefined;
     if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
-      res.status(404).json({ error: 'Expense not found' });
+      res.status(404).json({ error: 'Gasto no encontrado' });
       return;
     }
 
@@ -111,7 +111,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('SELECT * FROM expenses WHERE id = ?')
       .get(id) as ExpenseRow | undefined;
     if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
-      res.status(404).json({ error: 'Expense not found' });
+      res.status(404).json({ error: 'Gasto no encontrado' });
       return;
     }
 

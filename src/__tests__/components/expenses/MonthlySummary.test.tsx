@@ -72,6 +72,6 @@ describe('MonthlySummary', () => {
 
   it('renders the section title', () => {
     render(<MonthlySummary {...defaultProps} />);
-    expect(screen.getByText('Comparar por categoria')).toBeInTheDocument();
+    expect(screen.getByText('Comparativa por categoría')).toBeInTheDocument();
   });
 });

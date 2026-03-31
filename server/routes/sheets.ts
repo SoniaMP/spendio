@@ -30,7 +30,7 @@ router.post('/', (req, res, next) => {
     const { name } = req.body as CreateSheetBody;
 
     if (!name?.trim()) {
-      res.status(400).json({ error: 'name is required' });
+      res.status(400).json({ error: 'El nombre es obligatorio' });
       return;
     }
 
@@ -56,7 +56,7 @@ router.put('/reorder', (req, res, next) => {
     const { orderedIds } = req.body as { orderedIds: number[] };
 
     if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
-      res.status(400).json({ error: 'orderedIds is required' });
+      res.status(400).json({ error: 'orderedIds es obligatorio' });
       return;
     }
 
@@ -86,7 +86,7 @@ router.put('/:id', (req, res, next) => {
       .prepare('SELECT * FROM sheets WHERE id = ?')
       .get(id) as SheetRow | undefined;
     if (!existing || !hasSheetAccess(db, existing.id, req.userId, 'edit')) {
-      res.status(404).json({ error: 'Sheet not found' });
+      res.status(404).json({ error: 'Hoja no encontrada' });
       return;
     }
 
@@ -120,7 +120,7 @@ router.delete('/:id', (req, res, next) => {
     if (count.cnt <= 1) {
       res
         .status(409)
-        .json({ error: 'Cannot delete the last sheet' });
+        .json({ error: 'No se puede eliminar la última hoja' });
       return;
     }
 
@@ -128,7 +128,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('DELETE FROM sheets WHERE id = ? AND user_id = ?')
       .run(id, req.userId);
     if (result.changes === 0) {
-      res.status(404).json({ error: 'Sheet not found' });
+      res.status(404).json({ error: 'Hoja no encontrada' });
       return;
     }
 

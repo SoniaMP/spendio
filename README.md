@@ -78,8 +78,10 @@ When `VITE_AUTH_BYPASS=true` is set in `.env`, the login page shows a **Dev Logi
 ### Other Commands
 
 ```bash
-npm run lint       # Run ESLint
-npm test           # Run tests
-npm run build      # Build for production
-npm start          # Start the production API server
+npm run lint              # Run ESLint
+npm test                  # Run tests
+npm run build             # Build for production
+npm start                 # Start the production API server
+npm run db:clear-tokens   # Delete all password-reset tokens
+npm run db:clear-tokens 5 # Delete tokens for user ID 5 only
 ```

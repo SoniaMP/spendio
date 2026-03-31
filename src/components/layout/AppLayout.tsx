@@ -113,11 +113,13 @@ export default function AppLayout() {
       </main>
 
       <Dialog open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Categorías</DialogTitle>
           </DialogHeader>
-          <CategoriesPage />
+          <div className="flex-1 overflow-y-auto overscroll-contain -mx-6 px-6">
+            <CategoriesPage />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

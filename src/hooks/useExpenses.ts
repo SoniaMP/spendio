@@ -3,9 +3,11 @@ import {
   fetchExpenses,
   createExpense,
   updateExpense,
+  duplicateExpense,
   deleteExpense,
   type CreateExpenseInput,
   type UpdateExpenseInput,
+  type DuplicateExpenseInput,
 } from '@/api/expenses';
 
 const EXPENSES_KEY = ['expenses'] as const;
@@ -40,6 +42,18 @@ export function useUpdateExpense() {
   return useMutation({
     mutationFn: ({ id, ...body }: { id: number } & UpdateExpenseInput) =>
       updateExpense(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
+    },
+  });
+}
+
+export function useDuplicateExpense() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...body }: { id: number } & DuplicateExpenseInput) =>
+      duplicateExpense(id, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
     },

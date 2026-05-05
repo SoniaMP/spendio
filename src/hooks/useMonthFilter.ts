@@ -10,6 +10,7 @@ export interface MonthFilter {
   previousMonthLabel: string;
   goToPreviousMonth: () => void;
   goToNextMonth: () => void;
+  goToMonth: (year: number, month: number) => void;
 }
 
 export function useMonthFilter(): MonthFilter {
@@ -33,6 +34,10 @@ export function useMonthFilter(): MonthFilter {
     });
   }, []);
 
+  const goToMonth = useCallback((year: number, month: number) => {
+    setState({ year, month });
+  }, []);
+
   const prev = getPreviousMonth(state.year, state.month);
 
   return {
@@ -44,5 +49,6 @@ export function useMonthFilter(): MonthFilter {
     previousMonthLabel: getMonthLabel(prev.year, prev.month),
     goToPreviousMonth,
     goToNextMonth,
+    goToMonth,
   };
 }

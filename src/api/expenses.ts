@@ -42,6 +42,7 @@ export interface UpdateExpenseInput {
   description?: string;
   date?: string;
   categoryId?: number;
+  sheetId?: number;
 }
 
 export async function updateExpense(
@@ -56,6 +57,27 @@ export async function updateExpense(
   if (!res.ok) {
     const data = await res.json().catch(() => null);
     throw new Error(data?.error ?? 'Failed to update expense');
+  }
+  return res.json();
+}
+
+export interface DuplicateExpenseInput {
+  targetSheetId: number;
+  date: string;
+}
+
+export async function duplicateExpense(
+  id: number,
+  body: DuplicateExpenseInput,
+): Promise<Expense> {
+  const res = await fetchWithAuth(`${BASE_URL}/${id}/duplicate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'Failed to duplicate expense');
   }
   return res.json();
 }

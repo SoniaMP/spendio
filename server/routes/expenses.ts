@@ -6,6 +6,7 @@ import type {
   ExpenseWithCategoryRow,
   CreateExpenseBody,
   UpdateExpenseBody,
+  DuplicateExpenseBody,
 } from '../types.ts';
 
 const router = Router();
@@ -76,7 +77,7 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
   try {
     const { id } = req.params;
-    const { amount, description, date, categoryId } = req.body as UpdateExpenseBody;
+    const { amount, description, date, categoryId, sheetId } = req.body as UpdateExpenseBody;
 
     const existing = db
       .prepare('SELECT * FROM expenses WHERE id = ?')
@@ -86,13 +87,21 @@ router.put('/:id', (req, res, next) => {
       return;
     }
 
+    if (sheetId !== undefined && sheetId !== existing.sheet_id) {
+      if (!hasSheetAccess(db, sheetId, req.userId, 'edit')) {
+        res.status(403).json({ error: 'Sin permiso en la hoja destino' });
+        return;
+      }
+    }
+
     db.prepare(
-      'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ? WHERE id = ?',
+      'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ?, sheet_id = ? WHERE id = ?',
     ).run(
       amount ?? existing.amount,
       description ?? existing.description,
       date ?? existing.date,
       categoryId ?? existing.category_id,
+      sheetId ?? existing.sheet_id,
       id,
     );
 
@@ -117,6 +126,51 @@ router.delete('/:id', (req, res, next) => {
 
     db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
     res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/duplicate', (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { targetSheetId, date } = req.body as DuplicateExpenseBody;
+
+    if (!targetSheetId || !date) {
+      res.status(400).json({ error: 'targetSheetId y date son obligatorios' });
+      return;
+    }
+
+    const existing = db
+      .prepare('SELECT * FROM expenses WHERE id = ?')
+      .get(id) as ExpenseRow | undefined;
+    if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
+      res.status(404).json({ error: 'Gasto no encontrado' });
+      return;
+    }
+
+    if (!hasSheetAccess(db, targetSheetId, req.userId, 'edit')) {
+      res.status(403).json({ error: 'Sin permiso en la hoja destino' });
+      return;
+    }
+
+    const result = db
+      .prepare(
+        'INSERT INTO expenses (amount, description, date, category_id, sheet_id, user_id) VALUES (?, ?, ?, ?, ?, ?)',
+      )
+      .run(
+        existing.amount,
+        existing.description,
+        date,
+        existing.category_id,
+        targetSheetId,
+        req.userId,
+      );
+
+    const row = db
+      .prepare('SELECT * FROM expenses WHERE id = ?')
+      .get(result.lastInsertRowid) as ExpenseRow;
+    res.status(201).json(row);
   } catch (err) {
     next(err);
   }

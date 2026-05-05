@@ -19,6 +19,8 @@ type ExpenseSortKey = 'date' | 'description' | 'category' | 'amount';
 interface ExpensesTableProps {
   expenses: ExpenseWithCategory[];
   onEdit?: (expense: ExpenseWithCategory) => void;
+  onDuplicate?: (expense: ExpenseWithCategory) => void;
+  onMove?: (expense: ExpenseWithCategory) => void;
   onDelete?: (expense: ExpenseWithCategory) => void;
 }
 
@@ -32,8 +34,11 @@ const SORT_ACCESSORS: Record<ExpenseSortKey, (e: ExpenseWithCategory) => string 
 export default function ExpensesTable({
   expenses,
   onEdit,
+  onDuplicate,
+  onMove,
   onDelete,
 }: ExpensesTableProps) {
+  const hasAnyAction = !!(onEdit || onDuplicate || onMove || onDelete);
   const accessors = useMemo(() => SORT_ACCESSORS, []);
   const { sortedItems, sortColumn, sortDirection, toggleSort } = useSort(expenses, accessors);
   const pagination = usePagination({ totalItems: sortedItems.length });
@@ -78,7 +83,7 @@ export default function ExpensesTable({
               >
                 Importe
               </SortableTableHead>
-              {(onEdit || onDelete) && (
+              {hasAnyAction && (
                 <TableHead className="text-right">Acciones</TableHead>
               )}
             </TableRow>
@@ -89,8 +94,10 @@ export default function ExpensesTable({
                 key={expense.id}
                 expense={expense}
                 onEdit={onEdit}
+                onDuplicate={onDuplicate}
+                onMove={onMove}
                 onDelete={onDelete}
-                isReadOnly={!onEdit && !onDelete}
+                isReadOnly={!hasAnyAction}
               />
             ))}
           </TableBody>

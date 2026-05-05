@@ -75,6 +75,12 @@ export interface UpdateExpenseBody {
   description?: string;
   date?: string;
   categoryId?: number;
+  sheetId?: number;
+}
+
+export interface DuplicateExpenseBody {
+  targetSheetId: number;
+  date: string;
 }
 
 export interface SheetShareRow {

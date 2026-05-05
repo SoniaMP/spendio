@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { Plus, Receipt } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
@@ -14,6 +15,12 @@ import ExpensesTable from '@/components/expenses/ExpensesTable';
 import ExpensesTableSkeleton from '@/components/expenses/ExpensesTableSkeleton';
 import ExpenseFormDialog from '@/components/expenses/ExpenseFormDialog';
 import ExpenseDeleteDialog from '@/components/expenses/ExpenseDeleteDialog';
+import MoveExpenseDialog, {
+  type MoveSuccessInfo,
+} from '@/components/expenses/MoveExpenseDialog';
+import DuplicateExpenseDialog, {
+  type DuplicateSuccessInfo,
+} from '@/components/expenses/DuplicateExpenseDialog';
 import ExportButton from '@/components/expenses/ExportButton';
 import ExpenseChart from '@/components/expenses/ExpenseChart';
 import MonthlySummary from '@/components/expenses/MonthlySummary';
@@ -22,6 +29,7 @@ import CategoryFilter from '@/components/expenses/CategoryFilter';
 export default function ExpensesPage() {
   const { activeSheetId, activeSheetPermission } = useOutletContext<OutletContext>();
   const isReadOnly = activeSheetPermission === 'read';
+  const [, setSearchParams] = useSearchParams();
 
   const {
     year,
@@ -31,6 +39,7 @@ export default function ExpensesPage() {
     previousMonthKey,
     goToPreviousMonth,
     goToNextMonth,
+    goToMonth,
   } = useMonthFilter();
 
   const { data: expenses, isLoading, isError } = useExpenses(activeSheetId, monthKey);
@@ -58,6 +67,10 @@ export default function ExpensesPage() {
     ExpenseWithCategory | undefined
   >();
   const [deletingExpense, setDeletingExpense] =
+    useState<ExpenseWithCategory | null>(null);
+  const [movingExpense, setMovingExpense] =
+    useState<ExpenseWithCategory | null>(null);
+  const [duplicatingExpense, setDuplicatingExpense] =
     useState<ExpenseWithCategory | null>(null);
   const [filterState, setFilterState] = useState<{
     monthKey: string;
@@ -99,6 +112,30 @@ export default function ExpensesPage() {
     setEditingExpense(undefined);
   }
 
+  function handleMoveSuccess(info: MoveSuccessInfo) {
+    toast.success('Gasto movido', {
+      action: {
+        label: 'Ver',
+        onClick: () => {
+          setSearchParams({ sheet: String(info.targetSheetId) });
+          goToMonth(info.targetYear, info.targetMonth);
+        },
+      },
+    });
+  }
+
+  function handleDuplicateSuccess(info: DuplicateSuccessInfo) {
+    toast.success('Gasto duplicado', {
+      action: {
+        label: 'Ver',
+        onClick: () => {
+          setSearchParams({ sheet: String(info.targetSheetId) });
+          goToMonth(info.targetYear, info.targetMonth);
+        },
+      },
+    });
+  }
+
   function renderContent() {
     if (isLoading) return <ExpensesTableSkeleton />;
 
@@ -132,6 +169,8 @@ export default function ExpensesPage() {
       <ExpensesTable
         expenses={filteredExpenses}
         onEdit={isReadOnly ? undefined : handleEdit}
+        onDuplicate={isReadOnly ? undefined : setDuplicatingExpense}
+        onMove={isReadOnly ? undefined : setMovingExpense}
         onDelete={isReadOnly ? undefined : setDeletingExpense}
       />
     );
@@ -187,6 +226,20 @@ export default function ExpensesPage() {
         expense={deletingExpense}
         isOpen={!!deletingExpense}
         onClose={() => setDeletingExpense(null)}
+      />
+
+      <MoveExpenseDialog
+        expense={movingExpense}
+        isOpen={!!movingExpense}
+        onClose={() => setMovingExpense(null)}
+        onSuccess={handleMoveSuccess}
+      />
+
+      <DuplicateExpenseDialog
+        expense={duplicatingExpense}
+        isOpen={!!duplicatingExpense}
+        onClose={() => setDuplicatingExpense(null)}
+        onSuccess={handleDuplicateSuccess}
       />
     </div>
   );

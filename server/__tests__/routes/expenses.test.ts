@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const { mockDb } = vi.hoisted(() => ({
-  mockDb: { prepare: vi.fn() },
+  mockDb: {
+    prepare: vi.fn(),
+    transaction: vi.fn((fn: () => unknown) => fn),
+  },
 }));
 vi.mock('../../db.ts', () => ({
   default: mockDb,

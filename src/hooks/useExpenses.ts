@@ -8,6 +8,7 @@ import {
   type CreateExpenseInput,
   type UpdateExpenseInput,
   type DuplicateExpenseInput,
+  type RecurringScope,
 } from '@/api/expenses';
 
 const EXPENSES_KEY = ['expenses'] as const;
@@ -40,10 +41,15 @@ export function useUpdateExpense() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number } & UpdateExpenseInput) =>
-      updateExpense(id, body),
+    mutationFn: ({
+      id,
+      scope,
+      ...body
+    }: { id: number; scope?: RecurringScope } & UpdateExpenseInput) =>
+      updateExpense(id, body, scope),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
+      queryClient.invalidateQueries({ queryKey: ['recurring-expenses'] });
     },
   });
 }
@@ -64,9 +70,11 @@ export function useDeleteExpense() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteExpense,
+    mutationFn: ({ id, scope }: { id: number; scope?: RecurringScope }) =>
+      deleteExpense(id, scope),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
+      queryClient.invalidateQueries({ queryKey: ['recurring-expenses'] });
     },
   });
 }

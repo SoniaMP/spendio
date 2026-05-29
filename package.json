@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "db:clear-tokens": "tsx scripts/clearResetTokens.ts"
+    "db:clear-tokens": "tsx scripts/clearResetTokens.ts",
+    "cron:recurring": "node --env-file=.env --import tsx/esm scripts/runRecurringGeneration.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
@@ -30,6 +31,7 @@
     "express-session": "^1.19.0",
     "lucide-react": "^0.576.0",
     "next-themes": "^0.4.6",
+    "node-cron": "^4.2.1",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -52,6 +54,7 @@
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.18.2",
     "@types/node": "^24.10.1",
+    "@types/node-cron": "^3.0.11",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",

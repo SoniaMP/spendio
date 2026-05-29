@@ -56,6 +56,19 @@ function runMigrations(database: Database.Database) {
     database.exec('ALTER TABLE sheet_shares ADD COLUMN custom_name TEXT DEFAULT NULL');
   }
 
+  if (tableExists(database, 'expenses') && !hasColumn(database, 'expenses', 'recurring_id')) {
+    database.exec(
+      'ALTER TABLE expenses ADD COLUMN recurring_id INTEGER REFERENCES recurring_expenses(id) ON DELETE SET NULL',
+    );
+  }
+
+  if (
+    tableExists(database, 'recurring_expenses') &&
+    !hasColumn(database, 'recurring_expenses', 'end_date')
+  ) {
+    database.exec('ALTER TABLE recurring_expenses ADD COLUMN end_date TEXT');
+  }
+
   if (tableExists(database, 'users') && !hasColumn(database, 'users', 'password_hash')) {
     database.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
   }

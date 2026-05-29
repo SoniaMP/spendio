@@ -77,7 +77,8 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
   try {
     const { id } = req.params;
-    const { amount, description, date, categoryId, sheetId } = req.body as UpdateExpenseBody;
+    const body = req.body as UpdateExpenseBody & { scope?: 'this' | 'future' };
+    const { amount, description, date, categoryId, sheetId, scope } = body;
 
     const existing = db
       .prepare('SELECT * FROM expenses WHERE id = ?')
@@ -94,16 +95,44 @@ router.put('/:id', (req, res, next) => {
       }
     }
 
-    db.prepare(
-      'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ?, sheet_id = ? WHERE id = ?',
-    ).run(
-      amount ?? existing.amount,
-      description ?? existing.description,
-      date ?? existing.date,
-      categoryId ?? existing.category_id,
-      sheetId ?? existing.sheet_id,
-      id,
-    );
+    const futureScope =
+      scope === 'future' && existing.recurring_id !== null && existing.user_id === req.userId;
+
+    db.transaction(() => {
+      db.prepare(
+        'UPDATE expenses SET amount = ?, description = ?, date = ?, category_id = ?, sheet_id = ? WHERE id = ?',
+      ).run(
+        amount ?? existing.amount,
+        description ?? existing.description,
+        date ?? existing.date,
+        categoryId ?? existing.category_id,
+        sheetId ?? existing.sheet_id,
+        id,
+      );
+
+      if (futureScope) {
+        db.prepare(
+          `UPDATE expenses
+           SET amount = ?, description = ?, category_id = ?
+           WHERE recurring_id = ? AND date > ? AND id != ?`,
+        ).run(
+          amount ?? existing.amount,
+          description ?? existing.description,
+          categoryId ?? existing.category_id,
+          existing.recurring_id,
+          existing.date,
+          id,
+        );
+        db.prepare(
+          'UPDATE recurring_expenses SET amount = ?, description = ?, category_id = ? WHERE id = ?',
+        ).run(
+          amount ?? existing.amount,
+          description ?? existing.description,
+          categoryId ?? existing.category_id,
+          existing.recurring_id,
+        );
+      }
+    })();
 
     const row = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as ExpenseRow;
     res.json(row);
@@ -115,6 +144,7 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
   try {
     const { id } = req.params;
+    const scope = req.query.scope === 'future' ? 'future' : 'this';
 
     const existing = db
       .prepare('SELECT * FROM expenses WHERE id = ?')
@@ -124,7 +154,20 @@ router.delete('/:id', (req, res, next) => {
       return;
     }
 
-    db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
+    const futureScope =
+      scope === 'future' && existing.recurring_id !== null && existing.user_id === req.userId;
+
+    db.transaction(() => {
+      if (futureScope) {
+        db.prepare(
+          'DELETE FROM expenses WHERE recurring_id = ? AND date >= ?',
+        ).run(existing.recurring_id, existing.date);
+        db.prepare('DELETE FROM recurring_expenses WHERE id = ?').run(existing.recurring_id);
+      } else {
+        db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
+      }
+    })();
+
     res.json({ success: true });
   } catch (err) {
     next(err);

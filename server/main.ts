@@ -1,6 +1,7 @@
 import './types/session.ts';
 import express from 'express';
 import cors from 'cors';
+import cron from 'node-cron';
 import path from 'path';
 import { sessionMiddleware } from './session.ts';
 import authRouter from './routes/auth.ts';
@@ -10,6 +11,8 @@ import expensesRouter from './routes/expenses.ts';
 import sheetsRouter from './routes/sheets.ts';
 import sheetSharesRouter from './routes/sheetShares.ts';
 import summaryRouter from './routes/summary.ts';
+import recurringExpensesRouter from './routes/recurringExpenses.ts';
+import { runRecurringGeneration } from './services/recurringScheduler.ts';
 import { errorHandler } from './middleware/errorHandler.ts';
 
 const app = express();
@@ -39,6 +42,7 @@ app.use('/api/expenses', expensesRouter);
 app.use('/api/sheets', sheetsRouter);
 app.use('/api/sheets/:id/shares', sheetSharesRouter);
 app.use('/api/summary', summaryRouter);
+app.use('/api/recurring-expenses', recurringExpensesRouter);
 
 app.use(errorHandler);
 
@@ -52,3 +56,11 @@ if (process.env.NODE_ENV === 'production') {
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);
 });
+
+if (isProduction) {
+  cron.schedule('0 6 * * *', () => {
+    runRecurringGeneration().catch((err) => {
+      console.error('Recurring generation failed:', err);
+    });
+  });
+}

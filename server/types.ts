@@ -26,6 +26,7 @@ export interface ExpenseRow {
   category_id: number;
   sheet_id: number;
   user_id: number;
+  recurring_id: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -91,6 +92,50 @@ export interface SheetShareRow {
   permission: 'read' | 'edit';
   created_at: string;
   updated_at: string;
+}
+
+export type RecurringPeriod = 'monthly' | 'yearly';
+
+export interface RecurringExpenseRow {
+  id: number;
+  user_id: number;
+  sheet_id: number;
+  category_id: number | null;
+  amount: number;
+  description: string;
+  period: RecurringPeriod;
+  start_date: string;
+  end_date: string | null;
+  notice_days: number;
+  is_active: number;
+  last_generated_period_index: number;
+  last_notified_period_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateRecurringExpenseBody {
+  amount: number;
+  description?: string;
+  categoryId: number;
+  period: RecurringPeriod;
+  startDate: string;
+  endDate?: string | null;
+  noticeDays?: number;
+}
+
+export interface UpdateRecurringExpenseBody {
+  amount?: number;
+  description?: string;
+  categoryId?: number | null;
+  period?: RecurringPeriod;
+  startDate?: string;
+  endDate?: string | null;
+  noticeDays?: number;
+}
+
+export interface ToggleRecurringExpenseBody {
+  isActive: boolean;
 }
 
 export interface CreateSheetShareBody {

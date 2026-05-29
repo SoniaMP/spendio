@@ -45,14 +45,17 @@ export interface UpdateExpenseInput {
   sheetId?: number;
 }
 
+export type RecurringScope = 'this' | 'future';
+
 export async function updateExpense(
   id: number,
   body: UpdateExpenseInput,
+  scope?: RecurringScope,
 ): Promise<Expense> {
   const res = await fetchWithAuth(`${BASE_URL}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify(scope ? { ...body, scope } : body),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
@@ -82,8 +85,12 @@ export async function duplicateExpense(
   return res.json();
 }
 
-export async function deleteExpense(id: number): Promise<void> {
-  const res = await fetchWithAuth(`${BASE_URL}/${id}`, { method: 'DELETE' });
+export async function deleteExpense(
+  id: number,
+  scope?: RecurringScope,
+): Promise<void> {
+  const url = scope === 'future' ? `${BASE_URL}/${id}?scope=future` : `${BASE_URL}/${id}`;
+  const res = await fetchWithAuth(url, { method: 'DELETE' });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
     throw new Error(data?.error ?? 'Failed to delete expense');

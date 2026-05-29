@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
-import { Plus, Receipt } from 'lucide-react';
+import { Plus, Receipt, Repeat } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useExpenses } from '@/hooks/useExpenses';
@@ -25,6 +25,7 @@ import ExportButton from '@/components/expenses/ExportButton';
 import ExpenseChart from '@/components/expenses/ExpenseChart';
 import MonthlySummary from '@/components/expenses/MonthlySummary';
 import CategoryFilter from '@/components/expenses/CategoryFilter';
+import RecurringExpensesDialog from '@/components/recurring/RecurringExpensesDialog';
 
 export default function ExpensesPage() {
   const { activeSheetId, activeSheetPermission } = useOutletContext<OutletContext>();
@@ -72,6 +73,7 @@ export default function ExpensesPage() {
     useState<ExpenseWithCategory | null>(null);
   const [duplicatingExpense, setDuplicatingExpense] =
     useState<ExpenseWithCategory | null>(null);
+  const [isRecurringOpen, setIsRecurringOpen] = useState(false);
   const [filterState, setFilterState] = useState<{
     monthKey: string;
     categoryId: number | null;
@@ -191,6 +193,15 @@ export default function ExpensesPage() {
           />
           <ExportButton expenses={expenses ?? []} monthLabel={monthLabel} />
           {!isReadOnly && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsRecurringOpen(true)}
+            >
+              <Repeat /> <span className="hidden sm:inline">Recurrentes</span>
+            </Button>
+          )}
+          {!isReadOnly && (
             <Button size="sm" onClick={() => setIsFormOpen(true)}>
               <Plus /> <span className="hidden sm:inline">Nuevo gasto</span>
             </Button>
@@ -240,6 +251,12 @@ export default function ExpensesPage() {
         isOpen={!!duplicatingExpense}
         onClose={() => setDuplicatingExpense(null)}
         onSuccess={handleDuplicateSuccess}
+      />
+
+      <RecurringExpensesDialog
+        sheetId={activeSheetId}
+        isOpen={isRecurringOpen}
+        onClose={() => setIsRecurringOpen(false)}
       />
     </div>
   );

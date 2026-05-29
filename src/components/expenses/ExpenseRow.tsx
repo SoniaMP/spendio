@@ -3,6 +3,7 @@ import {
   MoreVertical,
   MoveRight,
   Pencil,
+  Repeat,
   Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,17 @@ export default function ExpenseRow({
   return (
     <TableRow>
       <TableCell className="whitespace-nowrap">
-        {formatDate(expense.date)}
+        <div className="flex items-center gap-1.5">
+          {expense.recurring_id !== null && (
+            <span title="Gasto recurrente" className="inline-flex">
+              <Repeat
+                className="h-3.5 w-3.5 text-muted-foreground"
+                aria-label="Gasto recurrente"
+              />
+            </span>
+          )}
+          {formatDate(expense.date)}
+        </div>
       </TableCell>
       <TableCell className="hidden sm:table-cell">
         {expense.description || '—'}

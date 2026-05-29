@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -5,8 +6,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useCreateExpense, useUpdateExpense } from '@/hooks/useExpenses';
+import { useAuth } from '@/hooks/useAuth';
 import type { ExpenseWithCategory } from '@/types/expense';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
 
@@ -27,6 +30,15 @@ export default function ExpenseFormDialog({
   const createMutation = useCreateExpense();
   const updateMutation = useUpdateExpense();
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const { data: currentUser } = useAuth();
+  const canChooseScope =
+    isEditing && expense?.recurring_id != null && expense.user_id === currentUser?.id;
+  const [scope, setScope] = useState<'this' | 'future'>('this');
+
+  function handleClose() {
+    setScope('this');
+    onClose();
+  }
 
   function handleSubmit(values: {
     amount: number;
@@ -36,11 +48,11 @@ export default function ExpenseFormDialog({
   }) {
     if (isEditing) {
       updateMutation.mutate(
-        { id: expense.id, ...values },
+        { id: expense.id, scope: canChooseScope ? scope : undefined, ...values },
         {
           onSuccess: () => {
             toast.success('Gasto actualizado');
-            onClose();
+            handleClose();
           },
           onError: (err) => toast.error(err.message),
         },
@@ -51,7 +63,7 @@ export default function ExpenseFormDialog({
         {
           onSuccess: () => {
             toast.success('Gasto creado');
-            onClose();
+            handleClose();
           },
           onError: (err) => toast.error(err.message),
         },
@@ -60,7 +72,7 @@ export default function ExpenseFormDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -72,6 +84,32 @@ export default function ExpenseFormDialog({
               : 'Añade un nuevo gasto.'}
           </DialogDescription>
         </DialogHeader>
+        {canChooseScope && (
+          <div className="flex flex-col gap-2">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="edit-scope"
+                checked={scope === 'this'}
+                onChange={() => setScope('this')}
+                className="mt-1"
+              />
+              <Label className="cursor-pointer">Solo este gasto</Label>
+            </label>
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="edit-scope"
+                checked={scope === 'future'}
+                onChange={() => setScope('future')}
+                className="mt-1"
+              />
+              <Label className="cursor-pointer">
+                Este y los siguientes (importe, descripción, categoría)
+              </Label>
+            </label>
+          </div>
+        )}
         <ExpenseForm
           initialValues={
             expense

@@ -30,15 +30,16 @@ export const CREATE_TABLES = `
   );
 
   CREATE TABLE IF NOT EXISTS expenses (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    amount      REAL    NOT NULL CHECK (amount > 0),
-    description TEXT    NOT NULL DEFAULT '',
-    date        TEXT    NOT NULL DEFAULT (date('now')),
-    category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
-    sheet_id    INTEGER NOT NULL DEFAULT 1 REFERENCES sheets(id) ON DELETE CASCADE,
-    user_id     INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    amount       REAL    NOT NULL CHECK (amount > 0),
+    description  TEXT    NOT NULL DEFAULT '',
+    date         TEXT    NOT NULL DEFAULT (date('now')),
+    category_id  INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+    sheet_id     INTEGER NOT NULL DEFAULT 1 REFERENCES sheets(id) ON DELETE CASCADE,
+    user_id      INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
+    recurring_id INTEGER REFERENCES recurring_expenses(id) ON DELETE SET NULL,
+    created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at   TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE INDEX IF NOT EXISTS idx_expenses_date
@@ -70,6 +71,27 @@ export const CREATE_TABLES = `
     ON sheet_shares(shared_with_user_id);
   CREATE INDEX IF NOT EXISTS idx_sheet_shares_sheet_id
     ON sheet_shares(sheet_id);
+
+  CREATE TABLE IF NOT EXISTS recurring_expenses (
+    id                          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id                     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    sheet_id                    INTEGER NOT NULL REFERENCES sheets(id) ON DELETE CASCADE,
+    category_id                 INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+    amount                      REAL    NOT NULL CHECK (amount > 0),
+    description                 TEXT    NOT NULL DEFAULT '',
+    period                      TEXT    NOT NULL CHECK (period IN ('monthly', 'yearly')),
+    start_date                  TEXT    NOT NULL,
+    end_date                    TEXT,
+    notice_days                 INTEGER NOT NULL DEFAULT 3 CHECK (notice_days >= 0),
+    is_active                   INTEGER NOT NULL DEFAULT 1,
+    last_generated_period_index INTEGER NOT NULL DEFAULT -1,
+    last_notified_period_index  INTEGER NOT NULL DEFAULT -1,
+    created_at                  TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at                  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_recurring_expenses_active
+    ON recurring_expenses(is_active, user_id);
 
   CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,6 +133,13 @@ export const CREATE_TABLES = `
     FOR EACH ROW
     BEGIN
       UPDATE sheet_shares SET updated_at = datetime('now') WHERE id = NEW.id;
+    END;
+
+  CREATE TRIGGER IF NOT EXISTS recurring_expenses_updated_at
+    AFTER UPDATE ON recurring_expenses
+    FOR EACH ROW
+    BEGIN
+      UPDATE recurring_expenses SET updated_at = datetime('now') WHERE id = NEW.id;
     END;
 `;
 

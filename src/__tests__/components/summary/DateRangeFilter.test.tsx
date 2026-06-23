@@ -36,8 +36,8 @@ describe('DateRangeFilter', () => {
     expect(onPresetChange).toHaveBeenCalledWith(DatePreset.Last3Months);
   });
 
-  it('shows date inputs only for the custom preset', () => {
-    const { rerender } = render(
+  it('always shows the from/to date inputs, even for a preset', () => {
+    render(
       <DateRangeFilter
         preset={DatePreset.ThisMonth}
         from="2026-06-01"
@@ -46,26 +46,28 @@ describe('DateRangeFilter', () => {
         onCustomRangeChange={noop}
       />,
     );
-    expect(screen.queryByLabelText('Desde')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Desde')).toHaveValue('2026-06-01');
+    expect(screen.getByLabelText('Hasta')).toHaveValue('2026-06-30');
+  });
 
-    rerender(
+  it('does not render a Personalizado preset button', () => {
+    render(
       <DateRangeFilter
-        preset={DatePreset.Custom}
+        preset={DatePreset.ThisMonth}
         from="2026-06-01"
         to="2026-06-30"
         onPresetChange={noop}
         onCustomRangeChange={noop}
       />,
     );
-    expect(screen.getByLabelText('Desde')).toBeInTheDocument();
-    expect(screen.getByLabelText('Hasta')).toBeInTheDocument();
+    expect(screen.queryByText('Personalizado')).not.toBeInTheDocument();
   });
 
-  it('calls onCustomRangeChange when a custom date changes', () => {
+  it('calls onCustomRangeChange when a date is edited from a preset', () => {
     const onCustomRangeChange = vi.fn();
     render(
       <DateRangeFilter
-        preset={DatePreset.Custom}
+        preset={DatePreset.ThisMonth}
         from="2026-06-01"
         to="2026-06-30"
         onPresetChange={noop}

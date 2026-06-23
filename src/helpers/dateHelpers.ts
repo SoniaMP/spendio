@@ -9,12 +9,14 @@ import {
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export enum DatePreset {
-  ThisMonth = 'this-month',
-  Last3Months = 'last-3-months',
-  ThisYear = 'this-year',
-  Custom = 'custom',
-}
+export const DatePreset = {
+  ThisMonth: 'this-month',
+  Last3Months: 'last-3-months',
+  ThisYear: 'this-year',
+  Custom: 'custom',
+} as const;
+
+export type DatePreset = (typeof DatePreset)[keyof typeof DatePreset];
 
 export interface DateRange {
   from: string;

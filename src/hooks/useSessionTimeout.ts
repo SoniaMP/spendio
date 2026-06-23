@@ -42,9 +42,9 @@ function getSnapshot() {
 }
 
 export function useSessionTimeout() {
-  const warningTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const expireTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const countdownRef = useRef<ReturnType<typeof setInterval>>();
+  const warningTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const expireTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const lastActivityRef = useRef(0);
   const isWarningRef = useRef(false);
 

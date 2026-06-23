@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calcMonthTotal } from '@/helpers/calcMonthTotal';
-import { ExpenseWithCategory } from '@/types/expense';
+import type { ExpenseWithCategory } from '@/types/expense';
 
 function makeExpense(amount: number): ExpenseWithCategory {
   return {
@@ -9,6 +9,9 @@ function makeExpense(amount: number): ExpenseWithCategory {
     description: 'test',
     date: '2026-03-01',
     category_id: 1,
+    sheet_id: 1,
+    user_id: 1,
+    recurring_id: null,
     created_at: '2026-03-01',
     updated_at: '2026-03-01',
     category_name: 'Test',

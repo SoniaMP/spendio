@@ -23,7 +23,16 @@ function renderDialog() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  const sheet = { id: 1, name: 'Test Sheet', position: 0, isOwner: true, permission: 'owner' as const };
+  const sheet = {
+    id: 1,
+    name: 'Test Sheet',
+    position: 0,
+    permission: 'owner' as const,
+    shared_by_name: null,
+    has_shares: 0,
+    created_at: '',
+    updated_at: '',
+  };
 
   return render(
     <QueryClientProvider client={queryClient}>

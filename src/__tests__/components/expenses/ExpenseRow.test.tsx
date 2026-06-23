@@ -11,6 +11,8 @@ const expense: ExpenseWithCategory = {
   date: '2026-03-15',
   category_id: 2,
   sheet_id: 1,
+  user_id: 1,
+  recurring_id: null,
   created_at: '2026-03-15T00:00:00.000Z',
   updated_at: '2026-03-15T00:00:00.000Z',
   category_name: 'Food',

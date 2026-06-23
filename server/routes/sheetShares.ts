@@ -10,8 +10,13 @@ import type {
 
 const router = Router({ mergeParams: true });
 
+// The parent router mounts this one under `/:id/shares`, so `id` arrives via
+// mergeParams at runtime. Express 5's param typing is derived from each route's
+// own path, which doesn't include `id`, hence the typed access helper below.
+type SheetParams = { id: string };
+
 router.get('/', (req, res) => {
-  const sheetId = Number(req.params.id);
+  const sheetId = Number((req.params as unknown as SheetParams).id);
   const sheet = db
     .prepare('SELECT * FROM sheets WHERE id = ? AND user_id = ?')
     .get(sheetId, req.userId) as SheetRow | undefined;
@@ -35,7 +40,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res, next) => {
   try {
-    const sheetId = Number(req.params.id);
+    const sheetId = Number((req.params as unknown as SheetParams).id);
     const { email, permission, confirm } = req.body as CreateSheetShareBody;
 
     if (!email?.trim() || !['read', 'edit'].includes(permission)) {
@@ -98,7 +103,7 @@ router.post('/', (req, res, next) => {
 
 router.put('/:shareId', (req, res, next) => {
   try {
-    const sheetId = Number(req.params.id);
+    const sheetId = Number((req.params as unknown as SheetParams).id);
     const shareId = Number(req.params.shareId);
     const { permission } = req.body as UpdateSheetShareBody;
 
@@ -131,7 +136,7 @@ router.put('/:shareId', (req, res, next) => {
 
 router.delete('/leave', (req, res, next) => {
   try {
-    const sheetId = Number(req.params.id);
+    const sheetId = Number((req.params as unknown as SheetParams).id);
     const result = db
       .prepare('DELETE FROM sheet_shares WHERE sheet_id = ? AND shared_with_user_id = ?')
       .run(sheetId, req.userId);
@@ -147,7 +152,7 @@ router.delete('/leave', (req, res, next) => {
 
 router.delete('/:shareId', (req, res, next) => {
   try {
-    const sheetId = Number(req.params.id);
+    const sheetId = Number((req.params as unknown as SheetParams).id);
     const shareId = Number(req.params.shareId);
 
     const share = db

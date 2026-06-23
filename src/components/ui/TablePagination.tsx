@@ -39,8 +39,6 @@ const PAGE_SIZE_LABELS: Record<string, string> = {
 };
 
 export default function TablePagination({
-  currentPage,
-  totalPages,
   pageSize,
   pageSizeOptions,
   canGoPrevious,

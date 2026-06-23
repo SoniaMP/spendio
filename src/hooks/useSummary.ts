@@ -3,10 +3,10 @@ import { fetchSummary } from '@/api/summary';
 
 const SUMMARY_KEY = ['summary'] as const;
 
-export function useSummary(sheetIds: number[], month: string) {
+export function useSummary(sheetIds: number[], from: string, to: string) {
   return useQuery({
-    queryKey: [...SUMMARY_KEY, sheetIds, month],
-    queryFn: () => fetchSummary(sheetIds, month),
+    queryKey: [...SUMMARY_KEY, sheetIds, from, to],
+    queryFn: () => fetchSummary(sheetIds, from, to),
     enabled: sheetIds.length > 0,
   });
 }

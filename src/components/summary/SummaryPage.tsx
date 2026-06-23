@@ -1,20 +1,19 @@
 import { useEffect, useMemo } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { useSheets } from '@/hooks/useSheets';
-import { useMonthFilter } from '@/hooks/useMonthFilter';
 import { useSummary } from '@/hooks/useSummary';
 import { useSummaryConfig } from '@/hooks/useSummaryConfig';
 import { mergeCategoryTotals } from '@/helpers/mergeCategoryTotals';
-import MonthPicker from '@/components/layout/MonthPicker';
+import DateRangeFilter from '@/components/summary/DateRangeFilter';
 import SummaryConfig from '@/components/summary/SummaryConfig';
 import SheetSummaryCard from '@/components/summary/SheetSummaryCard';
 import TotalSummaryCard from '@/components/summary/TotalSummaryCard';
 
 export default function SummaryPage() {
   const { data: sheets } = useSheets();
-  const { monthKey, monthLabel, goToPreviousMonth, goToNextMonth } = useMonthFilter();
   const {
     config,
+    dateRange,
     toggleSheet,
     toggleCategory,
     initCategories,
@@ -22,9 +21,15 @@ export default function SummaryPage() {
     clearSheets,
     selectAllCategories,
     clearCategories,
+    setDatePreset,
+    setCustomRange,
   } = useSummaryConfig();
 
-  const { data, isLoading } = useSummary(config.selectedSheetIds, monthKey);
+  const { data, isLoading } = useSummary(
+    config.selectedSheetIds,
+    dateRange.from,
+    dateRange.to,
+  );
 
   const allCategories = useMemo(
     () => mergeCategoryTotals(data?.sheets ?? []),
@@ -61,13 +66,13 @@ export default function SummaryPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <MonthPicker
-          label={monthLabel}
-          onPrevious={goToPreviousMonth}
-          onNext={goToNextMonth}
-        />
-      </div>
+      <DateRangeFilter
+        preset={config.datePreset}
+        from={dateRange.from}
+        to={dateRange.to}
+        onPresetChange={setDatePreset}
+        onCustomRangeChange={setCustomRange}
+      />
 
       <SummaryConfig
         sheets={sheets ?? []}

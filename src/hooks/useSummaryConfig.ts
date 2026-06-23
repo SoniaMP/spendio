@@ -1,18 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import {
+  DatePreset,
+  getDateRangeForPreset,
+  type DateRange,
+} from '@/helpers/dateHelpers';
 
 const STORAGE_KEY = 'spendio-summary-config';
 
 interface SummaryConfig {
   selectedSheetIds: number[];
   selectedCategoryIds: number[] | null;
+  datePreset: DatePreset;
+  customFrom: string | null;
+  customTo: string | null;
 }
 
 function loadConfig(): SummaryConfig {
+  const defaults: SummaryConfig = {
+    selectedSheetIds: [],
+    selectedCategoryIds: null,
+    datePreset: DatePreset.ThisMonth,
+    customFrom: null,
+    customTo: null,
+  };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as SummaryConfig;
+    if (raw) return { ...defaults, ...(JSON.parse(raw) as Partial<SummaryConfig>) };
   } catch { /* ignore */ }
-  return { selectedSheetIds: [], selectedCategoryIds: null };
+  return defaults;
 }
 
 function saveConfig(config: SummaryConfig) {
@@ -83,8 +98,37 @@ export function useSummaryConfig() {
     update({ ...config, selectedSheetIds: [] });
   }, [config, update]);
 
+  const setDatePreset = useCallback((preset: DatePreset) => {
+    setConfig((prev) => {
+      const next = { ...prev, datePreset: preset };
+      saveConfig(next);
+      return next;
+    });
+  }, []);
+
+  const setCustomRange = useCallback((from: string, to: string) => {
+    setConfig((prev) => {
+      const next = {
+        ...prev,
+        datePreset: DatePreset.Custom,
+        customFrom: from,
+        customTo: to,
+      };
+      saveConfig(next);
+      return next;
+    });
+  }, []);
+
+  const dateRange = useMemo<DateRange>(() => {
+    if (config.datePreset === DatePreset.Custom && config.customFrom && config.customTo) {
+      return { from: config.customFrom, to: config.customTo };
+    }
+    return getDateRangeForPreset(config.datePreset);
+  }, [config.datePreset, config.customFrom, config.customTo]);
+
   return {
     config,
+    dateRange,
     toggleSheet,
     toggleCategory,
     initCategories,
@@ -92,5 +136,7 @@ export function useSummaryConfig() {
     clearSheets,
     selectAllCategories,
     clearCategories,
+    setDatePreset,
+    setCustomRange,
   };
 }

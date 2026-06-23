@@ -31,10 +31,16 @@ const router = Router();
 
 router.get('/', (req, res) => {
   const sheetIdsParam = req.query.sheetIds as string | undefined;
-  const month = req.query.month as string | undefined;
+  const from = req.query.from as string | undefined;
+  const to = req.query.to as string | undefined;
 
-  if (!sheetIdsParam || !month) {
-    res.status(400).json({ error: 'sheetIds y month son obligatorios' });
+  if (!sheetIdsParam || !from || !to) {
+    res.status(400).json({ error: 'sheetIds, from y to son obligatorios' });
+    return;
+  }
+
+  if (from > to) {
+    res.status(400).json({ error: 'from no puede ser posterior a to' });
     return;
   }
 
@@ -55,12 +61,12 @@ router.get('/', (req, res) => {
     FROM expenses e
     JOIN categories c ON c.id = e.category_id
     JOIN sheets s ON s.id = e.sheet_id
-    WHERE e.sheet_id IN (${placeholders}) AND e.date LIKE ? || '%'
+    WHERE e.sheet_id IN (${placeholders}) AND e.date >= ? AND e.date <= ?
     GROUP BY e.sheet_id, c.id
     ORDER BY e.sheet_id, total DESC
   `;
 
-  const rows = db.prepare(sql).all(...sheetIds, month) as SummaryRow[];
+  const rows = db.prepare(sql).all(...sheetIds, from, to) as SummaryRow[];
   const sheetMap = new Map<number, SheetSummary>();
 
   for (const row of rows) {

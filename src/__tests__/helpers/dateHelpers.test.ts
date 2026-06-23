@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { getMonthKey, getMonthLabel, getCurrentMonth, getPreviousMonth } from '@/helpers/dateHelpers';
+import {
+  getMonthKey,
+  getMonthLabel,
+  getCurrentMonth,
+  getPreviousMonth,
+  getDateRangeForPreset,
+  formatDateRangeLabel,
+  DatePreset,
+} from '@/helpers/dateHelpers';
 
 describe('getMonthKey', () => {
   it('pads single-digit month', () => {
@@ -46,5 +54,44 @@ describe('getCurrentMonth', () => {
     expect(result).toHaveProperty('month');
     expect(result.month).toBeGreaterThanOrEqual(1);
     expect(result.month).toBeLessThanOrEqual(12);
+  });
+});
+
+describe('getDateRangeForPreset', () => {
+  const today = new Date(2026, 5, 18); // 2026-06-18
+
+  it('returns the current month for ThisMonth', () => {
+    expect(getDateRangeForPreset(DatePreset.ThisMonth, today)).toEqual({
+      from: '2026-06-01',
+      to: '2026-06-30',
+    });
+  });
+
+  it('returns the last 3 months for Last3Months', () => {
+    expect(getDateRangeForPreset(DatePreset.Last3Months, today)).toEqual({
+      from: '2026-04-01',
+      to: '2026-06-30',
+    });
+  });
+
+  it('handles year boundary in Last3Months', () => {
+    const january = new Date(2026, 0, 15); // 2026-01-15
+    expect(getDateRangeForPreset(DatePreset.Last3Months, january)).toEqual({
+      from: '2025-11-01',
+      to: '2026-01-31',
+    });
+  });
+
+  it('returns Jan 1 to Dec 31 for ThisYear', () => {
+    expect(getDateRangeForPreset(DatePreset.ThisYear, today)).toEqual({
+      from: '2026-01-01',
+      to: '2026-12-31',
+    });
+  });
+});
+
+describe('formatDateRangeLabel', () => {
+  it('formats a range with both endpoints', () => {
+    expect(formatDateRangeLabel('2026-03-01', '2026-06-18')).toMatch(/mar.*–.*jun/);
   });
 });

@@ -10,6 +10,7 @@ import ResetPasswordPage from '@/components/auth/ResetPasswordPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import ExpensesPage from '@/components/expenses/ExpensesPage';
 import SummaryPage from '@/components/summary/SummaryPage';
+import SheetDetailPage from '@/components/summary/SheetDetailPage';
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
               <Route index element={<Navigate to="/expenses" replace />} />
               <Route path="expenses" element={<ExpensesPage />} />
               <Route path="summary" element={<SummaryPage />} />
+              <Route path="summary/sheet/:sheetId" element={<SheetDetailPage />} />
             </Route>
           </Route>
         </Routes>

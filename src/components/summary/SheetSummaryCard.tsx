@@ -4,11 +4,33 @@ import type { SheetSummary } from '@/types/summary';
 
 interface SheetSummaryCardProps {
   sheet: SheetSummary;
+  onSelect?: () => void;
+  onSelectCategory?: (categoryId: number) => void;
 }
 
-export default function SheetSummaryCard({ sheet }: SheetSummaryCardProps) {
+export default function SheetSummaryCard({
+  sheet,
+  onSelect,
+  onSelectCategory,
+}: SheetSummaryCardProps) {
+  const isClickable = !!onSelect;
   return (
-    <Card>
+    <Card
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={onSelect}
+      onKeyDown={
+        isClickable
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect?.();
+              }
+            }
+          : undefined
+      }
+      className={isClickable ? 'hover:bg-muted/50 cursor-pointer transition-colors' : undefined}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{sheet.sheetName}</CardTitle>
@@ -19,7 +41,35 @@ export default function SheetSummaryCard({ sheet }: SheetSummaryCardProps) {
         {sheet.categories.map((cat) => {
           const percentage = sheet.total > 0 ? (cat.total / sheet.total) * 100 : 0;
           return (
-            <div key={cat.categoryId} className="flex flex-col gap-1">
+            <div
+              key={cat.categoryId}
+              role={onSelectCategory ? 'button' : undefined}
+              tabIndex={onSelectCategory ? 0 : undefined}
+              onClick={
+                onSelectCategory
+                  ? (e) => {
+                      e.stopPropagation();
+                      onSelectCategory(cat.categoryId);
+                    }
+                  : undefined
+              }
+              onKeyDown={
+                onSelectCategory
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectCategory(cat.categoryId);
+                      }
+                    }
+                  : undefined
+              }
+              className={
+                onSelectCategory
+                  ? 'hover:bg-muted -mx-1 flex flex-col gap-1 rounded px-1 py-0.5'
+                  : 'flex flex-col gap-1'
+              }
+            >
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <span

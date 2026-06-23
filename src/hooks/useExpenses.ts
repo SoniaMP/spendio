@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   fetchExpenses,
+  fetchExpensesByRange,
   createExpense,
   updateExpense,
   duplicateExpense,
@@ -23,6 +24,18 @@ export function useExpenses(sheetId: number, month?: string) {
   return useQuery({
     queryKey: expensesQueryKey(sheetId, month),
     queryFn: () => fetchExpenses(sheetId, month),
+  });
+}
+
+export function useExpensesByRange(
+  sheetId: number,
+  from: string,
+  to: string,
+  categoryId?: number,
+) {
+  return useQuery({
+    queryKey: [...EXPENSES_KEY, sheetId, from, to, categoryId ?? null],
+    queryFn: () => fetchExpensesByRange(sheetId, from, to, categoryId),
   });
 }
 

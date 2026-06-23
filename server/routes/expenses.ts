@@ -14,6 +14,9 @@ const router = Router();
 router.get('/', (req, res) => {
   const month = req.query.month as string | undefined;
   const sheetId = req.query.sheetId as string | undefined;
+  const from = req.query.from as string | undefined;
+  const to = req.query.to as string | undefined;
+  const categoryId = req.query.categoryId as string | undefined;
 
   if (sheetId && !hasSheetAccess(db, Number(sheetId), req.userId, 'read')) {
     res.status(403).json({ error: 'No autorizado' });
@@ -38,6 +41,21 @@ router.get('/', (req, res) => {
   if (month) {
     sql += ` AND e.date LIKE ? || '%'`;
     params.push(month);
+  }
+
+  if (from) {
+    sql += ' AND e.date >= ?';
+    params.push(from);
+  }
+
+  if (to) {
+    sql += ' AND e.date <= ?';
+    params.push(to);
+  }
+
+  if (categoryId) {
+    sql += ' AND e.category_id = ?';
+    params.push(categoryId);
   }
 
   sql += ' ORDER BY e.date DESC, e.id DESC';

@@ -14,6 +14,23 @@ export async function fetchExpenses(
   return res.json();
 }
 
+export async function fetchExpensesByRange(
+  sheetId: number,
+  from: string,
+  to: string,
+  categoryId?: number,
+): Promise<ExpenseWithCategory[]> {
+  const params = new URLSearchParams({
+    sheetId: String(sheetId),
+    from,
+    to,
+  });
+  if (categoryId !== undefined) params.set('categoryId', String(categoryId));
+  const res = await fetchWithAuth(`${BASE_URL}?${params}`);
+  if (!res.ok) throw new Error('Failed to fetch expenses');
+  return res.json();
+}
+
 export interface CreateExpenseInput {
   amount: number;
   description?: string;

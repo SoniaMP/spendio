@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import SheetSummaryCard from '@/components/summary/SheetSummaryCard';
 import type { SheetSummary } from '@/types/summary';
 
@@ -26,5 +27,27 @@ describe('SheetSummaryCard', () => {
     expect(screen.getByText('Transporte')).toBeInTheDocument();
     expect(screen.getByText(/120,00/)).toBeInTheDocument();
     expect(screen.getByText(/80,00/)).toBeInTheDocument();
+  });
+
+  it('calls onSelect when the card is clicked', async () => {
+    const onSelect = vi.fn();
+    render(<SheetSummaryCard sheet={sheet} onSelect={onSelect} />);
+    await userEvent.click(screen.getByText('Personal'));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onSelectCategory with the category id and not onSelect', async () => {
+    const onSelect = vi.fn();
+    const onSelectCategory = vi.fn();
+    render(
+      <SheetSummaryCard
+        sheet={sheet}
+        onSelect={onSelect}
+        onSelectCategory={onSelectCategory}
+      />,
+    );
+    await userEvent.click(screen.getByText('Transporte'));
+    expect(onSelectCategory).toHaveBeenCalledWith(2);
+    expect(onSelect).not.toHaveBeenCalled();
   });
 });

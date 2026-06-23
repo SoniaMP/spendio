@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart3 } from 'lucide-react';
 import { useSheets } from '@/hooks/useSheets';
 import { useSummary } from '@/hooks/useSummary';
@@ -10,6 +11,7 @@ import SheetSummaryCard from '@/components/summary/SheetSummaryCard';
 import TotalSummaryCard from '@/components/summary/TotalSummaryCard';
 
 export default function SummaryPage() {
+  const navigate = useNavigate();
   const { data: sheets } = useSheets();
   const {
     config,
@@ -42,7 +44,10 @@ export default function SummaryPage() {
     }
   }, [allCategories, initCategories]);
 
-  const selectedCategoryIds = config.selectedCategoryIds ?? [];
+  const selectedCategoryIds = useMemo(
+    () => config.selectedCategoryIds ?? [],
+    [config.selectedCategoryIds],
+  );
 
   const filteredSheets = useMemo(() => {
     if (!data?.sheets) return [];
@@ -63,6 +68,15 @@ export default function SummaryPage() {
   );
 
   const grandTotal = filteredCategories.reduce((sum, c) => sum + c.total, 0);
+
+  function goToSheetDetail(sheetId: number, categoryId?: number) {
+    const params = new URLSearchParams({
+      from: dateRange.from,
+      to: dateRange.to,
+    });
+    if (categoryId !== undefined) params.set('categoryId', String(categoryId));
+    navigate(`/summary/sheet/${sheetId}?${params}`);
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,7 +117,14 @@ export default function SummaryPage() {
       {!isLoading && filteredSheets.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredSheets.map((sheet) => (
-            <SheetSummaryCard key={sheet.sheetId} sheet={sheet} />
+            <SheetSummaryCard
+              key={sheet.sheetId}
+              sheet={sheet}
+              onSelect={() => goToSheetDetail(sheet.sheetId)}
+              onSelectCategory={(categoryId) =>
+                goToSheetDetail(sheet.sheetId, categoryId)
+              }
+            />
           ))}
           <TotalSummaryCard total={grandTotal} categories={filteredCategories} />
         </div>

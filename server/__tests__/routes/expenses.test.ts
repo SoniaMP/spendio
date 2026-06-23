@@ -49,6 +49,64 @@ function getRouteHandler(method: string, path: string) {
   return layer?.route.stack[0].handle;
 }
 
+describe('GET / (list)', () => {
+  const handler = getRouteHandler('get', '/')!;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function runList(query: Record<string, string>) {
+    const req = { query, userId: 1 } as unknown as Request;
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
+    } as unknown as Response;
+    const next = vi.fn() as NextFunction;
+    const mockAll = vi.fn().mockReturnValue([]);
+    // .get() satisfies the owner check in hasSheetAccess when sheetId is set
+    mockDb.prepare.mockReturnValue({ get: vi.fn().mockReturnValue({ id: 1 }), all: mockAll });
+    handler(req, res, next);
+    return { res, mockAll };
+  }
+
+  it('filters by date range and category', () => {
+    const { res, mockAll } = runList({
+      sheetId: '7',
+      from: '2026-01-01',
+      to: '2026-01-31',
+      categoryId: '3',
+    });
+
+    const sql = mockDb.prepare.mock.calls.at(-1)?.[0] as string;
+    expect(sql).toContain('e.date >= ?');
+    expect(sql).toContain('e.date <= ?');
+    expect(sql).toContain('e.category_id = ?');
+    expect(mockAll).toHaveBeenCalledWith('7', '2026-01-01', '2026-01-31', '3');
+    expect(res.json).toHaveBeenCalledWith([]);
+  });
+
+  it('filters by date range without category', () => {
+    const { mockAll } = runList({
+      sheetId: '7',
+      from: '2026-01-01',
+      to: '2026-01-31',
+    });
+
+    const sql = mockDb.prepare.mock.calls.at(-1)?.[0] as string;
+    expect(sql).not.toContain('e.category_id = ?');
+    expect(mockAll).toHaveBeenCalledWith('7', '2026-01-01', '2026-01-31');
+  });
+
+  it('still supports the month filter', () => {
+    const { mockAll } = runList({ sheetId: '7', month: '2026-01' });
+
+    const sql = mockDb.prepare.mock.calls.at(-1)?.[0] as string;
+    expect(sql).toContain('e.date LIKE ?');
+    expect(mockAll).toHaveBeenCalledWith('7', '2026-01');
+  });
+});
+
 describe('PUT /:id (Move)', () => {
   const handler = getRouteHandler('put', '/:id')!;
 

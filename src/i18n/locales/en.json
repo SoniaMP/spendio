@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "expenses": "Expenses",
+    "summary": "Summary"
+  },
+  "auth": {
+    "logout": "Sign out"
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "categories": "Categories",
+      "language": "Language"
+    },
+    "language": {
+      "heading": "Application language",
+      "description": "The change applies instantly and is remembered on this device."
+    }
+  }
+}

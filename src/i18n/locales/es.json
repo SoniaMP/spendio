@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "expenses": "Gastos",
+    "summary": "Resumen"
+  },
+  "auth": {
+    "logout": "Cerrar sesión"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "tabs": {
+      "categories": "Categorías",
+      "language": "Idioma"
+    },
+    "language": {
+      "heading": "Idioma de la aplicación",
+      "description": "El cambio se aplica al instante y se recuerda en este dispositivo."
+    }
+  }
+}

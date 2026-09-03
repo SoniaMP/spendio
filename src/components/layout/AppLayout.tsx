@@ -1,17 +1,12 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { LogOut, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { useSheets } from '@/hooks/useSheets';
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import SheetTabs from '@/components/sheets/SheetTabs';
-import CategoriesPage from '@/components/categories/CategoriesPage';
+import SettingsDialog from '@/components/settings/SettingsDialog';
 
 import type { SheetPermission } from '@/types/sheet';
 
@@ -21,13 +16,14 @@ export interface OutletContext {
 }
 
 export default function AppLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: sheets } = useSheets();
   const { data: user } = useAuth();
   const logoutMutation = useLogout();
   const location = useLocation();
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isExpensesRoute = location.pathname.startsWith('/expenses');
 
   const sheetParam = Number(searchParams.get('sheet'));
@@ -70,12 +66,12 @@ export default function AppLayout() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsCategoriesOpen(true)}
-                title="Categorías"
+                onClick={() => setIsSettingsOpen(true)}
+                title={t('settings.title')}
               >
                 <Settings className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout} title="Cerrar sesión">
+              <Button variant="ghost" size="icon" onClick={handleLogout} title={t('auth.logout')}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
@@ -89,7 +85,7 @@ export default function AppLayout() {
             `pb-2 text-sm font-medium transition-colors ${isActive ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`
           }
         >
-          Gastos
+          {t('nav.expenses')}
         </NavLink>
         <NavLink
           to="/summary"
@@ -97,7 +93,7 @@ export default function AppLayout() {
             `pb-2 text-sm font-medium transition-colors ${isActive ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`
           }
         >
-          Resumen
+          {t('nav.summary')}
         </NavLink>
       </nav>
       {isExpensesRoute && (
@@ -112,16 +108,10 @@ export default function AppLayout() {
         <Outlet context={context} />
       </main>
 
-      <Dialog open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
-        <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Categorías</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto overscroll-contain -mx-6 px-6">
-            <CategoriesPage />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }

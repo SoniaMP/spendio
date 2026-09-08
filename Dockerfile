@@ -1,5 +1,5 @@
 # --- Build stage ---
-FROM node:22-alpine AS build
+FROM node:22.19.0-alpine AS build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -8,7 +8,7 @@ COPY . .
 RUN npx vite build
 
 # --- Production stage ---
-FROM node:22-alpine
+FROM node:22.19.0-alpine
 
 RUN apk add --no-cache python3 make g++
 

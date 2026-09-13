@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Copy,
   MoreVertical,
@@ -36,6 +37,7 @@ export default function ExpenseRow({
   onDelete,
   isReadOnly,
 }: ExpenseRowProps) {
+  const { t } = useTranslation();
   const hasAnyAction = !!(onEdit || onDuplicate || onMove || onDelete);
 
   return (
@@ -43,10 +45,10 @@ export default function ExpenseRow({
       <TableCell className="whitespace-nowrap">
         <div className="flex items-center gap-1.5">
           {expense.recurring_id !== null && (
-            <span title="Gasto recurrente" className="inline-flex">
+            <span title={t('expenses.recurringBadge')} className="inline-flex">
               <Repeat
                 className="h-3.5 w-3.5 text-muted-foreground"
-                aria-label="Gasto recurrente"
+                aria-label={t('expenses.recurringBadge')}
               />
             </span>
           )}
@@ -72,7 +74,7 @@ export default function ExpenseRow({
         <TableCell className="text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-xs" aria-label="Acciones">
+              <Button variant="ghost" size="icon-xs" aria-label={t('common.actions')}>
                 <MoreVertical />
               </Button>
             </DropdownMenuTrigger>
@@ -80,19 +82,19 @@ export default function ExpenseRow({
               {onEdit && (
                 <DropdownMenuItem onClick={() => onEdit(expense)}>
                   <Pencil />
-                  Editar
+                  {t('common.edit')}
                 </DropdownMenuItem>
               )}
               {onDuplicate && (
                 <DropdownMenuItem onClick={() => onDuplicate(expense)}>
                   <Copy />
-                  Duplicar
+                  {t('common.duplicate')}
                 </DropdownMenuItem>
               )}
               {onMove && (
                 <DropdownMenuItem onClick={() => onMove(expense)}>
                   <MoveRight />
-                  Mover
+                  {t('common.move')}
                 </DropdownMenuItem>
               )}
               {onDelete && (
@@ -103,7 +105,7 @@ export default function ExpenseRow({
                     onClick={() => onDelete(expense)}
                   >
                     <Trash2 />
-                    Eliminar
+                    {t('common.delete')}
                   </DropdownMenuItem>
                 </>
               )}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   ChevronsLeft,
   ChevronLeft,
@@ -31,13 +32,6 @@ interface TablePaginationProps {
   onPageSizeChange: (size: PageSizeOption) => void;
 }
 
-const PAGE_SIZE_LABELS: Record<string, string> = {
-  '5': '5',
-  '10': '10',
-  '25': '25',
-  all: 'Todos',
-};
-
 export default function TablePagination({
   pageSize,
   pageSizeOptions,
@@ -51,6 +45,7 @@ export default function TablePagination({
   onNext,
   onPageSizeChange,
 }: TablePaginationProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-end gap-1 pt-2">
       <Button
@@ -58,7 +53,7 @@ export default function TablePagination({
         size="icon-sm"
         disabled={!canGoFirst}
         onClick={onFirst}
-        aria-label="Primera página"
+        aria-label={t('pagination.first')}
       >
         <ChevronsLeft />
       </Button>
@@ -67,7 +62,7 @@ export default function TablePagination({
         size="icon-sm"
         disabled={!canGoPrevious}
         onClick={onPrevious}
-        aria-label="Página anterior"
+        aria-label={t('pagination.previous')}
       >
         <ChevronLeft />
       </Button>
@@ -77,13 +72,13 @@ export default function TablePagination({
           onPageSizeChange(v === 'all' ? 'all' : (Number(v) as 5 | 10 | 25))
         }
       >
-        <SelectTrigger size="sm" aria-label="Filas por página">
+        <SelectTrigger size="sm" aria-label={t('pagination.rowsPerPage')}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {pageSizeOptions.map((opt) => (
             <SelectItem key={String(opt)} value={String(opt)}>
-              {PAGE_SIZE_LABELS[String(opt)]}
+              {opt === 'all' ? t('pagination.all') : opt}
             </SelectItem>
           ))}
         </SelectContent>
@@ -93,7 +88,7 @@ export default function TablePagination({
         size="icon-sm"
         disabled={!canGoNext}
         onClick={onNext}
-        aria-label="Página siguiente"
+        aria-label={t('pagination.next')}
       >
         <ChevronRight />
       </Button>
@@ -102,7 +97,7 @@ export default function TablePagination({
         size="icon-sm"
         disabled={!canGoLast}
         onClick={onLast}
-        aria-label="Última página"
+        aria-label={t('pagination.last')}
       >
         <ChevronsRight />
       </Button>

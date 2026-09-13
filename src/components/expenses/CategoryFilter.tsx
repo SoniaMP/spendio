@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ interface CategoryFilterProps {
 }
 
 export default function CategoryFilter({ value, onChange }: CategoryFilterProps) {
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
 
   function handleChange(selected: string) {
@@ -27,10 +29,10 @@ export default function CategoryFilter({ value, onChange }: CategoryFilterProps)
       onValueChange={handleChange}
     >
       <SelectTrigger className="w-[140px] sm:w-[200px]">
-        <SelectValue placeholder="Todas las categorías" />
+        <SelectValue placeholder={t('expenses.allCategories')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={ALL_VALUE}>Todas las categorías</SelectItem>
+        <SelectItem value={ALL_VALUE}>{t('expenses.allCategories')}</SelectItem>
         {categories?.map((cat) => (
           <SelectItem key={cat.id} value={String(cat.id)}>
             <span className="flex items-center gap-2">

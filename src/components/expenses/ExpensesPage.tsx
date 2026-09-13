@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { Plus, Receipt, Repeat } from 'lucide-react';
 import { toast } from 'sonner';
@@ -29,6 +30,7 @@ import RecurringExpensesDialog from '@/components/recurring/RecurringExpensesDia
 
 export default function ExpensesPage() {
   const { activeSheetId, activeSheetPermission } = useOutletContext<OutletContext>();
+  const { t } = useTranslation();
   const isReadOnly = activeSheetPermission === 'read';
   const [, setSearchParams] = useSearchParams();
 
@@ -115,9 +117,9 @@ export default function ExpensesPage() {
   }
 
   function handleMoveSuccess(info: MoveSuccessInfo) {
-    toast.success('Gasto movido', {
+    toast.success(t('expenses.moved'), {
       action: {
-        label: 'Ver',
+        label: t('common.view'),
         onClick: () => {
           setSearchParams({ sheet: String(info.targetSheetId) });
           goToMonth(info.targetYear, info.targetMonth);
@@ -127,9 +129,9 @@ export default function ExpensesPage() {
   }
 
   function handleDuplicateSuccess(info: DuplicateSuccessInfo) {
-    toast.success('Gasto duplicado', {
+    toast.success(t('expenses.duplicated'), {
       action: {
-        label: 'Ver',
+        label: t('common.view'),
         onClick: () => {
           setSearchParams({ sheet: String(info.targetSheetId) });
           goToMonth(info.targetYear, info.targetMonth);
@@ -144,7 +146,7 @@ export default function ExpensesPage() {
     if (isError) {
       return (
         <p className="py-8 text-center text-destructive">
-          Error al cargar los gastos.
+          {t('expenses.loadError')}
         </p>
       );
     }
@@ -153,14 +155,14 @@ export default function ExpensesPage() {
       return (
         <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
           <Receipt className="h-10 w-10" />
-          <p>No hay gastos en este mes.</p>
+          <p>{t('expenses.empty')}</p>
           {!isReadOnly && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsFormOpen(true)}
             >
-              <Plus /> Añadir gasto
+              <Plus /> {t('expenses.new')}
             </Button>
           )}
         </div>
@@ -198,12 +200,12 @@ export default function ExpensesPage() {
               variant="outline"
               onClick={() => setIsRecurringOpen(true)}
             >
-              <Repeat /> <span className="hidden sm:inline">Recurrentes</span>
+              <Repeat /> <span className="hidden sm:inline">{t('expenses.recurringButton')}</span>
             </Button>
           )}
           {!isReadOnly && (
             <Button size="sm" onClick={() => setIsFormOpen(true)}>
-              <Plus /> <span className="hidden sm:inline">Nuevo gasto</span>
+              <Plus /> <span className="hidden sm:inline">{t('expenses.new')}</span>
             </Button>
           )}
         </div>

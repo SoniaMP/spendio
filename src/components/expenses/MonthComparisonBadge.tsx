@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import type { MonthComparison } from '@/helpers/calcMonthComparison';
 
@@ -12,24 +13,28 @@ export default function MonthComparisonBadge({
   previousMonthLabel,
   isLoading,
 }: MonthComparisonBadgeProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <Badge variant="secondary" className="animate-pulse">
-        Cargando...
+        {t('common.loading')}
       </Badge>
     );
   }
 
   if (comparison.percentageChange === 100 && comparison.direction === 'up') {
     return (
-      <Badge variant="secondary">Sin datos de {previousMonthLabel}</Badge>
+      <Badge variant="secondary">
+        {t('expenses.comparison.noPreviousData', { month: previousMonthLabel })}
+      </Badge>
     );
   }
 
   if (comparison.direction === 'equal') {
     return (
       <Badge variant="secondary">
-        Igual que {previousMonthLabel}
+        {t('expenses.comparison.equal', { month: previousMonthLabel })}
       </Badge>
     );
   }
@@ -40,7 +45,11 @@ export default function MonthComparisonBadge({
 
   return (
     <Badge variant={isDown ? 'default' : 'destructive'}>
-      {arrow} {formatted}% vs {previousMonthLabel}
+      {t('expenses.comparison.change', {
+        arrow,
+        percentage: formatted,
+        month: previousMonthLabel,
+      })}
     </Badge>
   );
 }

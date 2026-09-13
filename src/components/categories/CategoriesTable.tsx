@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Table,
   TableHeader,
@@ -29,6 +30,7 @@ export default function CategoriesTable({
   onEdit,
   onDelete,
 }: CategoriesTableProps) {
+  const { t } = useTranslation();
   const accessors = useMemo(() => SORT_ACCESSORS, []);
   const { sortedItems, sortColumn, sortDirection, toggleSort } = useSort(categories, accessors);
 
@@ -41,16 +43,16 @@ export default function CategoriesTable({
             direction={sortDirection}
             onToggle={() => toggleSort('name')}
           >
-            Nombre
+            {t('categories.columns.name')}
           </SortableTableHead>
           <SortableTableHead
             isActive={sortColumn === 'color'}
             direction={sortDirection}
             onToggle={() => toggleSort('color')}
           >
-            Color
+            {t('categories.columns.color')}
           </SortableTableHead>
-          <TableHead className="text-right">Acciones</TableHead>
+          <TableHead className="text-right">{t('common.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

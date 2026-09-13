@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ export default function ExpenseFormDialog({
   isOpen,
   onClose,
 }: ExpenseFormDialogProps) {
+  const { t } = useTranslation();
   const isEditing = !!expense;
   const createMutation = useCreateExpense();
   const updateMutation = useUpdateExpense();
@@ -51,7 +53,7 @@ export default function ExpenseFormDialog({
         { id: expense.id, scope: canChooseScope ? scope : undefined, ...values },
         {
           onSuccess: () => {
-            toast.success('Gasto actualizado');
+            toast.success(t('expenses.updated'));
             handleClose();
           },
           onError: (err) => toast.error(err.message),
@@ -62,7 +64,7 @@ export default function ExpenseFormDialog({
         { ...values, sheetId },
         {
           onSuccess: () => {
-            toast.success('Gasto creado');
+            toast.success(t('expenses.created'));
             handleClose();
           },
           onError: (err) => toast.error(err.message),
@@ -76,12 +78,12 @@ export default function ExpenseFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar gasto' : 'Nuevo gasto'}
+            {isEditing ? t('expenses.form.editTitle') : t('expenses.form.createTitle')}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? 'Modifica los datos del gasto.'
-              : 'Añade un nuevo gasto.'}
+              ? t('expenses.form.editDescription')
+              : t('expenses.form.createDescription')}
           </DialogDescription>
         </DialogHeader>
         {canChooseScope && (
@@ -94,7 +96,7 @@ export default function ExpenseFormDialog({
                 onChange={() => setScope('this')}
                 className="mt-1"
               />
-              <Label className="cursor-pointer">Solo este gasto</Label>
+              <Label className="cursor-pointer">{t('expenses.form.scopeThis')}</Label>
             </label>
             <label className="flex items-start gap-2 cursor-pointer">
               <input
@@ -105,7 +107,7 @@ export default function ExpenseFormDialog({
                 className="mt-1"
               />
               <Label className="cursor-pointer">
-                Este y los siguientes (importe, descripción, categoría)
+                {t('expenses.form.scopeFuture')}
               </Label>
             </label>
           </div>

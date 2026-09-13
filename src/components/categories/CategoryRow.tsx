@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TableRow, TableCell } from '@/components/ui/table';
@@ -14,6 +15,8 @@ export default function CategoryRow({
   onEdit,
   onDelete,
 }: CategoryRowProps) {
+  const { t } = useTranslation();
+
   return (
     <TableRow>
       <TableCell>
@@ -34,7 +37,7 @@ export default function CategoryRow({
             variant="ghost"
             size="icon-xs"
             onClick={() => onEdit(category)}
-            aria-label={`Editar ${category.name}`}
+            aria-label={t('categories.editAction', { name: category.name })}
           >
             <Pencil />
           </Button>
@@ -42,7 +45,7 @@ export default function CategoryRow({
             variant="ghost"
             size="icon-xs"
             onClick={() => onDelete(category)}
-            aria-label={`Eliminar ${category.name}`}
+            aria-label={t('categories.deleteAction', { name: category.name })}
           >
             <Trash2 />
           </Button>

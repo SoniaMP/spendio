@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -22,20 +23,21 @@ export default function CategoryDeleteDialog({
   isOpen,
   onClose,
 }: CategoryDeleteDialogProps) {
+  const { t } = useTranslation();
   const deleteMutation = useDeleteCategory();
 
   function handleConfirm() {
     if (!category) return;
     deleteMutation.mutate(category.id, {
       onSuccess: () => {
-        toast.success('Categoría eliminada');
+        toast.success(t('categories.deleted'));
         onClose();
       },
       onError: (err) => {
         const message = err.message.toLowerCase().includes('restrict')
           || err.message.toLowerCase().includes('constraint')
           || err.message.toLowerCase().includes('foreign')
-          ? 'No se puede eliminar: tiene gastos asociados'
+          ? t('categories.deleteBlocked')
           : err.message;
         toast.error(message);
       },
@@ -46,22 +48,25 @@ export default function CategoryDeleteDialog({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Eliminar categoría</DialogTitle>
+          <DialogTitle>{t('categories.delete.title')}</DialogTitle>
           <DialogDescription>
-            ¿Seguro que quieres eliminar <strong>{category?.name}</strong>?
-            Si tiene gastos asociados, no se podrá eliminar.
+            <Trans
+              i18nKey="categories.delete.confirm"
+              values={{ name: category?.name ?? '' }}
+              components={{ name: <strong /> }}
+            />
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancelar
+            {t('common.cancel')}
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+            {deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

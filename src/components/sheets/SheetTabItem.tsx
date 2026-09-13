@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   MoreHorizontal,
   Pencil,
@@ -44,6 +45,7 @@ export default function SheetTabItem({
   onDragOver,
   onDragEnd,
 }: SheetTabItemProps) {
+  const { t } = useTranslation();
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(sheet.name);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -122,13 +124,13 @@ export default function SheetTabItem({
                 }}
               >
                 <Pencil className="mr-2 h-4 w-4" />
-                Renombrar
+                {t('sheets.rename')}
               </DropdownMenuItem>
             )}
             {permission === "owner" && onShare && (
               <DropdownMenuItem onClick={onShare}>
                 <Share2 className="mr-2 h-4 w-4" />
-                Compartir
+                {t('sheets.share')}
               </DropdownMenuItem>
             )}
             {permission === "owner" ? (
@@ -137,7 +139,7 @@ export default function SheetTabItem({
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Eliminar
+                {t('common.delete')}
               </DropdownMenuItem>
             ) : (
               onLeave && (
@@ -146,7 +148,7 @@ export default function SheetTabItem({
                   className="text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Dejar hoja
+                  {t('sheets.leave')}
                 </DropdownMenuItem>
               )
             )}

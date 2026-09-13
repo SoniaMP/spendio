@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Wallet } from 'lucide-react';
 import { useForgotPassword } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const mutation = useForgotPassword();
   const [email, setEmail] = useState('');
 
@@ -23,9 +25,9 @@ export default function ForgotPasswordPage() {
           <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-xl">
             <Wallet className="text-primary-foreground h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Recuperar contraseña</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('auth.forgotPassword.title')}</h1>
           <p className="text-muted-foreground text-center text-sm">
-            Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña
+            {t('auth.forgotPassword.description')}
           </p>
         </CardHeader>
 
@@ -33,20 +35,20 @@ export default function ForgotPasswordPage() {
           {mutation.isSuccess ? (
             <div className="flex flex-col gap-3 text-center">
               <p className="text-sm">
-                Si el correo está registrado, recibirás un enlace de recuperación en breve. Revisa tu bandeja de entrada.
+                {t('auth.forgotPassword.success')}
               </p>
               <Link
                 to="/login"
                 className="text-primary text-sm font-medium underline-offset-4 hover:underline"
               >
-                Volver al inicio de sesión
+                {t('auth.backToLogin')}
               </Link>
             </div>
           ) : (
             <>
               <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="email">Correo electrónico</Label>
+                  <Label htmlFor="email">{t('auth.fields.emailAddress')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -56,7 +58,9 @@ export default function ForgotPasswordPage() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                  {mutation.isPending ? 'Enviando...' : 'Enviar enlace de recuperación'}
+                  {mutation.isPending
+                    ? t('auth.forgotPassword.submitting')
+                    : t('auth.forgotPassword.submit')}
                 </Button>
               </form>
 
@@ -68,7 +72,7 @@ export default function ForgotPasswordPage() {
                 to="/login"
                 className="text-muted-foreground hover:text-foreground text-center text-sm underline-offset-4 hover:underline"
               >
-                Volver al inicio de sesión
+                {t('auth.backToLogin')}
               </Link>
             </>
           )}

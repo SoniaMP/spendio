@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ExpenseWithCategory } from '@/types/expense';
 import { groupExpensesByCategory } from '@/helpers/groupExpensesByCategory';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -11,6 +12,8 @@ interface ExpenseChartProps {
 }
 
 export default function ExpenseChart({ expenses }: ExpenseChartProps) {
+  const { t } = useTranslation();
+
   if (expenses.length === 0) return null;
 
   const data = groupExpensesByCategory(expenses);
@@ -18,13 +21,13 @@ export default function ExpenseChart({ expenses }: ExpenseChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gastos por categoría</CardTitle>
+        <CardTitle>{t('expenses.chart.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="pie">
           <TabsList>
-            <TabsTrigger value="pie">Circular</TabsTrigger>
-            <TabsTrigger value="bar">Barras</TabsTrigger>
+            <TabsTrigger value="pie">{t('expenses.chart.pie')}</TabsTrigger>
+            <TabsTrigger value="bar">{t('expenses.chart.bar')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="pie">

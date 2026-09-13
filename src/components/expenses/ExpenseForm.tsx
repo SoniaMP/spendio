@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +27,7 @@ export default function ExpenseForm({
   onSubmit,
   isPending,
 }: ExpenseFormProps) {
+  const { t } = useTranslation();
   const [amount, setAmount] = useState(
     initialValues?.amount?.toString() ?? '',
   );
@@ -54,7 +56,7 @@ export default function ExpenseForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="expense-amount">Importe</Label>
+        <Label htmlFor="expense-amount">{t('expenses.columns.amount')}</Label>
         <Input
           id="expense-amount"
           type="number"
@@ -62,24 +64,24 @@ export default function ExpenseForm({
           min="0.01"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="0,00"
+          placeholder={t('expenses.form.amountPlaceholder')}
           required
           autoFocus
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="expense-description">Descripción</Label>
+        <Label htmlFor="expense-description">{t('expenses.columns.description')}</Label>
         <Input
           id="expense-description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Ej: Compra supermercado"
+          placeholder={t('expenses.form.descriptionPlaceholder')}
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="expense-date">Fecha</Label>
+        <Label htmlFor="expense-date">{t('expenses.columns.date')}</Label>
         <Input
           id="expense-date"
           type="date"
@@ -90,12 +92,12 @@ export default function ExpenseForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>Categoría</Label>
+        <Label>{t('expenses.columns.category')}</Label>
         <CategoryCombobox value={categoryId} onChange={setCategoryId} />
       </div>
 
       <Button type="submit" disabled={isPending || !isValid}>
-        {isPending ? 'Guardando...' : 'Guardar'}
+        {isPending ? t('common.saving') : t('common.save')}
       </Button>
     </form>
   );

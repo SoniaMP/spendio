@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props) {
+  const { t } = useTranslation();
   const deleteMutation = useDeleteExpense();
   const { data: currentUser } = useAuth();
   const [scope, setScope] = useState<'this' | 'future'>('this');
@@ -42,8 +44,8 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
         onSuccess: () => {
           toast.success(
             scope === 'future' && canChooseScope
-              ? 'Gastos eliminados'
-              : 'Gasto eliminado',
+              ? t('expenses.deletedMany')
+              : t('expenses.deletedOne'),
           );
           handleClose();
         },
@@ -56,15 +58,16 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Eliminar gasto</DialogTitle>
+          <DialogTitle>{t('expenses.delete.title')}</DialogTitle>
           <DialogDescription>
             {canChooseScope ? (
-              <>Este gasto forma parte de una serie recurrente. ¿Qué quieres eliminar?</>
+              <>{t('expenses.delete.recurringQuestion')}</>
             ) : (
-              <>
-                ¿Seguro que quieres eliminar este gasto de{' '}
-                <strong>{expense ? formatCurrency(expense.amount) : ''}</strong>?
-              </>
+              <Trans
+                i18nKey="expenses.delete.confirm"
+                values={{ amount: expense ? formatCurrency(expense.amount) : '' }}
+                components={{ amount: <strong /> }}
+              />
             )}
           </DialogDescription>
         </DialogHeader>
@@ -80,9 +83,9 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
                 className="mt-1"
               />
               <div>
-                <Label className="cursor-pointer">Solo este gasto</Label>
+                <Label className="cursor-pointer">{t('expenses.delete.scopeThis')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Los demás gastos de la serie no se tocan.
+                  {t('expenses.delete.scopeThisHint')}
                 </p>
               </div>
             </label>
@@ -95,9 +98,9 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
                 className="mt-1"
               />
               <div>
-                <Label className="cursor-pointer">Este gasto y los siguientes</Label>
+                <Label className="cursor-pointer">{t('expenses.delete.scopeFuture')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Elimina este, los futuros, y la plantilla. Los pasados se conservan.
+                  {t('expenses.delete.scopeFutureHint')}
                 </p>
               </div>
             </label>
@@ -105,13 +108,13 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>Cancelar</Button>
+          <Button variant="outline" onClick={handleClose}>{t('common.cancel')}</Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+            {deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

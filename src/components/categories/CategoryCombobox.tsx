@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ export default function CategoryCombobox({
   value,
   onChange,
 }: CategoryComboboxProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const { data: categories } = useCategories();
@@ -83,7 +85,7 @@ export default function CategoryCombobox({
             </div>
           ) : (
             <span className="text-muted-foreground">
-              Seleccionar categoría...
+              {t('categories.combobox.placeholder')}
             </span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -95,12 +97,12 @@ export default function CategoryCombobox({
       >
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Buscar categoría..."
+            placeholder={t('categories.combobox.search')}
             value={searchValue}
             onValueChange={setSearchValue}
           />
           <CommandList>
-            <CommandEmpty>No se encontraron categorías.</CommandEmpty>
+            <CommandEmpty>{t('categories.combobox.notFound')}</CommandEmpty>
             <CommandGroup>
               {filteredCategories.map((cat) => (
                 <CommandItem
@@ -124,7 +126,7 @@ export default function CategoryCombobox({
               {showCreateOption && (
                 <CommandItem onSelect={handleCreate}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Crear &quot;{searchValue.trim()}&quot;
+                  {t('categories.combobox.create', { name: searchValue.trim() })}
                 </CommandItem>
               )}
             </CommandGroup>

@@ -3,8 +3,269 @@
     "expenses": "Expenses",
     "summary": "Summary"
   },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "move": "Move",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "noData": "No data",
+    "view": "View",
+    "create": "Create",
+    "new": "New",
+    "color": "Color",
+    "name": "Name",
+    "confirm": "Confirm",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "all": "All",
+    "creating": "Creating..."
+  },
   "auth": {
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "tagline": "Track your spending, see where your money goes",
+    "privacyNote": "Your data is private and secure",
+    "features": {
+      "categories": "Organize expenses by category",
+      "charts": "Monthly charts and comparisons",
+      "export": "Export your data to Excel"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "emailAddress": "Email address",
+      "password": "Password"
+    },
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "createAccount": "Create account",
+    "createNewAccount": "Create a new account",
+    "haveAccount": "I already have an account",
+    "forgotPasswordLink": "Forgot your password?",
+    "backToLogin": "Back to sign in",
+    "forgotPassword": {
+      "title": "Reset your password",
+      "description": "Enter your email and we will send you a link to reset your password",
+      "success": "If the email is registered, you will receive a recovery link shortly. Check your inbox.",
+      "submit": "Send recovery link",
+      "submitting": "Sending..."
+    },
+    "resetPassword": {
+      "title": "New password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "success": "Your password was reset successfully. Redirecting to sign in...",
+      "goToLogin": "Go to sign in",
+      "tooShort": "The password must be at least 6 characters long",
+      "mismatch": "The passwords do not match"
+    },
+    "sessionWarning": {
+      "title": "Your session is about to expire",
+      "description": "Your session will expire in <bold>{{time}}</bold> due to inactivity. Press the button to continue.",
+      "extend": "Stay signed in"
+    }
+  },
+  "expenses": {
+    "recurringBadge": "Recurring expense",
+    "empty": "No expenses this month.",
+    "new": "New expense",
+    "recurringButton": "Recurring",
+    "export": "Export",
+    "moved": "Expense moved",
+    "duplicated": "Expense duplicated",
+    "created": "Expense created",
+    "updated": "Expense updated",
+    "deletedOne": "Expense deleted",
+    "deletedMany": "Expenses deleted",
+    "columns": {
+      "date": "Date",
+      "description": "Description",
+      "category": "Category",
+      "amount": "Amount"
+    },
+    "form": {
+      "amountPlaceholder": "0.00",
+      "descriptionPlaceholder": "e.g. Grocery shopping",
+      "editTitle": "Edit expense",
+      "createTitle": "New expense",
+      "editDescription": "Change the expense details.",
+      "createDescription": "Add a new expense.",
+      "scopeThis": "This expense only",
+      "scopeFuture": "This and the following ones (amount, description, category)"
+    },
+    "delete": {
+      "title": "Delete expense",
+      "recurringQuestion": "This expense belongs to a recurring series. What do you want to delete?",
+      "confirm": "Delete this <amount>{{amount}}</amount> expense?",
+      "scopeThis": "This expense only",
+      "scopeThisHint": "The other expenses in the series are left untouched.",
+      "scopeFuture": "This expense and the following ones",
+      "scopeFutureHint": "Deletes this one, the future ones and the template. Past ones are kept."
+    },
+    "duplicate": {
+      "title": "Duplicate expense",
+      "description": "Create a copy of the expense in another sheet or month. If the day does not exist in the target month, it is moved to the last day.",
+      "submitting": "Duplicating..."
+    },
+    "move": {
+      "title": "Move expense",
+      "description": "Choose the target sheet and month. If the day does not exist in the target month, it is moved to the last day.",
+      "submitting": "Moving..."
+    },
+    "targetSheet": "Target sheet",
+    "targetSheetPlaceholder": "Select a sheet",
+    "targetMonth": "Target month",
+    "chart": {
+      "title": "Expenses by category",
+      "pie": "Pie",
+      "bar": "Bars"
+    },
+    "allCategories": "All categories",
+    "comparison": {
+      "title": "Category comparison",
+      "monthTotal": "Month total",
+      "noPreviousData": "No data for {{month}}",
+      "equal": "Same as {{month}}",
+      "change": "{{arrow}} {{percentage}}% vs {{month}}"
+    },
+    "loadError": "Could not load the expenses."
+  },
+  "categories": {
+    "new": "New category",
+    "loadError": "Could not load the categories.",
+    "empty": "No categories yet. Create the first one to get started.",
+    "columns": {
+      "name": "Name",
+      "color": "Color"
+    },
+    "form": {
+      "namePlaceholder": "e.g. Groceries",
+      "editTitle": "Edit category",
+      "createTitle": "New category",
+      "editDescription": "Change the category details.",
+      "createDescription": "Add a new expense category."
+    },
+    "created": "Category created",
+    "updated": "Category updated",
+    "deleted": "Category deleted",
+    "deleteBlocked": "Cannot delete: it has expenses attached",
+    "delete": {
+      "title": "Delete category",
+      "confirm": "Delete <name>{{name}}</name>? If it has expenses attached, it cannot be deleted."
+    },
+    "editAction": "Edit {{name}}",
+    "deleteAction": "Delete {{name}}",
+    "combobox": {
+      "placeholder": "Select a category...",
+      "search": "Search category...",
+      "notFound": "No categories found.",
+      "create": "Create \"{{name}}\""
+    }
+  },
+  "recurring": {
+    "title": "Recurring expenses",
+    "description": "Templates that generate an expense automatically every period.",
+    "empty": "No recurring expenses yet",
+    "emptyHint": "Create one to automate expenses that repeat (rent, subscriptions, etc.).",
+    "created": "Recurring expense created",
+    "updated": "Recurring expense updated",
+    "deleted": "Recurring expense deleted",
+    "paused": "Recurring expense paused",
+    "activated": "Recurring expense activated",
+    "pausedBadge": "Paused",
+    "noCategoryBadge": "No category",
+    "noDescription": "No description",
+    "nextDue": "· Next: <date>{{date}}</date>",
+    "pause": "Pause",
+    "activate": "Activate",
+    "period": {
+      "label": "Period",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "perMonth": "/ month",
+      "perYear": "/ year"
+    },
+    "form": {
+      "descriptionPlaceholder": "e.g. Rent, Netflix...",
+      "startDate": "Start date",
+      "endDate": "End date (optional)",
+      "endDatePlaceholder": "No end date",
+      "noticeDays": "Notify me this many days in advance",
+      "editTitle": "Edit recurring expense",
+      "createTitle": "New recurring expense",
+      "editDescription": "Changes only affect future generations.",
+      "createDescription": "Automate an expense that repeats."
+    },
+    "delete": {
+      "title": "Delete recurring expense",
+      "confirm": "Delete <name>{{name}}</name>? Expenses already generated will still exist."
+    }
+  },
+  "sheets": {
+    "new": "New sheet",
+    "createDescription": "Create a new sheet to organize your expenses.",
+    "namePlaceholder": "e.g. Card, Cash...",
+    "created": "Sheet created",
+    "renamed": "Sheet renamed",
+    "deleted": "Sheet deleted",
+    "left": "You left the sheet",
+    "rename": "Rename",
+    "share": "Share",
+    "leave": "Leave sheet",
+    "permission": {
+      "owner": "Owner",
+      "edit": "Edit",
+      "read": "Read only"
+    },
+    "delete": {
+      "title": "Delete sheet",
+      "confirm": "All expenses in the sheet \"{{name}}\" will be deleted. This action cannot be undone."
+    },
+    "sharing": {
+      "title": "Share \"{{name}}\"",
+      "emailPlaceholder": "User email",
+      "read": "Read",
+      "edit": "Edit",
+      "submit": "Share",
+      "shared": "Sheet shared",
+      "revoked": "Access revoked",
+      "pendingNotice": "<email>{{email}}</email> has no account. It will be shared once they sign up."
+    }
+  },
+  "summary": {
+    "loading": "Loading summary...",
+    "selectSheet": "Select at least one sheet to see the summary.",
+    "total": "Total",
+    "sheets": "Sheets",
+    "categories": "Categories",
+    "presets": {
+      "thisMonth": "This month",
+      "last3Months": "Last 3 months",
+      "thisYear": "This year"
+    },
+    "from": "From",
+    "to": "To",
+    "detail": {
+      "back": "Back to summary",
+      "loadError": "Could not load the expenses.",
+      "empty": "No expenses in this period.",
+      "fallbackName": "Sheet"
+    }
+  },
+  "pagination": {
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page",
+    "rowsPerPage": "Rows per page",
+    "all": "All"
   },
   "settings": {
     "title": "Settings",

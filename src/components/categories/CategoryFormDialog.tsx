@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ export default function CategoryFormDialog({
   isOpen,
   onClose,
 }: CategoryFormDialogProps) {
+  const { t } = useTranslation();
   const isEditing = !!category;
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
@@ -32,7 +34,7 @@ export default function CategoryFormDialog({
         { id: category.id, ...values },
         {
           onSuccess: () => {
-            toast.success('Categoría actualizada');
+            toast.success(t('categories.updated'));
             onClose();
           },
           onError: (err) => toast.error(err.message),
@@ -41,7 +43,7 @@ export default function CategoryFormDialog({
     } else {
       createMutation.mutate(values, {
         onSuccess: () => {
-          toast.success('Categoría creada');
+          toast.success(t('categories.created'));
           onClose();
         },
         onError: (err) => toast.error(err.message),
@@ -54,12 +56,12 @@ export default function CategoryFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar categoría' : 'Nueva categoría'}
+            {isEditing ? t('categories.form.editTitle') : t('categories.form.createTitle')}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? 'Modifica los datos de la categoría.'
-              : 'Añade una nueva categoría de gastos.'}
+              ? t('categories.form.editDescription')
+              : t('categories.form.createDescription')}
           </DialogDescription>
         </DialogHeader>
         <CategoryForm

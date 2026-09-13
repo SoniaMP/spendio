@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { DatePreset } from '@/helpers/dateHelpers';
@@ -10,12 +11,6 @@ interface DateRangeFilterProps {
   onCustomRangeChange: (from: string, to: string) => void;
 }
 
-const PRESET_OPTIONS: { value: DatePreset; label: string }[] = [
-  { value: DatePreset.ThisMonth, label: 'Este mes' },
-  { value: DatePreset.Last3Months, label: 'Últimos 3 meses' },
-  { value: DatePreset.ThisYear, label: 'Año actual' },
-];
-
 export default function DateRangeFilter({
   preset,
   from,
@@ -23,10 +18,18 @@ export default function DateRangeFilter({
   onPresetChange,
   onCustomRangeChange,
 }: DateRangeFilterProps) {
+  const { t } = useTranslation();
+
+  const presetOptions = [
+    { value: DatePreset.ThisMonth, label: t('summary.presets.thisMonth') },
+    { value: DatePreset.Last3Months, label: t('summary.presets.last3Months') },
+    { value: DatePreset.ThisYear, label: t('summary.presets.thisYear') },
+  ];
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap gap-2">
-        {PRESET_OPTIONS.map((option) => (
+        {presetOptions.map((option) => (
           <Button
             key={option.value}
             size="sm"
@@ -40,7 +43,7 @@ export default function DateRangeFilter({
 
       <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <Label className="flex items-center gap-1.5 text-sm font-medium">
-          Desde
+          {t('summary.from')}
           <input
             type="date"
             value={from}
@@ -50,7 +53,7 @@ export default function DateRangeFilter({
           />
         </Label>
         <Label className="flex items-center gap-1.5 text-sm font-medium">
-          Hasta
+          {t('summary.to')}
           <input
             type="date"
             value={to}

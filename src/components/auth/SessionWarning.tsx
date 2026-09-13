@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -28,21 +29,25 @@ export default function SessionWarning({
   secondsLeft,
   onExtend,
 }: SessionWarningProps) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={isOpen}>
       <DialogContent showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>La sesión va a caducar</DialogTitle>
+          <DialogTitle>{t('auth.sessionWarning.title')}</DialogTitle>
           <DialogDescription>
-            Tu sesión expirará en{' '}
-            <span className="font-semibold text-foreground">
-              {formatTime(secondsLeft)}
-            </span>{' '}
-            por inactividad. Pulsa el botón para continuar.
+            <Trans
+              i18nKey="auth.sessionWarning.description"
+              values={{ time: formatTime(secondsLeft) }}
+              components={{
+                bold: <span className="font-semibold text-foreground" />,
+              }}
+            />
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={onExtend}>Continuar sesión</Button>
+          <Button onClick={onExtend}>{t('auth.sessionWarning.extend')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

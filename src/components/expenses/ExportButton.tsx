@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ExpenseWithCategory } from '@/types/expense';
@@ -12,6 +13,8 @@ export default function ExportButton({
   expenses,
   monthLabel,
 }: ExportButtonProps) {
+  const { t } = useTranslation();
+
   function handleExport() {
     const fileName = `gastos-${monthLabel.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
     exportToExcel(expenses, fileName);
@@ -24,7 +27,7 @@ export default function ExportButton({
       onClick={handleExport}
       disabled={expenses.length === 0}
     >
-      <Download /> <span className="hidden sm:inline">Exportar</span>
+      <Download /> <span className="hidden sm:inline">{t('expenses.export')}</span>
     </Button>
   );
 }

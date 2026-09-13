@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -11,15 +12,17 @@ import {
 const SKELETON_ROWS = 5;
 
 export default function ExpensesTableSkeleton() {
+  const { t } = useTranslation();
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Fecha</TableHead>
-          <TableHead>Descripción</TableHead>
-          <TableHead>Categoría</TableHead>
-          <TableHead className="text-right">Importe</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
+          <TableHead>{t('expenses.columns.date')}</TableHead>
+          <TableHead>{t('expenses.columns.description')}</TableHead>
+          <TableHead>{t('expenses.columns.category')}</TableHead>
+          <TableHead className="text-right">{t('expenses.columns.amount')}</TableHead>
+          <TableHead className="text-right">{t('common.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

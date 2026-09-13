@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Repeat } from 'lucide-react';
 import {
   Dialog,
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export default function RecurringExpensesDialog({ sheetId, isOpen, onClose }: Props) {
+  const { t } = useTranslation();
   const { data: templates, isLoading } = useRecurringExpenses(sheetId);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<RecurringExpense | undefined>();
@@ -43,18 +45,18 @@ export default function RecurringExpensesDialog({ sheetId, isOpen, onClose }: Pr
 
   function renderBody() {
     if (isLoading) {
-      return <p className="text-sm text-muted-foreground">Cargando...</p>;
+      return <p className="text-sm text-muted-foreground">{t('common.loading')}</p>;
     }
     if (!templates || templates.length === 0) {
       return (
         <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground">
           <Repeat className="h-10 w-10" />
-          <p className="font-medium text-foreground">Aún no tienes recurrentes</p>
+          <p className="font-medium text-foreground">{t('recurring.empty')}</p>
           <p className="text-sm">
-            Crea uno para automatizar gastos que se repiten (alquiler, suscripciones, etc.).
+            {t('recurring.emptyHint')}
           </p>
           <Button onClick={handleNew}>
-            <Plus /> Nueva
+            <Plus /> {t('common.new')}
           </Button>
         </div>
       );
@@ -78,16 +80,16 @@ export default function RecurringExpensesDialog({ sheetId, isOpen, onClose }: Pr
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Gastos recurrentes</DialogTitle>
+            <DialogTitle>{t('recurring.title')}</DialogTitle>
             <DialogDescription>
-              Plantillas que generan un gasto automáticamente cada periodo.
+              {t('recurring.description')}
             </DialogDescription>
           </DialogHeader>
           {renderBody()}
           {templates && templates.length > 0 && (
             <div className="flex justify-end">
               <Button onClick={handleNew}>
-                <Plus /> Nueva
+                <Plus /> {t('common.new')}
               </Button>
             </div>
           )}

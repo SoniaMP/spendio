@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import type { SheetPermission } from '@/types/sheet';
 
@@ -7,16 +8,14 @@ const VARIANT: Record<SheetPermission, 'default' | 'secondary' | 'outline'> = {
   read: 'outline',
 };
 
-const LABEL: Record<SheetPermission, string> = {
-  owner: 'Propietario',
-  edit: 'Editar',
-  read: 'Solo lectura',
-};
-
 interface SharePermissionBadgeProps {
   permission: SheetPermission;
 }
 
 export default function SharePermissionBadge({ permission }: SharePermissionBadgeProps) {
-  return <Badge variant={VARIANT[permission]}>{LABEL[permission]}</Badge>;
+  const { t } = useTranslation();
+
+  return (
+    <Badge variant={VARIANT[permission]}>{t(`sheets.permission.${permission}`)}</Badge>
+  );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Wallet } from 'lucide-react';
 import { useEmailLogin, useRegister } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ function FeatureItem({ label }: { label: string }) {
 }
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const loginMutation = useEmailLogin();
   const registerMutation = useRegister();
@@ -56,15 +58,15 @@ export default function LoginPage() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Spendio</h1>
           <p className="text-muted-foreground text-center text-sm">
-            Controla tus gastos, visualiza tu dinero
+            {t('auth.tagline')}
           </p>
         </CardHeader>
 
         <CardContent className="flex flex-col gap-4">
           <ul className="space-y-2">
-            <FeatureItem label="Organiza gastos por categorias" />
-            <FeatureItem label="Graficos y comparativas mensuales" />
-            <FeatureItem label="Exporta tus datos a Excel" />
+            <FeatureItem label={t('auth.features.categories')} />
+            <FeatureItem label={t('auth.features.charts')} />
+            <FeatureItem label={t('auth.features.export')} />
           </ul>
 
           <Separator />
@@ -72,7 +74,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             {isRegister && (
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="name">Nombre</Label>
+                <Label htmlFor="name">{t('auth.fields.name')}</Label>
                 <Input
                   id="name"
                   type="text"
@@ -83,7 +85,7 @@ export default function LoginPage() {
               </div>
             )}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.fields.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -93,7 +95,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">{t('auth.fields.password')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -104,14 +106,18 @@ export default function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? 'Entrando...' : isRegister ? 'Crear cuenta' : 'Iniciar sesion'}
+              {isPending
+                ? t('auth.signingIn')
+                : isRegister
+                  ? t('auth.createAccount')
+                  : t('auth.signIn')}
             </Button>
             {!isRegister && (
               <Link
                 to="/forgot-password"
                 className="text-muted-foreground hover:text-foreground text-right text-sm underline-offset-4 hover:underline"
               >
-                ¿Olvidaste tu contraseña?
+                {t('auth.forgotPasswordLink')}
               </Link>
             )}
           </form>
@@ -129,13 +135,13 @@ export default function LoginPage() {
               registerMutation.reset();
             }}
           >
-            {isRegister ? 'Ya tengo cuenta' : 'Crear cuenta nueva'}
+            {isRegister ? t('auth.haveAccount') : t('auth.createNewAccount')}
           </button>
         </CardContent>
 
         <CardFooter className="justify-center pb-6">
           <p className="text-muted-foreground text-xs">
-            Tus datos son privados y seguros
+            {t('auth.privacyNote')}
           </p>
         </CardFooter>
       </Card>

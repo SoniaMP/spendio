@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ export default function SheetCreateDialog({
   onClose,
   onSubmit,
 }: SheetCreateDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
 
   function handleSubmit(e: React.FormEvent) {
@@ -41,24 +43,24 @@ export default function SheetCreateDialog({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nueva hoja</DialogTitle>
+          <DialogTitle>{t('sheets.new')}</DialogTitle>
           <DialogDescription>
-            Crea una nueva hoja para organizar tus gastos.
+            {t('sheets.createDescription')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="sheet-name">Nombre</Label>
+            <Label htmlFor="sheet-name">{t('common.name')}</Label>
             <Input
               id="sheet-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Tarjeta, Efectivo..."
+              placeholder={t('sheets.namePlaceholder')}
               autoFocus
             />
           </div>
           <Button type="submit" disabled={!name.trim() || isPending}>
-            {isPending ? 'Creando...' : 'Crear'}
+            {isPending ? t('common.creating') : t('common.create')}
           </Button>
         </form>
       </DialogContent>

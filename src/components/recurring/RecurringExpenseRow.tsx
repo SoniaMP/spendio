@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import { MoreVertical, Pause, Pencil, Play, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,12 +22,8 @@ interface Props {
   onDelete: (t: RecurringExpense) => void;
 }
 
-const PERIOD_LABEL: Record<RecurringExpense['period'], string> = {
-  monthly: '/ mes',
-  yearly: '/ año',
-};
-
 export default function RecurringExpenseRow({ template, onEdit, onDelete }: Props) {
+  const { t } = useTranslation();
   const toggleMutation = useToggleRecurringExpense();
   const isActive = template.is_active === 1;
   const hasCategory = template.category_id !== null;
@@ -35,7 +32,8 @@ export default function RecurringExpenseRow({ template, onEdit, onDelete }: Prop
     toggleMutation.mutate(
       { id: template.id, isActive: !isActive },
       {
-        onSuccess: () => toast.success(isActive ? 'Recurrente pausado' : 'Recurrente activado'),
+        onSuccess: () =>
+          toast.success(isActive ? t('recurring.paused') : t('recurring.activated')),
         onError: (err) => toast.error(err.message),
       },
     );
@@ -45,33 +43,51 @@ export default function RecurringExpenseRow({ template, onEdit, onDelete }: Prop
     <div className="flex items-center justify-between gap-3 rounded-md border p-3">
       <div className="flex flex-col gap-1 min-w-0 flex-1">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-medium truncate">{template.description || 'Sin descripción'}</span>
-          {!isActive && <Badge variant="outline">Pausado</Badge>}
-          {!hasCategory && <Badge variant="destructive">Sin categoría</Badge>}
+          <span className="font-medium truncate">{template.description || t('recurring.noDescription')}</span>
+          {!isActive && <Badge variant="outline">{t('recurring.pausedBadge')}</Badge>}
+          {!hasCategory && <Badge variant="destructive">{t('recurring.noCategoryBadge')}</Badge>}
         </div>
         <div className="text-sm text-muted-foreground">
-          {formatCurrency(template.amount)} {PERIOD_LABEL[template.period]}
+          {formatCurrency(template.amount)}{' '}
+          {template.period === 'monthly'
+            ? t('recurring.period.perMonth')
+            : t('recurring.period.perYear')}
           {hasCategory && isActive && (
-            <> · Próximo: <span className="font-medium">{formatDate(nextDueDate(template))}</span></>
+            <>
+              {' '}
+              <Trans
+                i18nKey="recurring.nextDue"
+                values={{ date: formatDate(nextDueDate(template)) }}
+                components={{ date: <span className="font-medium" /> }}
+              />
+            </>
           )}
         </div>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-xs" aria-label="Acciones">
+          <Button variant="ghost" size="icon-xs" aria-label={t('common.actions')}>
             <MoreVertical />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => onEdit(template)}>
-            <Pencil /> Editar
+            <Pencil /> {t('common.edit')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleToggle} disabled={toggleMutation.isPending}>
-            {isActive ? <><Pause /> Pausar</> : <><Play /> Activar</>}
+            {isActive ? (
+              <>
+                <Pause /> {t('recurring.pause')}
+              </>
+            ) : (
+              <>
+                <Play /> {t('recurring.activate')}
+              </>
+            )}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={() => onDelete(template)}>
-            <Trash2 /> Eliminar
+            <Trash2 /> {t('common.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

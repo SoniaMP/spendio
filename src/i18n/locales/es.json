@@ -3,8 +3,269 @@
     "expenses": "Gastos",
     "summary": "Resumen"
   },
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
+    "edit": "Editar",
+    "duplicate": "Duplicar",
+    "move": "Mover",
+    "actions": "Acciones",
+    "loading": "Cargando...",
+    "noData": "Sin datos",
+    "view": "Ver",
+    "create": "Crear",
+    "new": "Nueva",
+    "color": "Color",
+    "name": "Nombre",
+    "confirm": "Confirmar",
+    "previousMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "all": "Todas",
+    "creating": "Creando..."
+  },
   "auth": {
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "tagline": "Controla tus gastos, visualiza tu dinero",
+    "privacyNote": "Tus datos son privados y seguros",
+    "features": {
+      "categories": "Organiza gastos por categorias",
+      "charts": "Graficos y comparativas mensuales",
+      "export": "Exporta tus datos a Excel"
+    },
+    "fields": {
+      "name": "Nombre",
+      "email": "Email",
+      "emailAddress": "Correo electrónico",
+      "password": "Contraseña"
+    },
+    "signIn": "Iniciar sesion",
+    "signingIn": "Entrando...",
+    "createAccount": "Crear cuenta",
+    "createNewAccount": "Crear cuenta nueva",
+    "haveAccount": "Ya tengo cuenta",
+    "forgotPasswordLink": "¿Olvidaste tu contraseña?",
+    "backToLogin": "Volver al inicio de sesión",
+    "forgotPassword": {
+      "title": "Recuperar contraseña",
+      "description": "Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña",
+      "success": "Si el correo está registrado, recibirás un enlace de recuperación en breve. Revisa tu bandeja de entrada.",
+      "submit": "Enviar enlace de recuperación",
+      "submitting": "Enviando..."
+    },
+    "resetPassword": {
+      "title": "Nueva contraseña",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "submit": "Restablecer contraseña",
+      "submitting": "Restableciendo...",
+      "success": "Tu contraseña se restableció correctamente. Redirigiendo al inicio de sesión...",
+      "goToLogin": "Ir al inicio de sesión",
+      "tooShort": "La contraseña debe tener al menos 6 caracteres",
+      "mismatch": "Las contraseñas no coinciden"
+    },
+    "sessionWarning": {
+      "title": "La sesión va a caducar",
+      "description": "Tu sesión expirará en <bold>{{time}}</bold> por inactividad. Pulsa el botón para continuar.",
+      "extend": "Continuar sesión"
+    }
+  },
+  "expenses": {
+    "recurringBadge": "Gasto recurrente",
+    "empty": "No hay gastos en este mes.",
+    "new": "Nuevo gasto",
+    "recurringButton": "Recurrentes",
+    "export": "Exportar",
+    "moved": "Gasto movido",
+    "duplicated": "Gasto duplicado",
+    "created": "Gasto creado",
+    "updated": "Gasto actualizado",
+    "deletedOne": "Gasto eliminado",
+    "deletedMany": "Gastos eliminados",
+    "columns": {
+      "date": "Fecha",
+      "description": "Descripción",
+      "category": "Categoría",
+      "amount": "Importe"
+    },
+    "form": {
+      "amountPlaceholder": "0,00",
+      "descriptionPlaceholder": "Ej: Compra supermercado",
+      "editTitle": "Editar gasto",
+      "createTitle": "Nuevo gasto",
+      "editDescription": "Modifica los datos del gasto.",
+      "createDescription": "Añade un nuevo gasto.",
+      "scopeThis": "Solo este gasto",
+      "scopeFuture": "Este y los siguientes (importe, descripción, categoría)"
+    },
+    "delete": {
+      "title": "Eliminar gasto",
+      "recurringQuestion": "Este gasto forma parte de una serie recurrente. ¿Qué quieres eliminar?",
+      "confirm": "¿Seguro que quieres eliminar este gasto de <amount>{{amount}}</amount>?",
+      "scopeThis": "Solo este gasto",
+      "scopeThisHint": "Los demás gastos de la serie no se tocan.",
+      "scopeFuture": "Este gasto y los siguientes",
+      "scopeFutureHint": "Elimina este, los futuros, y la plantilla. Los pasados se conservan."
+    },
+    "duplicate": {
+      "title": "Duplicar gasto",
+      "description": "Crea una copia del gasto en otra hoja o mes. Si el día no existe en el mes destino, se ajusta al último día.",
+      "submitting": "Duplicando..."
+    },
+    "move": {
+      "title": "Mover gasto",
+      "description": "Elige la hoja y el mes destino. Si el día no existe en el mes destino, se ajusta al último día.",
+      "submitting": "Moviendo..."
+    },
+    "targetSheet": "Hoja destino",
+    "targetSheetPlaceholder": "Selecciona una hoja",
+    "targetMonth": "Mes destino",
+    "chart": {
+      "title": "Gastos por categoría",
+      "pie": "Circular",
+      "bar": "Barras"
+    },
+    "allCategories": "Todas las categorías",
+    "comparison": {
+      "title": "Comparativa por categoría",
+      "monthTotal": "Total del mes",
+      "noPreviousData": "Sin datos de {{month}}",
+      "equal": "Igual que {{month}}",
+      "change": "{{arrow}} {{percentage}}% vs {{month}}"
+    },
+    "loadError": "Error al cargar los gastos."
+  },
+  "categories": {
+    "new": "Nueva categoría",
+    "loadError": "Error al cargar las categorías.",
+    "empty": "No hay categorías. Crea la primera para empezar.",
+    "columns": {
+      "name": "Nombre",
+      "color": "Color"
+    },
+    "form": {
+      "namePlaceholder": "Ej: Alimentación",
+      "editTitle": "Editar categoría",
+      "createTitle": "Nueva categoría",
+      "editDescription": "Modifica los datos de la categoría.",
+      "createDescription": "Añade una nueva categoría de gastos."
+    },
+    "created": "Categoría creada",
+    "updated": "Categoría actualizada",
+    "deleted": "Categoría eliminada",
+    "deleteBlocked": "No se puede eliminar: tiene gastos asociados",
+    "delete": {
+      "title": "Eliminar categoría",
+      "confirm": "¿Seguro que quieres eliminar <name>{{name}}</name>? Si tiene gastos asociados, no se podrá eliminar."
+    },
+    "editAction": "Editar {{name}}",
+    "deleteAction": "Eliminar {{name}}",
+    "combobox": {
+      "placeholder": "Seleccionar categoría...",
+      "search": "Buscar categoría...",
+      "notFound": "No se encontraron categorías.",
+      "create": "Crear \"{{name}}\""
+    }
+  },
+  "recurring": {
+    "title": "Gastos recurrentes",
+    "description": "Plantillas que generan un gasto automáticamente cada periodo.",
+    "empty": "Aún no tienes recurrentes",
+    "emptyHint": "Crea uno para automatizar gastos que se repiten (alquiler, suscripciones, etc.).",
+    "created": "Recurrente creado",
+    "updated": "Recurrente actualizado",
+    "deleted": "Recurrente eliminado",
+    "paused": "Recurrente pausado",
+    "activated": "Recurrente activado",
+    "pausedBadge": "Pausado",
+    "noCategoryBadge": "Sin categoría",
+    "noDescription": "Sin descripción",
+    "nextDue": "· Próximo: <date>{{date}}</date>",
+    "pause": "Pausar",
+    "activate": "Activar",
+    "period": {
+      "label": "Periodo",
+      "monthly": "Mensual",
+      "yearly": "Anual",
+      "perMonth": "/ mes",
+      "perYear": "/ año"
+    },
+    "form": {
+      "descriptionPlaceholder": "Ej: Alquiler, Netflix...",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin (opcional)",
+      "endDatePlaceholder": "Sin fecha de fin",
+      "noticeDays": "Avisarme con X días de antelación",
+      "editTitle": "Editar recurrente",
+      "createTitle": "Nuevo recurrente",
+      "editDescription": "Los cambios afectan solo a futuras generaciones.",
+      "createDescription": "Automatiza un gasto que se repite."
+    },
+    "delete": {
+      "title": "Eliminar recurrente",
+      "confirm": "¿Seguro que quieres eliminar <name>{{name}}</name>? Los gastos que ya se generaron seguirán existiendo."
+    }
+  },
+  "sheets": {
+    "new": "Nueva hoja",
+    "createDescription": "Crea una nueva hoja para organizar tus gastos.",
+    "namePlaceholder": "Ej: Tarjeta, Efectivo...",
+    "created": "Hoja creada",
+    "renamed": "Hoja renombrada",
+    "deleted": "Hoja eliminada",
+    "left": "Has dejado la hoja",
+    "rename": "Renombrar",
+    "share": "Compartir",
+    "leave": "Dejar hoja",
+    "permission": {
+      "owner": "Propietario",
+      "edit": "Editar",
+      "read": "Solo lectura"
+    },
+    "delete": {
+      "title": "Eliminar hoja",
+      "confirm": "Se eliminarán todos los gastos de la hoja \"{{name}}\". Esta acción no se puede deshacer."
+    },
+    "sharing": {
+      "title": "Compartir \"{{name}}\"",
+      "emailPlaceholder": "Email del usuario",
+      "read": "Lectura",
+      "edit": "Editar",
+      "submit": "Compartir",
+      "shared": "Hoja compartida",
+      "revoked": "Acceso revocado",
+      "pendingNotice": "<email>{{email}}</email> no tiene cuenta. Se le compartira cuando se registre."
+    }
+  },
+  "summary": {
+    "loading": "Cargando resumen...",
+    "selectSheet": "Selecciona al menos una hoja para ver el resumen.",
+    "total": "Total",
+    "sheets": "Hojas",
+    "categories": "Categorías",
+    "presets": {
+      "thisMonth": "Este mes",
+      "last3Months": "Últimos 3 meses",
+      "thisYear": "Año actual"
+    },
+    "from": "Desde",
+    "to": "Hasta",
+    "detail": {
+      "back": "Volver al resumen",
+      "loadError": "Error al cargar los gastos.",
+      "empty": "No hay gastos en este periodo.",
+      "fallbackName": "Hoja"
+    }
+  },
+  "pagination": {
+    "first": "Primera página",
+    "previous": "Página anterior",
+    "next": "Página siguiente",
+    "last": "Última página",
+    "rowsPerPage": "Filas por página",
+    "all": "Todos"
   },
   "settings": {
     "title": "Ajustes",

@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -22,13 +23,14 @@ export default function RecurringExpenseDeleteDialog({
   isOpen,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const deleteMutation = useDeleteRecurringExpense();
 
   function handleConfirm() {
     if (!template) return;
     deleteMutation.mutate(template.id, {
       onSuccess: () => {
-        toast.success('Recurrente eliminado');
+        toast.success(t('recurring.deleted'));
         onClose();
       },
       onError: (err) => toast.error(err.message),
@@ -39,22 +41,25 @@ export default function RecurringExpenseDeleteDialog({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Eliminar recurrente</DialogTitle>
+          <DialogTitle>{t('recurring.delete.title')}</DialogTitle>
           <DialogDescription>
-            ¿Seguro que quieres eliminar <strong>{template?.description}</strong>?
-            Los gastos que ya se generaron seguirán existiendo.
+            <Trans
+              i18nKey="recurring.delete.confirm"
+              values={{ name: template?.description ?? '' }}
+              components={{ name: <strong /> }}
+            />
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancelar
+            {t('common.cancel')}
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+            {deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

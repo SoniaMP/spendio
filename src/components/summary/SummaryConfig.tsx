@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { Sheet } from '@/types/sheet';
@@ -28,6 +29,7 @@ export default function SummaryConfig({
   onSelectAllCategories,
   onClearCategories,
 }: SummaryConfigProps) {
+  const { t } = useTranslation();
   const allSheetsSelected = sheets.length > 0 && selectedSheetIds.length === sheets.length;
   const someSheetsSelected = selectedSheetIds.length > 0 && !allSheetsSelected;
 
@@ -39,7 +41,7 @@ export default function SummaryConfig({
   return (
     <div className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:gap-8">
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">Hojas</span>
+        <span className="text-sm font-medium">{t('summary.sheets')}</span>
         <div className="flex flex-wrap gap-3">
           <Label className="flex items-center gap-1.5 text-sm font-medium">
             <Checkbox
@@ -50,7 +52,7 @@ export default function SummaryConfig({
                   : onClearSheets()
               }
             />
-            Todas
+            {t('common.all')}
           </Label>
           {sheets.map((sheet) => (
             <Label
@@ -73,7 +75,7 @@ export default function SummaryConfig({
 
       {categories.length > 0 && (
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Categorías</span>
+          <span className="text-sm font-medium">{t('summary.categories')}</span>
           <div className="flex flex-wrap gap-3">
             <Label className="flex items-center gap-1.5 text-sm font-medium">
               <Checkbox
@@ -84,7 +86,7 @@ export default function SummaryConfig({
                     : onClearCategories()
                 }
               />
-              Todas
+              {t('common.all')}
             </Label>
             {categories.map((cat) => (
               <Label

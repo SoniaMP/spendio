@@ -8,6 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/helpers/formatCurrency';
 import ChartTooltip from '@/components/expenses/ChartTooltip';
+import { useTranslation } from 'react-i18next';
 import type { CategoryTotal } from '@/types/summary';
 
 interface TotalSummaryCardProps {
@@ -19,6 +20,7 @@ export default function TotalSummaryCard({
   total,
   categories,
 }: TotalSummaryCardProps) {
+  const { t } = useTranslation();
   const chartData = categories.map((c) => ({
     categoryName: c.categoryName,
     color: c.categoryColor,
@@ -30,7 +32,7 @@ export default function TotalSummaryCard({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Total</CardTitle>
+          <CardTitle className="text-base">{t('summary.total')}</CardTitle>
           <span className="text-xl font-bold">{formatCurrency(total)}</span>
         </div>
       </CardHeader>

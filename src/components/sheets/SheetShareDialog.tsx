@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -31,6 +32,7 @@ interface SheetShareDialogProps {
 }
 
 export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareDialogProps) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [permission, setPermission] = useState<'read' | 'edit'>('read');
 
@@ -54,7 +56,7 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
             setPendingEmail(data.email ?? targetEmail);
             return;
           }
-          toast.success('Hoja compartida');
+          toast.success(t('sheets.sharing.shared'));
           setEmail('');
           setPendingEmail(null);
         },
@@ -67,13 +69,13 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Compartir &quot;{sheet.name}&quot;</DialogTitle>
+          <DialogTitle>{t('sheets.sharing.title', { name: sheet.name })}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={(e) => handleSubmit(e)} className="flex gap-2">
           <Input
             type="email"
-            placeholder="Email del usuario"
+            placeholder={t('sheets.sharing.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="flex-1"
@@ -83,19 +85,23 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="read">Lectura</SelectItem>
-              <SelectItem value="edit">Editar</SelectItem>
+              <SelectItem value="read">{t('sheets.sharing.read')}</SelectItem>
+              <SelectItem value="edit">{t('sheets.sharing.edit')}</SelectItem>
             </SelectContent>
           </Select>
           <Button type="submit" disabled={createMutation.isPending}>
-            Compartir
+            {t('sheets.sharing.submit')}
           </Button>
         </form>
 
         {pendingEmail && (
           <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm dark:border-yellow-700 dark:bg-yellow-950">
             <p className="text-yellow-800 dark:text-yellow-200">
-              <strong>{pendingEmail}</strong> no tiene cuenta. Se le compartira cuando se registre.
+              <Trans
+                i18nKey="sheets.sharing.pendingNotice"
+                values={{ email: pendingEmail }}
+                components={{ email: <strong /> }}
+              />
             </p>
             <div className="mt-2 flex gap-2">
               <Button
@@ -103,10 +109,10 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
                 onClick={(e) => handleSubmit(e as unknown as React.FormEvent, true)}
                 disabled={createMutation.isPending}
               >
-                Confirmar
+                {t('common.confirm')}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setPendingEmail(null)}>
-                Cancelar
+                {t('common.cancel')}
               </Button>
             </div>
           </div>
@@ -123,7 +129,7 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
             }
             onDelete={(shareId) =>
               deleteMutation.mutate(shareId, {
-                onSuccess: () => toast.success('Acceso revocado'),
+                onSuccess: () => toast.success(t('sheets.sharing.revoked')),
                 onError: (err) => toast.error(err.message),
               })
             }
@@ -141,6 +147,8 @@ interface ShareListProps {
 }
 
 function ShareList({ shares, onUpdate, onDelete }: ShareListProps) {
+  const { t } = useTranslation();
+
   return (
     <ul className="mt-2 space-y-2">
       {shares.map((share) => (
@@ -169,8 +177,8 @@ function ShareList({ shares, onUpdate, onDelete }: ShareListProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="read">Lectura</SelectItem>
-              <SelectItem value="edit">Editar</SelectItem>
+              <SelectItem value="read">{t('sheets.sharing.read')}</SelectItem>
+              <SelectItem value="edit">{t('sheets.sharing.edit')}</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="ghost" size="icon-xs" onClick={() => onDelete(share.id)}>

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -35,6 +36,8 @@ export default function MonthlySummary({
   isComparisonLoading,
   onComparisonMonthChange,
 }: MonthlySummaryProps) {
+  const { t } = useTranslation();
+
   const comparisonTotal = useMemo(
     () => comparisonBreakdown.reduce((sum, c) => sum + c.amount, 0),
     [comparisonBreakdown],
@@ -58,7 +61,7 @@ export default function MonthlySummary({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Comparativa por categoría</CardTitle>
+        <CardTitle>{t('expenses.comparison.title')}</CardTitle>
         <div className="flex flex-wrap items-center gap-3">
           <MonthTotal total={currentTotal} />
           <MonthComparisonBadge
@@ -90,10 +93,10 @@ export default function MonthlySummary({
 
         {isComparisonLoading ? (
           <p className="text-sm text-muted-foreground animate-pulse">
-            Cargando...
+            {t('common.loading')}
           </p>
         ) : items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Sin datos</p>
+          <p className="text-sm text-muted-foreground">{t('common.noData')}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((item) => (

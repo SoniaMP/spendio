@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import ExpensesTableSkeleton from '@/components/expenses/ExpensesTableSkeleton';
 import { formatDate } from '@/helpers/formatDate';
 
 export default function SheetDetailPage() {
+  const { t } = useTranslation();
   const { sheetId: sheetIdParam } = useParams();
   const [searchParams] = useSearchParams();
   const sheetId = Number(sheetIdParam);
@@ -26,8 +28,8 @@ export default function SheetDetailPage() {
   );
 
   const sheetName = useMemo(
-    () => sheets?.find((s) => s.id === sheetId)?.name ?? 'Hoja',
-    [sheets, sheetId],
+    () => sheets?.find((s) => s.id === sheetId)?.name ?? t('summary.detail.fallbackName'),
+    [sheets, sheetId, t],
   );
   const categoryName = categoryId
     ? expenses?.find((e) => e.category_id === categoryId)?.category_name
@@ -43,7 +45,7 @@ export default function SheetDetailPage() {
     if (isError) {
       return (
         <p className="text-destructive py-8 text-center">
-          Error al cargar los gastos.
+          {t('summary.detail.loadError')}
         </p>
       );
     }
@@ -52,7 +54,7 @@ export default function SheetDetailPage() {
       return (
         <div className="text-muted-foreground flex flex-col items-center gap-2 py-12">
           <Receipt className="h-10 w-10" />
-          <p>No hay gastos en este periodo.</p>
+          <p>{t('summary.detail.empty')}</p>
         </div>
       );
     }
@@ -65,7 +67,7 @@ export default function SheetDetailPage() {
       <div className="flex flex-col gap-2">
         <Button variant="ghost" size="sm" asChild className="-ml-2 w-fit">
           <Link to="/summary">
-            <ArrowLeft /> Volver al resumen
+            <ArrowLeft /> {t('summary.detail.back')}
           </Link>
         </Button>
         <div>

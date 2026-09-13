@@ -95,6 +95,15 @@ Lo que **sí** cambia con el orden es el desperdicio: si la SL reescribe pantall
 
 Traducido de momento solo lo que se tocaba: navegación, cerrar sesión y el propio diálogo de ajustes. El resto es la fase 2.
 
+**Fase 2 — HECHA** (extracción del frontend). 45 componentes, **207 claves** en `es` y `en`. 307 tests verdes, `tsc` y `eslint` limpios.
+
+- Los 26 ficheros de test de componentes siguen **sin tocarse**: los ~196 asserts en castellano pasan porque el catálogo `es` devuelve exactamente el mismo texto. Cualquier cambio accidental de copy los habría roto, así que sirven de red de seguridad del refactor.
+- Tests nuevos: `src/__tests__/i18n/catalogs.test.ts` (los dos catálogos tienen las mismas claves, sin valores vacíos y con las mismas variables de interpolación) y `languageSwitch.test.tsx` (la UI cambia de idioma, se conservan valores y marcado interpolados, y un idioma desconocido cae al catálogo de referencia).
+- **Corrección a la sección 1**: sí había interpolaciones, cinco. El barrido inicial solo miraba template literals y se le escaparon las que viven en JSX. Cuatro llevan marcado dentro de la frase y se resuelven con `<Trans>` (`SessionWarning`, `ExpenseDeleteDialog`, `CategoryDeleteDialog`, `RecurringExpenseDeleteDialog`, `SheetShareDialog`, `RecurringExpenseRow`); el resto son valores simples (`MonthComparisonBadge`, `CategoryRow`, `SheetDeleteDialog`). No cambia la estimación.
+- **Erratas preexistentes conservadas a propósito**: `Organiza gastos por categorias`, `Graficos y comparativas mensuales`, `Iniciar sesion` y `Se le compartira` van sin tilde en el código actual. Se han copiado tal cual al catálogo `es` para que esto sea un refactor puro; corregirlas es un cambio de copy aparte (y romperá el assert `'Iniciar sesion'` de `LoginPage.test`).
+
+Pendiente y consciente, va en la fase 3: `exportToExcel.ts` (cabeceras `Fecha/Descripción/Importe` y hoja `Gastos`), el `.replace('.', ',')` de `MonthComparisonBadge`, y el `locale: es` de date-fns.
+
 **Hallazgo ajeno a i18n, pero bloqueante**: el suite de tests no arrancaba con **Node v20.16.0**. jsdom 28 y sus dependencias exigen `^20.19.0 || ^22.12.0 || >=24.0.0` (las versiones donde `require()` de un módulo ESM funciona). Con **v20.20.2**, que ya tienes instalada, pasan los 307 tests y además se mantiene el ABI nativo de `better-sqlite3` — con Node 22 habría que recompilarlo (ABI 115 vs 127). Vale la pena fijarlo con un `.nvmrc`.
 
 ## 7. Decisiones

@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BarChart3 } from 'lucide-react';
 import { useSheets } from '@/hooks/useSheets';
 import { useSummary } from '@/hooks/useSummary';
@@ -11,6 +12,7 @@ import SheetSummaryCard from '@/components/summary/SheetSummaryCard';
 import TotalSummaryCard from '@/components/summary/TotalSummaryCard';
 
 export default function SummaryPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: sheets } = useSheets();
   const {
@@ -103,14 +105,14 @@ export default function SummaryPage() {
 
       {isLoading && (
         <p className="text-muted-foreground py-8 text-center text-sm">
-          Cargando resumen...
+          {t('summary.loading')}
         </p>
       )}
 
       {!isLoading && config.selectedSheetIds.length === 0 && (
         <div className="text-muted-foreground flex flex-col items-center gap-2 py-12">
           <BarChart3 className="h-10 w-10" />
-          <p>Selecciona al menos una hoja para ver el resumen.</p>
+          <p>{t('summary.selectSheet')}</p>
         </div>
       )}
 

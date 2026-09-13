@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Table,
   TableHeader,
@@ -38,6 +39,7 @@ export default function ExpensesTable({
   onMove,
   onDelete,
 }: ExpensesTableProps) {
+  const { t } = useTranslation();
   const hasAnyAction = !!(onEdit || onDuplicate || onMove || onDelete);
   const accessors = useMemo(() => SORT_ACCESSORS, []);
   const { sortedItems, sortColumn, sortDirection, toggleSort } = useSort(expenses, accessors);
@@ -58,7 +60,7 @@ export default function ExpensesTable({
                 direction={sortDirection}
                 onToggle={() => toggleSort('date')}
               >
-                Fecha
+                {t('expenses.columns.date')}
               </SortableTableHead>
               <SortableTableHead
                 className="hidden sm:table-cell"
@@ -66,14 +68,14 @@ export default function ExpensesTable({
                 direction={sortDirection}
                 onToggle={() => toggleSort('description')}
               >
-                Descripción
+                {t('expenses.columns.description')}
               </SortableTableHead>
               <SortableTableHead
                 isActive={sortColumn === 'category'}
                 direction={sortDirection}
                 onToggle={() => toggleSort('category')}
               >
-                Categoría
+                {t('expenses.columns.category')}
               </SortableTableHead>
               <SortableTableHead
                 className="text-right"
@@ -81,10 +83,10 @@ export default function ExpensesTable({
                 direction={sortDirection}
                 onToggle={() => toggleSort('amount')}
               >
-                Importe
+                {t('expenses.columns.amount')}
               </SortableTableHead>
               {hasAnyAction && (
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="text-right">{t('common.actions')}</TableHead>
               )}
             </TableRow>
           </TableHeader>

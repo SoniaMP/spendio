@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Wallet } from 'lucide-react';
 import { useResetPassword } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const mutation = useResetPassword();
@@ -21,12 +23,12 @@ export default function ResetPasswordPage() {
     setValidationError('');
 
     if (password.length < 6) {
-      setValidationError('La contraseña debe tener al menos 6 caracteres');
+      setValidationError(t('auth.resetPassword.tooShort'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setValidationError('Las contraseñas no coinciden');
+      setValidationError(t('auth.resetPassword.mismatch'));
       return;
     }
 
@@ -43,27 +45,27 @@ export default function ResetPasswordPage() {
           <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-xl">
             <Wallet className="text-primary-foreground h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Nueva contraseña</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('auth.resetPassword.title')}</h1>
         </CardHeader>
 
         <CardContent className="flex flex-col gap-4">
           {mutation.isSuccess ? (
             <div className="flex flex-col gap-3 text-center">
               <p className="text-sm">
-                Tu contraseña se restableció correctamente. Redirigiendo al inicio de sesión...
+                {t('auth.resetPassword.success')}
               </p>
               <Link
                 to="/login"
                 className="text-primary text-sm font-medium underline-offset-4 hover:underline"
               >
-                Ir al inicio de sesión
+                {t('auth.resetPassword.goToLogin')}
               </Link>
             </div>
           ) : (
             <>
               <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="password">Nueva contraseña</Label>
+                  <Label htmlFor="password">{t('auth.resetPassword.newPassword')}</Label>
                   <Input
                     id="password"
                     type="password"
@@ -74,7 +76,7 @@ export default function ResetPasswordPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                  <Label htmlFor="confirmPassword">{t('auth.resetPassword.confirmPassword')}</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -85,7 +87,9 @@ export default function ResetPasswordPage() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                  {mutation.isPending ? 'Restableciendo...' : 'Restablecer contraseña'}
+                  {mutation.isPending
+                    ? t('auth.resetPassword.submitting')
+                    : t('auth.resetPassword.submit')}
                 </Button>
               </form>
 
@@ -99,7 +103,7 @@ export default function ResetPasswordPage() {
                 to="/login"
                 className="text-muted-foreground hover:text-foreground text-center text-sm underline-offset-4 hover:underline"
               >
-                Volver al inicio de sesión
+                {t('auth.backToLogin')}
               </Link>
             </>
           )}

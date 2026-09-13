@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,6 +17,7 @@ export default function CategoryForm({
   onSubmit,
   isPending,
 }: CategoryFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(initialValues?.name ?? '');
   const [color, setColor] = useState(initialValues?.color ?? DEFAULT_COLOR);
 
@@ -29,19 +31,19 @@ export default function CategoryForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="category-name">Nombre</Label>
+        <Label htmlFor="category-name">{t('categories.columns.name')}</Label>
         <Input
           id="category-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Ej: Alimentación"
+          placeholder={t('categories.form.namePlaceholder')}
           required
           autoFocus
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="category-color">Color</Label>
+        <Label htmlFor="category-color">{t('categories.columns.color')}</Label>
         <div className="flex items-center gap-3">
           <input
             id="category-color"
@@ -55,7 +57,7 @@ export default function CategoryForm({
       </div>
 
       <Button type="submit" disabled={isPending || !name.trim()}>
-        {isPending ? 'Guardando...' : 'Guardar'}
+        {isPending ? t('common.saving') : t('common.save')}
       </Button>
     </form>
   );

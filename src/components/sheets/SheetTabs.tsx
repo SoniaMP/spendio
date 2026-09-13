@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ export default function SheetTabs({
   activeSheetId,
   onSheetChange,
 }: SheetTabsProps) {
+  const { t } = useTranslation();
   const { data: sheets } = useSheets();
   const createMutation = useCreateSheet();
   const updateMutation = useUpdateSheet();
@@ -79,7 +81,7 @@ export default function SheetTabs({
   function handleCreate(name: string) {
     createMutation.mutate(name, {
       onSuccess: (newSheet) => {
-        toast.success('Hoja creada');
+        toast.success(t('sheets.created'));
         setIsCreateOpen(false);
         onSheetChange(newSheet.id);
       },
@@ -91,7 +93,7 @@ export default function SheetTabs({
     updateMutation.mutate(
       { id, name },
       {
-        onSuccess: () => toast.success('Hoja renombrada'),
+        onSuccess: () => toast.success(t('sheets.renamed')),
         onError: (err) => toast.error(err.message),
       },
     );
@@ -102,7 +104,7 @@ export default function SheetTabs({
     const deletedId = deletingSheet.id;
     deleteMutation.mutate(deletedId, {
       onSuccess: () => {
-        toast.success('Hoja eliminada');
+        toast.success(t('sheets.deleted'));
         setDeletingSheet(null);
         if (activeSheetId === deletedId && sheets) {
           const remaining = sheets.filter((s) => s.id !== deletedId);
@@ -116,7 +118,7 @@ export default function SheetTabs({
   function handleLeave(sheet: Sheet) {
     leaveMutation.mutate(sheet.id, {
       onSuccess: () => {
-        toast.success('Has dejado la hoja');
+        toast.success(t('sheets.left'));
         if (activeSheetId === sheet.id && sheets) {
           const remaining = sheets.filter((s) => s.id !== sheet.id);
           if (remaining.length > 0) onSheetChange(remaining[0].id);

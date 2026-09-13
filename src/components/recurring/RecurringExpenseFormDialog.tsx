@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ export default function RecurringExpenseFormDialog({
   onClose,
   onSaved,
 }: Props) {
+  const { t } = useTranslation();
   const isEditing = !!template;
   const createMutation = useCreateRecurringExpense();
   const updateMutation = useUpdateRecurringExpense();
@@ -46,7 +48,7 @@ export default function RecurringExpenseFormDialog({
       updateMutation.mutate(
         { id: template.id, ...values },
         {
-          onSuccess: () => handleSaved('Recurrente actualizado'),
+          onSuccess: () => handleSaved(t('recurring.updated')),
           onError: (err) => toast.error(err.message),
         },
       );
@@ -54,7 +56,7 @@ export default function RecurringExpenseFormDialog({
       createMutation.mutate(
         { ...values, sheetId },
         {
-          onSuccess: () => handleSaved('Recurrente creado'),
+          onSuccess: () => handleSaved(t('recurring.created')),
           onError: (err) => toast.error(err.message),
         },
       );
@@ -66,12 +68,12 @@ export default function RecurringExpenseFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar recurrente' : 'Nuevo recurrente'}
+            {isEditing ? t('recurring.form.editTitle') : t('recurring.form.createTitle')}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? 'Los cambios afectan solo a futuras generaciones.'
-              : 'Automatiza un gasto que se repite.'}
+              ? t('recurring.form.editDescription')
+              : t('recurring.form.createDescription')}
           </DialogDescription>
         </DialogHeader>
         <RecurringExpenseForm

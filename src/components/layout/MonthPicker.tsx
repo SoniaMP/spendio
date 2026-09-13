@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -12,13 +13,15 @@ export default function MonthPicker({
   onPrevious,
   onNext,
 }: MonthPickerProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-2">
       <Button
         variant="outline"
         size="icon-sm"
         onClick={onPrevious}
-        aria-label="Mes anterior"
+        aria-label={t('common.previousMonth')}
       >
         <ChevronLeft />
       </Button>
@@ -29,7 +32,7 @@ export default function MonthPicker({
         variant="outline"
         size="icon-sm"
         onClick={onNext}
-        aria-label="Mes siguiente"
+        aria-label={t('common.nextMonth')}
       >
         <ChevronRight />
       </Button>

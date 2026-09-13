@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FolderOpen, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCategories } from '@/hooks/useCategories';
@@ -9,6 +10,7 @@ import CategoryFormDialog from '@/components/categories/CategoryFormDialog';
 import CategoryDeleteDialog from '@/components/categories/CategoryDeleteDialog';
 
 export default function CategoriesPage() {
+  const { t } = useTranslation();
   const { data: categories, isLoading, isError } = useCategories();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | undefined>();
@@ -30,7 +32,7 @@ export default function CategoriesPage() {
     if (isError) {
       return (
         <p className="py-8 text-center text-destructive">
-          Error al cargar las categorías.
+          {t('categories.loadError')}
         </p>
       );
     }
@@ -39,13 +41,13 @@ export default function CategoriesPage() {
       return (
         <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
           <FolderOpen className="h-10 w-10" />
-          <p>No hay categorías. Crea la primera para empezar.</p>
+          <p>{t('categories.empty')}</p>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsFormOpen(true)}
           >
-            <Plus /> Nueva categoría
+            <Plus /> {t('categories.new')}
           </Button>
         </div>
       );
@@ -64,7 +66,7 @@ export default function CategoriesPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-end">
         <Button size="sm" onClick={() => setIsFormOpen(true)}>
-          <Plus /> Nueva categoría
+          <Plus /> {t('categories.new')}
         </Button>
       </div>
 

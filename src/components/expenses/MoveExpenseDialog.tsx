@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,7 @@ export default function MoveExpenseDialog({
   onClose,
   onSuccess,
 }: MoveExpenseDialogProps) {
+  const { t } = useTranslation();
   const { data: sheets } = useSheets();
   const updateMutation = useUpdateExpense();
 
@@ -99,7 +101,7 @@ export default function MoveExpenseDialog({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Mover gasto</DialogTitle>
+          <DialogTitle>{t('expenses.move.title')}</DialogTitle>
           <DialogDescription>
             Elige la hoja y el mes destino. Si el día no existe en el mes
             destino, se ajusta al último día.
@@ -107,13 +109,13 @@ export default function MoveExpenseDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="move-target-sheet">Hoja destino</Label>
+            <Label htmlFor="move-target-sheet">{t('expenses.targetSheet')}</Label>
             <Select
               value={targetSheetId !== null ? String(targetSheetId) : ''}
               onValueChange={(v) => setTargetSheetId(Number(v))}
             >
               <SelectTrigger id="move-target-sheet" className="w-full">
-                <SelectValue placeholder="Selecciona una hoja" />
+                <SelectValue placeholder={t('expenses.targetSheetPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {editableSheets.map((s) => (
@@ -126,7 +128,7 @@ export default function MoveExpenseDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="move-target-month">Mes destino</Label>
+            <Label htmlFor="move-target-month">{t('expenses.targetMonth')}</Label>
             <Input
               id="move-target-month"
               type="month"
@@ -142,7 +144,7 @@ export default function MoveExpenseDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -152,7 +154,9 @@ export default function MoveExpenseDialog({
                 !targetMonth
               }
             >
-              {updateMutation.isPending ? 'Moviendo...' : 'Mover'}
+              {updateMutation.isPending
+                ? t('expenses.move.submitting')
+                : t('common.move')}
             </Button>
           </DialogFooter>
         </form>

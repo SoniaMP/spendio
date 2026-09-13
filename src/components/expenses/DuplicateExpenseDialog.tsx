@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,7 @@ export default function DuplicateExpenseDialog({
   onClose,
   onSuccess,
 }: DuplicateExpenseDialogProps) {
+  const { t } = useTranslation();
   const { data: sheets } = useSheets();
   const duplicateMutation = useDuplicateExpense();
 
@@ -99,7 +101,7 @@ export default function DuplicateExpenseDialog({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Duplicar gasto</DialogTitle>
+          <DialogTitle>{t('expenses.duplicate.title')}</DialogTitle>
           <DialogDescription>
             Crea una copia del gasto en otra hoja o mes. Si el día no existe en
             el mes destino, se ajusta al último día.
@@ -107,13 +109,13 @@ export default function DuplicateExpenseDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="duplicate-target-sheet">Hoja destino</Label>
+            <Label htmlFor="duplicate-target-sheet">{t('expenses.targetSheet')}</Label>
             <Select
               value={targetSheetId !== null ? String(targetSheetId) : ''}
               onValueChange={(v) => setTargetSheetId(Number(v))}
             >
               <SelectTrigger id="duplicate-target-sheet" className="w-full">
-                <SelectValue placeholder="Selecciona una hoja" />
+                <SelectValue placeholder={t('expenses.targetSheetPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {editableSheets.map((s) => (
@@ -126,7 +128,7 @@ export default function DuplicateExpenseDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="duplicate-target-month">Mes destino</Label>
+            <Label htmlFor="duplicate-target-month">{t('expenses.targetMonth')}</Label>
             <Input
               id="duplicate-target-month"
               type="month"
@@ -142,7 +144,7 @@ export default function DuplicateExpenseDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -152,7 +154,9 @@ export default function DuplicateExpenseDialog({
                 !targetMonth
               }
             >
-              {duplicateMutation.isPending ? 'Duplicando...' : 'Duplicar'}
+              {duplicateMutation.isPending
+                ? t('expenses.duplicate.submitting')
+                : t('common.duplicate')}
             </Button>
           </DialogFooter>
         </form>

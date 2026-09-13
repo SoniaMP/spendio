@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -11,13 +12,15 @@ import {
 const SKELETON_ROWS = 4;
 
 export default function CategoriesTableSkeleton() {
+  const { t } = useTranslation();
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Nombre</TableHead>
-          <TableHead>Color</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
+          <TableHead>{t('categories.columns.name')}</TableHead>
+          <TableHead>{t('categories.columns.color')}</TableHead>
+          <TableHead className="text-right">{t('common.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

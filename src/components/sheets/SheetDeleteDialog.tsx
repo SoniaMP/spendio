@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -23,26 +24,27 @@ export default function SheetDeleteDialog({
   onClose,
   onConfirm,
 }: SheetDeleteDialogProps) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Eliminar hoja</DialogTitle>
+          <DialogTitle>{t('sheets.delete.title')}</DialogTitle>
           <DialogDescription>
-            Se eliminarán todos los gastos de la hoja &quot;{sheet?.name}&quot;.
-            Esta acción no se puede deshacer.
+            {t('sheets.delete.confirm', { name: sheet?.name ?? '' })}
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose} disabled={isPending}>
-            Cancelar
+            {t('common.cancel')}
           </Button>
           <Button
             variant="destructive"
             onClick={onConfirm}
             disabled={isPending}
           >
-            {isPending ? 'Eliminando...' : 'Eliminar'}
+            {isPending ? t('common.deleting') : t('common.delete')}
           </Button>
         </div>
       </DialogContent>

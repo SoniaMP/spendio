@@ -31,7 +31,9 @@ A full-stack web application to track personal expenses. Organize spending into 
 
 ### Prerequisites
 
-- Node.js (v20 or later recommended)
+- Node.js **22.19.0** — the version pinned in `.nvmrc` and enforced by `engines`.
+  Run `nvm use` before anything else. Older 20.x releases break Vite and jsdom,
+  and switching major versions requires `npm rebuild better-sqlite3`.
 - npm
 
 ### Installation
@@ -63,6 +65,7 @@ The `.env` file is loaded automatically by the `dev:server` script via `--env-fi
 Start both the client (Vite dev server) and the API server concurrently:
 
 ```bash
+nvm use      # Node 22.19.0, see Prerequisites
 npm run dev
 ```
 
@@ -71,9 +74,20 @@ npm run dev
 
 The SQLite database is created automatically in the `data/` directory on first run.
 
-### Dev Login (bypass Google auth)
+### Test account
 
-When `VITE_AUTH_BYPASS=true` is set in `.env`, the login page shows a **Dev Login** button that authenticates as a local dev user without needing Google credentials. Remove the variable or set it to `false` to restore the normal Google login flow.
+| Email | Password |
+|-------|----------|
+| `test@spendio.es` | `admin123` |
+
+Sign in with it on the login page.
+
+### Switching language
+
+The app ships with Spanish and English catalogs (`src/i18n/locales/`). Change the
+language from the gear icon in the header → **Idioma / Language**; the choice is
+stored in `localStorage` under `spendio.language`. With nothing stored, the
+browser language decides, falling back to Spanish.
 
 ### Other Commands
 

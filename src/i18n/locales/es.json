@@ -26,6 +26,9 @@
     "all": "Todas",
     "creating": "Creando..."
   },
+  "language": {
+    "label": "Idioma"
+  },
   "auth": {
     "logout": "Cerrar sesión",
     "tagline": "Controla tus gastos, visualiza tu dinero",
@@ -167,7 +170,8 @@
       "search": "Buscar categoría...",
       "notFound": "No se encontraron categorías.",
       "create": "Crear \"{{name}}\""
-    }
+    },
+    "title": "Categorías"
   },
   "recurring": {
     "title": "Gastos recurrentes",
@@ -266,16 +270,5 @@
     "last": "Última página",
     "rowsPerPage": "Filas por página",
     "all": "Todos"
-  },
-  "settings": {
-    "title": "Ajustes",
-    "tabs": {
-      "categories": "Categorías",
-      "language": "Idioma"
-    },
-    "language": {
-      "heading": "Idioma de la aplicación",
-      "description": "El cambio se aplica al instante y se recuerda en este dispositivo."
-    }
   }
 }

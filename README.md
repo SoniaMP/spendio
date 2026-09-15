@@ -84,9 +84,9 @@ Sign in with it on the login page.
 
 ### Switching language
 
-The app ships with Spanish and English catalogs (`src/i18n/locales/`). Change the
-language from the gear icon in the header → **Idioma / Language**; the choice is
-stored in `localStorage` under `spendio.language`. With nothing stored, the
+Spanish and English catalogs live in `src/i18n/locales/`. Use the globe
+dropdown, available on the login screens and in the app header. The choice is
+stored in `localStorage` under `spendio.language`; with nothing stored, the
 browser language decides, falling back to Spanish.
 
 ### Other Commands

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Wallet } from 'lucide-react';
 import { useForgotPassword } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
+import AuthHeader from '@/components/auth/AuthHeader';
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();
@@ -19,19 +19,12 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/50 px-4">
-      <Card className="w-full max-w-sm shadow-lg">
-        <CardHeader className="flex flex-col items-center gap-2 pb-2">
-          <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-xl">
-            <Wallet className="text-primary-foreground h-6 w-6" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('auth.forgotPassword.title')}</h1>
-          <p className="text-muted-foreground text-center text-sm">
-            {t('auth.forgotPassword.description')}
-          </p>
-        </CardHeader>
-
-        <CardContent className="flex flex-col gap-4">
+    <>
+      <AuthHeader
+        title={t('auth.forgotPassword.title')}
+        description={t('auth.forgotPassword.description')}
+      />
+      <CardContent className="flex flex-col gap-4">
           {mutation.isSuccess ? (
             <div className="flex flex-col gap-3 text-center">
               <p className="text-sm">
@@ -76,8 +69,7 @@ export default function ForgotPasswordPage() {
               </Link>
             </>
           )}
-        </CardContent>
-      </Card>
-    </div>
+      </CardContent>
+    </>
   );
 }

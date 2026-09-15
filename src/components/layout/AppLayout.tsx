@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useSheets } from '@/hooks/useSheets';
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import SheetTabs from '@/components/sheets/SheetTabs';
-import SettingsDialog from '@/components/settings/SettingsDialog';
+import CategoriesDialog from '@/components/categories/CategoriesDialog';
+import LanguageDropdown from '@/components/i18n/LanguageDropdown';
 
 import type { SheetPermission } from '@/types/sheet';
 
@@ -23,7 +24,7 @@ export default function AppLayout() {
   const { data: user } = useAuth();
   const logoutMutation = useLogout();
   const location = useLocation();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const isExpensesRoute = location.pathname.startsWith('/expenses');
 
   const sheetParam = Number(searchParams.get('sheet'));
@@ -66,11 +67,12 @@ export default function AppLayout() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsSettingsOpen(true)}
-                title={t('settings.title')}
+                onClick={() => setIsCategoriesOpen(true)}
+                title={t('categories.title')}
               >
                 <Settings className="h-4 w-4" />
               </Button>
+              <LanguageDropdown />
               <Button variant="ghost" size="icon" onClick={handleLogout} title={t('auth.logout')}>
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -108,9 +110,9 @@ export default function AppLayout() {
         <Outlet context={context} />
       </main>
 
-      <SettingsDialog
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+      <CategoriesDialog
+        isOpen={isCategoriesOpen}
+        onClose={() => setIsCategoriesOpen(false)}
       />
     </div>
   );

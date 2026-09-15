@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Wallet } from 'lucide-react';
 import { useEmailLogin, useRegister } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { CardContent, CardFooter } from '@/components/ui/card';
+import AuthHeader from '@/components/auth/AuthHeader';
 import { Separator } from '@/components/ui/separator';
 
 function FeatureItem({ label }: { label: string }) {
@@ -50,19 +50,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/50 px-4">
-      <Card className="w-full max-w-sm shadow-lg">
-        <CardHeader className="flex flex-col items-center gap-2 pb-2">
-          <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-xl">
-            <Wallet className="text-primary-foreground h-6 w-6" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">Spendio</h1>
-          <p className="text-muted-foreground text-center text-sm">
-            {t('auth.tagline')}
-          </p>
-        </CardHeader>
-
-        <CardContent className="flex flex-col gap-4">
+    <>
+      <AuthHeader title="Spendio" description={t('auth.tagline')} />
+      <CardContent className="flex flex-col gap-4">
           <ul className="space-y-2">
             <FeatureItem label={t('auth.features.categories')} />
             <FeatureItem label={t('auth.features.charts')} />
@@ -137,14 +127,11 @@ export default function LoginPage() {
           >
             {isRegister ? t('auth.haveAccount') : t('auth.createNewAccount')}
           </button>
-        </CardContent>
+      </CardContent>
 
-        <CardFooter className="justify-center pb-6">
-          <p className="text-muted-foreground text-xs">
-            {t('auth.privacyNote')}
-          </p>
-        </CardFooter>
-      </Card>
-    </div>
+      <CardFooter className="justify-center pb-6">
+        <p className="text-muted-foreground text-xs">{t('auth.privacyNote')}</p>
+      </CardFooter>
+    </>
   );
 }

@@ -26,6 +26,9 @@
     "all": "All",
     "creating": "Creating..."
   },
+  "language": {
+    "label": "Language"
+  },
   "auth": {
     "logout": "Sign out",
     "tagline": "Track your spending, see where your money goes",
@@ -167,7 +170,8 @@
       "search": "Search category...",
       "notFound": "No categories found.",
       "create": "Create \"{{name}}\""
-    }
+    },
+    "title": "Categories"
   },
   "recurring": {
     "title": "Recurring expenses",
@@ -266,16 +270,5 @@
     "last": "Last page",
     "rowsPerPage": "Rows per page",
     "all": "All"
-  },
-  "settings": {
-    "title": "Settings",
-    "tabs": {
-      "categories": "Categories",
-      "language": "Language"
-    },
-    "language": {
-      "heading": "Application language",
-      "description": "The change applies instantly and is remembered on this device."
-    }
   }
 }

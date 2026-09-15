@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Wallet } from 'lucide-react';
 import { useResetPassword } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
+import AuthHeader from '@/components/auth/AuthHeader';
 
 export default function ResetPasswordPage() {
   const { t } = useTranslation();
@@ -39,16 +39,9 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/50 px-4">
-      <Card className="w-full max-w-sm shadow-lg">
-        <CardHeader className="flex flex-col items-center gap-2 pb-2">
-          <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-xl">
-            <Wallet className="text-primary-foreground h-6 w-6" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('auth.resetPassword.title')}</h1>
-        </CardHeader>
-
-        <CardContent className="flex flex-col gap-4">
+    <>
+      <AuthHeader title={t('auth.resetPassword.title')} />
+      <CardContent className="flex flex-col gap-4">
           {mutation.isSuccess ? (
             <div className="flex flex-col gap-3 text-center">
               <p className="text-sm">
@@ -107,8 +100,7 @@ export default function ResetPasswordPage() {
               </Link>
             </>
           )}
-        </CardContent>
-      </Card>
-    </div>
+      </CardContent>
+    </>
   );
 }

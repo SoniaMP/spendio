@@ -91,7 +91,7 @@ Lo que **sí** cambia con el orden es el desperdicio: si la SL reescribe pantall
 - `src/i18n/resources.ts` es la única fuente de verdad: la lista de idiomas disponibles se deriva de sus claves, no hay constante que mantener aparte. Añadir un idioma = añadir su JSON y su import.
 - Claves de traducción **comprobadas en tiempo de compilación** contra `es.json` (`src/types/i18next.d.ts`): un `t('nav.expensesTipo')` es error de build, con sugerencia de la clave correcta.
 - `src/test/setup.ts` fija el idioma a `es` e inicializa i18n globalmente → **los 26 ficheros de test de componentes siguen pasando sin tocar una sola línea**, tal y como preveía la sección 3. Sin ese pin, jsdom reporta el locale del sistema y el detector se iría a inglés.
-- El engranaje abre ahora `SettingsDialog` (pestañas Categorías / Idioma). `CategoriesPage` no se ha tocado.
+- El engranaje abría `SettingsDialog` con pestañas Categorías / Idioma. **Revertido en la fase 2.5**: ahora abre `CategoriesDialog` sin pestañas y el idioma vive en un desplegable. `CategoriesPage` no se ha tocado en ningún momento.
 
 Traducido de momento solo lo que se tocaba: navegación, cerrar sesión y el propio diálogo de ajustes. El resto es la fase 2.
 
@@ -108,9 +108,9 @@ Commits: `cc01ef7` (fase 1), `98c2be8` (fase 2), `3a2ea0d` (README), `26b1295` (
 
 ---
 
-## RETOMAR AQUÍ — fase 2.5: el selector de idioma sale de Ajustes
+## Fase 2.5 — HECHA: el selector de idioma sale de Ajustes
 
-Decidido 2026-09-15. **Va antes de la fase 3.**
+Decidida y ejecutada 2026-09-15. 307 tests verdes, `tsc`, `eslint` y `vite build` limpios.
 
 **El problema.** El selector solo existe tras el login, así que un usuario nuevo se come las pantallas de acceso en un idioma que no eligió — y son tres (`login`, `forgot-password`, `reset-password/:token`), no una. Es justo donde más importa y donde hoy no hay forma de cambiarlo.
 
@@ -120,20 +120,26 @@ Esto revierte parte de la fase 1, donde se eligió la pestaña con el argumento 
 
 **Sin banderas.** Las banderas son países, no idiomas: «español» no es España (¿y México?), «inglés» no es Reino Unido (¿y EEUU?), y con catalán sería un asunto político. Se usa el **código de idioma** (`ES` / `EN`) en el disparador, un icono de globo (`Globe` de lucide) como pista visual, y los **nombres nativos** en las opciones — que ya salen solos de `Intl.DisplayNames`, así que un idioma nuevo aparece sin tocar código.
 
-### Tareas técnicas
+### Tareas técnicas (todas completadas)
 
-- [ ] **Nuevo `src/components/i18n/LanguageDropdown.tsx`** — `DropdownMenu` (ya existe en `ui/`) con icono `Globe` + código del idioma activo; opciones con los nombres nativos y marca en el activo. Deriva la lista de `resources` igual que el `LanguageSelector` actual.
-- [ ] **Nuevo `src/components/auth/AuthLayout.tsx`** — envuelve las tres rutas pre-login. Se queda con lo que hoy está triplicado: el `div` de fondo con gradiente, la `Card`, el icono `Wallet` y el desplegable arriba a la derecha. **Cada página conserva su propio `h1` y su descripción**, que son distintos en las tres.
-- [ ] **`App.tsx`** — meter las tres rutas pre-login dentro de una `<Route element={<AuthLayout />}>`.
-- [ ] **Las tres páginas de auth** — quitarles el envoltorio duplicado (`min-h-screen`, `Card`, `CardHeader` con el `Wallet`), dejando solo su contenido. Esto elimina la triplicación que ya existía.
-- [ ] **`AppLayout.tsx`** — añadir el desplegable en la cabecera, junto al avatar. El engranaje pasa a abrir solo categorías.
-- [ ] **Nuevo `src/components/categories/CategoriesDialog.tsx`** — lo que hoy hace `SettingsDialog` pero sin pestañas. Se extrae en su componente en vez de devolverlo al `AppLayout` inline, para no engordar el layout.
-- [ ] **Borrar**: `src/components/settings/SettingsDialog.tsx`, `src/components/settings/LanguageSelector.tsx`, `src/__tests__/components/settings/` (los dos tests) y el directorio `src/components/settings/` entero.
-- [ ] **Catálogos** — desaparece la sección `settings` completa (`title`, `tabs.*`, `language.*`): con el selector fuera y el diálogo reducido a categorías, no queda nada que nombrar ahí. Añadir `categories.title` para el título del diálogo y el `title` del engranaje (hoy usa `settings.title`, ver `AppLayout.tsx:70`). Añadir `language.label` para el `aria-label` del desplegable.
-- [ ] **Tests nuevos**: el desplegable (lista idiomas, marca el activo, cambia el idioma) y —el que de verdad cubre el fallo— que **desde la pantalla de login se puede cambiar el idioma**, que es lo que hoy no se puede.
-- [ ] **`README.md`** — la sección «Switching language» dice «gear icon in the header → Idioma / Language» y queda falsa. Actualizar en una línea.
+- [x] **Nuevo `src/components/i18n/LanguageDropdown.tsx`** — `DropdownMenu` (ya existe en `ui/`) con icono `Globe` + código del idioma activo; opciones con los nombres nativos y marca en el activo. Deriva la lista de `resources` igual que el `LanguageSelector` actual.
+- [x] **Nuevo `src/components/auth/AuthLayout.tsx`** — envuelve las tres rutas pre-login. Se queda con lo que hoy está triplicado: el `div` de fondo con gradiente, la `Card`, el icono `Wallet` y el desplegable arriba a la derecha. **Cada página conserva su propio `h1` y su descripción**, que son distintos en las tres.
+- [x] **`App.tsx`** — meter las tres rutas pre-login dentro de una `<Route element={<AuthLayout />}>`.
+- [x] **Las tres páginas de auth** — quitarles el envoltorio duplicado (`min-h-screen`, `Card`, `CardHeader` con el `Wallet`), dejando solo su contenido. Esto elimina la triplicación que ya existía.
+- [x] **`AppLayout.tsx`** — añadir el desplegable en la cabecera, junto al avatar. El engranaje pasa a abrir solo categorías.
+- [x] **Nuevo `src/components/categories/CategoriesDialog.tsx`** — lo que hoy hace `SettingsDialog` pero sin pestañas. Se extrae en su componente en vez de devolverlo al `AppLayout` inline, para no engordar el layout.
+- [x] **Borrar**: `src/components/settings/SettingsDialog.tsx`, `src/components/settings/LanguageSelector.tsx`, `src/__tests__/components/settings/` (los dos tests) y el directorio `src/components/settings/` entero.
+- [x] **Catálogos** — desaparece la sección `settings` completa (`title`, `tabs.*`, `language.*`): con el selector fuera y el diálogo reducido a categorías, no queda nada que nombrar ahí. Añadir `categories.title` para el título del diálogo y el `title` del engranaje (hoy usa `settings.title`, ver `AppLayout.tsx:70`). Añadir `language.label` para el `aria-label` del desplegable.
+- [x] **Tests nuevos**: el desplegable (lista idiomas, marca el activo, cambia el idioma) y —el que de verdad cubre el fallo— que **desde la pantalla de login se puede cambiar el idioma**, que es lo que hoy no se puede.
+- [x] **`README.md`** — la sección «Switching language» dice «gear icon in the header → Idioma / Language» y queda falsa. Actualizar en una línea.
 
-### Riesgos comprobados
+### Cómo quedó
+
+- `AuthLayout` se quedó solo con el envoltorio (fondo, `Card`, desplegable). El icono `Wallet` habría seguido triplicado, así que salió además un `AuthHeader` (icono + título + descripción opcional) que usan las tres páginas. Eran dos componentes en vez de uno, pero es lo que elimina de verdad la duplicación.
+- Los tests de las tres páginas de auth **pasaron sin tocar una línea**, como se preveía.
+- Test que cubre el fallo original: `src/__tests__/components/auth/AuthLayout.test.tsx` → «lets a visitor change the language before signing in».
+
+### Riesgos comprobados (antes de ejecutar)
 
 - **Los tests de las páginas de auth deberían sobrevivir**: renderizan los componentes directamente (`render(<LoginPage />)`) y solo assertan contenido (`'Spendio'`, la tagline, labels, botones), nada de la estructura que se va a `AuthLayout`. Los `h1` se quedan en cada página. Verificar al ejecutar.
 - **`settings.title` solo se usa en un sitio** (`AppLayout.tsx:70`), así que retirar la sección del catálogo es de bajo riesgo. El test `catalogs.test.ts` cazará cualquier desincronía entre `es` y `en`.
@@ -141,9 +147,9 @@ Esto revierte parte de la fase 1, donde se eligió la pestaña con el argumento 
 
 ---
 
-## Fase 3: capa de formato
+## RETOMAR AQUÍ — fase 3: capa de formato
 
-Estado a 2026-09-13: fases 1 y 2 commiteadas (pero ojo: la fase 2.5 de arriba va antes que esta), árbol limpio, 307 tests verdes, `tsc` y `eslint` limpios. La app arranca y se ve en los dos idiomas.
+Estado a 2026-09-15: fases 1, 2 y 2.5 hechas, árbol limpio, 307 tests verdes, `tsc` y `eslint` limpios. La app arranca y se ve en los dos idiomas.
 
 **Qué hay que hacer, en orden:**
 

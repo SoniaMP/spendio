@@ -4,6 +4,7 @@ import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import { queryClient } from '@/lib/queryClient';
 import AppLayout from '@/components/layout/AppLayout';
+import AuthLayout from '@/components/auth/AuthLayout';
 import LoginPage from '@/components/auth/LoginPage';
 import ForgotPasswordPage from '@/components/auth/ForgotPasswordPage';
 import ResetPasswordPage from '@/components/auth/ResetPasswordPage';
@@ -17,9 +18,11 @@ export default function App() {
     <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
       <QueryClientProvider client={queryClient}>
         <Routes>
-          <Route path="login" element={<LoginPage />} />
-          <Route path="forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="reset-password/:token" element={<ResetPasswordPage />} />
+          <Route element={<AuthLayout />}>
+            <Route path="login" element={<LoginPage />} />
+            <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="reset-password/:token" element={<ResetPasswordPage />} />
+          </Route>
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index element={<Navigate to="/expenses" replace />} />

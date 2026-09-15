@@ -15,6 +15,7 @@ import { formatDate } from '@/helpers/formatDate';
 import { nextDueDate } from '@/helpers/computeNextDue';
 import type { RecurringExpense } from '@/types/recurringExpense';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface Props {
   template: RecurringExpense;
@@ -34,7 +35,7 @@ export default function RecurringExpenseRow({ template, onEdit, onDelete }: Prop
       {
         onSuccess: () =>
           toast.success(isActive ? t('recurring.paused') : t('recurring.activated')),
-        onError: (err) => toast.error(err.message),
+        onError: (err) => toast.error(getErrorMessage(err)),
       },
     );
   }

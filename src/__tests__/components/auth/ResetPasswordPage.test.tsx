@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { ErrorCode } from '@shared/errorCodes';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -73,10 +74,26 @@ describe('ResetPasswordPage', () => {
     expect(screen.getByText('Ir al inicio de sesión')).toBeInTheDocument();
   });
 
-  it('shows API error message', () => {
-    mockState = { isPending: false, isSuccess: false, error: new Error('Enlace de restablecimiento inválido o expirado') };
+  it('translates the API error code', () => {
+    mockState = {
+      isPending: false,
+      isSuccess: false,
+      error: new Error(ErrorCode.InvalidResetLink),
+    };
     renderPage();
-    expect(screen.getByText('Enlace de restablecimiento inválido o expirado')).toBeInTheDocument();
+    expect(
+      screen.getByText('Enlace de restablecimiento inválido o expirado'),
+    ).toBeInTheDocument();
+  });
+
+  it('falls back to a generic message for an unknown error', () => {
+    mockState = {
+      isPending: false,
+      isSuccess: false,
+      error: new Error('something the client does not know'),
+    };
+    renderPage();
+    expect(screen.getByText('Ha ocurrido un error inesperado')).toBeInTheDocument();
   });
 
   it('has a link back to login', () => {

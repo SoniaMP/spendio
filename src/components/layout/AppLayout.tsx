@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useSheets } from '@/hooks/useSheets';
 import { useAuth, useLogout } from '@/hooks/useAuth';
+import { useLanguageSync } from '@/hooks/useLanguageSync';
 import SheetTabs from '@/components/sheets/SheetTabs';
 import CategoriesDialog from '@/components/categories/CategoriesDialog';
 import LanguageDropdown from '@/components/i18n/LanguageDropdown';
@@ -23,6 +24,7 @@ export default function AppLayout() {
   const { data: sheets } = useSheets();
   const { data: user } = useAuth();
   const logoutMutation = useLogout();
+  useLanguageSync();
   const location = useLocation();
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const isExpensesRoute = location.pathname.startsWith('/expenses');

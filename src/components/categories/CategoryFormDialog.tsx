@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useCreateCategory, useUpdateCategory } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
 import CategoryForm from '@/components/categories/CategoryForm';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface CategoryFormDialogProps {
   category?: Category;
@@ -37,7 +38,7 @@ export default function CategoryFormDialog({
             toast.success(t('categories.updated'));
             onClose();
           },
-          onError: (err) => toast.error(err.message),
+          onError: (err) => toast.error(getErrorMessage(err)),
         },
       );
     } else {
@@ -46,7 +47,7 @@ export default function CategoryFormDialog({
           toast.success(t('categories.created'));
           onClose();
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err) => toast.error(getErrorMessage(err)),
       });
     }
   }

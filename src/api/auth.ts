@@ -1,4 +1,18 @@
+import i18next from 'i18next';
 import type { User } from '@/types/user';
+
+export async function updateLanguage(language: string): Promise<void> {
+  const res = await fetch('/api/auth/language', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ language }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'UNSUPPORTED_LANGUAGE');
+  }
+}
 
 export async function fetchCurrentUser(): Promise<User> {
   const res = await fetch('/api/auth/me', { credentials: 'include' });
@@ -25,7 +39,12 @@ export async function register(email: string, password: string, name: string): P
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({
+      email,
+      password,
+      name,
+      language: i18next.resolvedLanguage,
+    }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => null);
@@ -41,7 +60,7 @@ export async function logout(): Promise<void> {
   });
 }
 
-export async function forgotPassword(email: string): Promise<{ message: string }> {
+export async function forgotPassword(email: string): Promise<void> {
   const res = await fetch('/api/auth/forgot-password', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -57,7 +76,7 @@ export async function forgotPassword(email: string): Promise<{ message: string }
 export async function resetPassword(
   token: string,
   password: string,
-): Promise<{ message: string }> {
+): Promise<void> {
   const res = await fetch('/api/auth/reset-password', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

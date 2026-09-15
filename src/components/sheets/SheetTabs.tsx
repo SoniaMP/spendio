@@ -16,6 +16,7 @@ import SheetTabItem from '@/components/sheets/SheetTabItem';
 import SheetCreateDialog from '@/components/sheets/SheetCreateDialog';
 import SheetDeleteDialog from '@/components/sheets/SheetDeleteDialog';
 import SheetShareDialog from '@/components/sheets/SheetShareDialog';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface SheetTabsProps {
   activeSheetId: number;
@@ -71,7 +72,7 @@ export default function SheetTabs({
     ids.splice(toIdx, 0, dragItemId.current);
 
     reorderMutation.mutate(ids, {
-      onError: (err) => toast.error(err.message),
+      onError: (err) => toast.error(getErrorMessage(err)),
     });
 
     dragItemId.current = null;
@@ -85,7 +86,7 @@ export default function SheetTabs({
         setIsCreateOpen(false);
         onSheetChange(newSheet.id);
       },
-      onError: (err) => toast.error(err.message),
+      onError: (err) => toast.error(getErrorMessage(err)),
     });
   }
 
@@ -94,7 +95,7 @@ export default function SheetTabs({
       { id, name },
       {
         onSuccess: () => toast.success(t('sheets.renamed')),
-        onError: (err) => toast.error(err.message),
+        onError: (err) => toast.error(getErrorMessage(err)),
       },
     );
   }
@@ -111,7 +112,7 @@ export default function SheetTabs({
           if (remaining.length > 0) onSheetChange(remaining[0].id);
         }
       },
-      onError: (err) => toast.error(err.message),
+      onError: (err) => toast.error(getErrorMessage(err)),
     });
   }
 
@@ -124,7 +125,7 @@ export default function SheetTabs({
           if (remaining.length > 0) onSheetChange(remaining[0].id);
         }
       },
-      onError: (err) => toast.error(err.message),
+      onError: (err) => toast.error(getErrorMessage(err)),
     });
   }
 

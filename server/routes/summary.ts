@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../db.ts';
 import { hasSheetAccess } from '../helpers/sheetAccess.ts';
+import { ErrorCode } from '../../shared/errorCodes.ts';
 
 interface SummaryRow {
   sheet_id: number;
@@ -35,12 +36,12 @@ router.get('/', (req, res) => {
   const to = req.query.to as string | undefined;
 
   if (!sheetIdsParam || !from || !to) {
-    res.status(400).json({ error: 'sheetIds, from y to son obligatorios' });
+    res.status(400).json({ error: ErrorCode.MissingSummaryParams });
     return;
   }
 
   if (from > to) {
-    res.status(400).json({ error: 'from no puede ser posterior a to' });
+    res.status(400).json({ error: ErrorCode.FromAfterTo });
     return;
   }
 
@@ -48,7 +49,7 @@ router.get('/', (req, res) => {
 
   for (const id of sheetIds) {
     if (!hasSheetAccess(db, id, req.userId, 'read')) {
-      res.status(403).json({ error: 'No autorizado' });
+      res.status(403).json({ error: ErrorCode.NotAuthorized });
       return;
     }
   }

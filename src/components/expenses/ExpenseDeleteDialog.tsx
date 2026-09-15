@@ -15,6 +15,7 @@ import { useDeleteExpense } from '@/hooks/useExpenses';
 import { useAuth } from '@/hooks/useAuth';
 import type { ExpenseWithCategory } from '@/types/expense';
 import { formatCurrency } from '@/helpers/formatCurrency';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface Props {
   expense: ExpenseWithCategory | null;
@@ -49,7 +50,7 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
           );
           handleClose();
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err) => toast.error(getErrorMessage(err)),
       },
     );
   }

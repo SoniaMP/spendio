@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CardContent } from '@/components/ui/card';
 import AuthHeader from '@/components/auth/AuthHeader';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 export default function ResetPasswordPage() {
   const { t } = useTranslation();
@@ -88,7 +89,7 @@ export default function ResetPasswordPage() {
 
               {(validationError || mutation.error) && (
                 <p className="text-destructive text-center text-sm">
-                  {validationError || mutation.error?.message}
+                  {validationError || getErrorMessage(mutation.error)}
                 </p>
               )}
 

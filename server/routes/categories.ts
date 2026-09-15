@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../db.ts';
 import type { CategoryRow, CreateCategoryBody, UpdateCategoryBody } from '../types.ts';
+import { ErrorCode } from '../../shared/errorCodes.ts';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.post('/', (req, res, next) => {
     const { name, color } = req.body as CreateCategoryBody;
 
     if (!name?.trim()) {
-      res.status(400).json({ error: 'El nombre es obligatorio' });
+      res.status(400).json({ error: ErrorCode.NameRequired });
       return;
     }
 
@@ -43,7 +44,7 @@ router.put('/:id', (req, res, next) => {
       .prepare('SELECT * FROM categories WHERE id = ? AND user_id = ?')
       .get(id, req.userId) as CategoryRow | undefined;
     if (!existing) {
-      res.status(404).json({ error: 'Categoría no encontrada' });
+      res.status(404).json({ error: ErrorCode.CategoryNotFound });
       return;
     }
 
@@ -72,7 +73,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('SELECT 1 FROM expenses WHERE category_id = ? AND user_id = ? LIMIT 1')
       .get(id, req.userId);
     if (hasExpenses) {
-      res.status(409).json({ error: 'No se puede eliminar: tiene gastos asociados' });
+      res.status(409).json({ error: ErrorCode.CategoryHasExpenses });
       return;
     }
 
@@ -80,7 +81,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('DELETE FROM categories WHERE id = ? AND user_id = ?')
       .run(id, req.userId);
     if (result.changes === 0) {
-      res.status(404).json({ error: 'Categoría no encontrada' });
+      res.status(404).json({ error: ErrorCode.CategoryNotFound });
       return;
     }
 

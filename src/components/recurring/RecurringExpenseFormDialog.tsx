@@ -15,6 +15,7 @@ import RecurringExpenseForm, {
   type RecurringFormValues,
 } from '@/components/recurring/RecurringExpenseForm';
 import type { RecurringExpense } from '@/types/recurringExpense';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface Props {
   sheetId: number;
@@ -49,7 +50,7 @@ export default function RecurringExpenseFormDialog({
         { id: template.id, ...values },
         {
           onSuccess: () => handleSaved(t('recurring.updated')),
-          onError: (err) => toast.error(err.message),
+          onError: (err) => toast.error(getErrorMessage(err)),
         },
       );
     } else {
@@ -57,7 +58,7 @@ export default function RecurringExpenseFormDialog({
         { ...values, sheetId },
         {
           onSuccess: () => handleSaved(t('recurring.created')),
-          onError: (err) => toast.error(err.message),
+          onError: (err) => toast.error(getErrorMessage(err)),
         },
       );
     }

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ErrorCode } from '../../shared/errorCodes.ts';
 import db from '../db.ts';
 import { hasSheetAccess } from '../helpers/sheetAccess.ts';
 import type {
@@ -19,7 +20,7 @@ router.get('/', (req, res) => {
   const categoryId = req.query.categoryId as string | undefined;
 
   if (sheetId && !hasSheetAccess(db, Number(sheetId), req.userId, 'read')) {
-    res.status(403).json({ error: 'No autorizado' });
+    res.status(403).json({ error: ErrorCode.NotAuthorized });
     return;
   }
 
@@ -69,12 +70,12 @@ router.post('/', (req, res, next) => {
     const { amount, description, date, categoryId, sheetId } = req.body as CreateExpenseBody;
 
     if (!amount || !date || !categoryId || !sheetId) {
-      res.status(400).json({ error: 'Importe, fecha, categoría y hoja son obligatorios' });
+      res.status(400).json({ error: ErrorCode.MissingExpenseFields });
       return;
     }
 
     if (!hasSheetAccess(db, sheetId, req.userId, 'edit')) {
-      res.status(403).json({ error: 'No autorizado' });
+      res.status(403).json({ error: ErrorCode.NotAuthorized });
       return;
     }
 
@@ -102,13 +103,13 @@ router.put('/:id', (req, res, next) => {
       .prepare('SELECT * FROM expenses WHERE id = ?')
       .get(id) as ExpenseRow | undefined;
     if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
-      res.status(404).json({ error: 'Gasto no encontrado' });
+      res.status(404).json({ error: ErrorCode.ExpenseNotFound });
       return;
     }
 
     if (sheetId !== undefined && sheetId !== existing.sheet_id) {
       if (!hasSheetAccess(db, sheetId, req.userId, 'edit')) {
-        res.status(403).json({ error: 'Sin permiso en la hoja destino' });
+        res.status(403).json({ error: ErrorCode.NoPermissionOnTargetSheet });
         return;
       }
     }
@@ -168,7 +169,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('SELECT * FROM expenses WHERE id = ?')
       .get(id) as ExpenseRow | undefined;
     if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
-      res.status(404).json({ error: 'Gasto no encontrado' });
+      res.status(404).json({ error: ErrorCode.ExpenseNotFound });
       return;
     }
 
@@ -198,7 +199,7 @@ router.post('/:id/duplicate', (req, res, next) => {
     const { targetSheetId, date } = req.body as DuplicateExpenseBody;
 
     if (!targetSheetId || !date) {
-      res.status(400).json({ error: 'targetSheetId y date son obligatorios' });
+      res.status(400).json({ error: ErrorCode.MissingDuplicateFields });
       return;
     }
 
@@ -206,12 +207,12 @@ router.post('/:id/duplicate', (req, res, next) => {
       .prepare('SELECT * FROM expenses WHERE id = ?')
       .get(id) as ExpenseRow | undefined;
     if (!existing || !hasSheetAccess(db, existing.sheet_id, req.userId, 'edit')) {
-      res.status(404).json({ error: 'Gasto no encontrado' });
+      res.status(404).json({ error: ErrorCode.ExpenseNotFound });
       return;
     }
 
     if (!hasSheetAccess(db, targetSheetId, req.userId, 'edit')) {
-      res.status(403).json({ error: 'Sin permiso en la hoja destino' });
+      res.status(403).json({ error: ErrorCode.NoPermissionOnTargetSheet });
       return;
     }
 

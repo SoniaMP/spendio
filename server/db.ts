@@ -73,6 +73,12 @@ function runMigrations(database: Database.Database) {
     database.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
   }
 
+  // Needed for emails: they are sent from the recurring cron, outside any
+  // request, so the language cannot come from the browser there.
+  if (tableExists(database, 'users') && !hasColumn(database, 'users', 'language')) {
+    database.exec("ALTER TABLE users ADD COLUMN language TEXT NOT NULL DEFAULT 'es'");
+  }
+
   if (tableExists(database, 'password_reset_tokens') && !hasColumn(database, 'password_reset_tokens', 'used_at')) {
     database.exec('ALTER TABLE password_reset_tokens ADD COLUMN used_at TEXT');
   }
@@ -86,11 +92,12 @@ function runMigrations(database: Database.Database) {
         name          TEXT    NOT NULL DEFAULT '',
         picture       TEXT    NOT NULL DEFAULT '',
         password_hash TEXT,
+        language      TEXT    NOT NULL DEFAULT 'es',
         created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
         updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
       );
-      INSERT INTO users_new (id, google_id, email, name, picture, password_hash, created_at, updated_at)
-        SELECT id, google_id, email, name, picture, password_hash, created_at, updated_at FROM users;
+      INSERT INTO users_new (id, google_id, email, name, picture, password_hash, language, created_at, updated_at)
+        SELECT id, google_id, email, name, picture, password_hash, language, created_at, updated_at FROM users;
       DROP TABLE users;
       ALTER TABLE users_new RENAME TO users;
     `);

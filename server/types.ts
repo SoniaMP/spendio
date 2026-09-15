@@ -5,6 +5,7 @@ export interface UserRow {
   name: string;
   picture: string;
   password_hash: string | null;
+  language: string;
   created_at: string;
   updated_at: string;
 }

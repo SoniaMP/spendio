@@ -2,6 +2,7 @@ import { Router } from 'express';
 import db from '../db.ts';
 import { hasSheetAccess } from '../helpers/sheetAccess.ts';
 import type { SheetRow, CreateSheetBody, UpdateSheetBody } from '../types.ts';
+import { ErrorCode } from '../../shared/errorCodes.ts';
 
 const router = Router();
 
@@ -30,7 +31,7 @@ router.post('/', (req, res, next) => {
     const { name } = req.body as CreateSheetBody;
 
     if (!name?.trim()) {
-      res.status(400).json({ error: 'El nombre es obligatorio' });
+      res.status(400).json({ error: ErrorCode.NameRequired });
       return;
     }
 
@@ -56,7 +57,7 @@ router.put('/reorder', (req, res, next) => {
     const { orderedIds } = req.body as { orderedIds: number[] };
 
     if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
-      res.status(400).json({ error: 'orderedIds es obligatorio' });
+      res.status(400).json({ error: ErrorCode.OrderedIdsRequired });
       return;
     }
 
@@ -86,7 +87,7 @@ router.put('/:id', (req, res, next) => {
       .prepare('SELECT * FROM sheets WHERE id = ?')
       .get(id) as SheetRow | undefined;
     if (!existing || !hasSheetAccess(db, existing.id, req.userId, 'edit')) {
-      res.status(404).json({ error: 'Hoja no encontrada' });
+      res.status(404).json({ error: ErrorCode.SheetNotFound });
       return;
     }
 
@@ -120,7 +121,7 @@ router.delete('/:id', (req, res, next) => {
     if (count.cnt <= 1) {
       res
         .status(409)
-        .json({ error: 'No se puede eliminar la última hoja' });
+        .json({ error: ErrorCode.CannotDeleteLastSheet });
       return;
     }
 
@@ -128,7 +129,7 @@ router.delete('/:id', (req, res, next) => {
       .prepare('DELETE FROM sheets WHERE id = ? AND user_id = ?')
       .run(id, req.userId);
     if (result.changes === 0) {
-      res.status(404).json({ error: 'Hoja no encontrada' });
+      res.status(404).json({ error: ErrorCode.SheetNotFound });
       return;
     }
 

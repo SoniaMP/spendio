@@ -13,6 +13,7 @@ import { useCreateExpense, useUpdateExpense } from '@/hooks/useExpenses';
 import { useAuth } from '@/hooks/useAuth';
 import type { ExpenseWithCategory } from '@/types/expense';
 import ExpenseForm from '@/components/expenses/ExpenseForm';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface ExpenseFormDialogProps {
   sheetId: number;
@@ -56,7 +57,7 @@ export default function ExpenseFormDialog({
             toast.success(t('expenses.updated'));
             handleClose();
           },
-          onError: (err) => toast.error(err.message),
+          onError: (err) => toast.error(getErrorMessage(err)),
         },
       );
     } else {
@@ -67,7 +68,7 @@ export default function ExpenseFormDialog({
             toast.success(t('expenses.created'));
             handleClose();
           },
-          onError: (err) => toast.error(err.message),
+          onError: (err) => toast.error(getErrorMessage(err)),
         },
       );
     }

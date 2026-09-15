@@ -24,6 +24,7 @@ import {
   useDeleteSheetShare,
 } from '@/hooks/useSheetShares';
 import type { Sheet } from '@/types/sheet';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface SheetShareDialogProps {
   sheet: Sheet;
@@ -60,7 +61,7 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
           setEmail('');
           setPendingEmail(null);
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err) => toast.error(getErrorMessage(err)),
       },
     );
   }
@@ -124,13 +125,13 @@ export default function SheetShareDialog({ sheet, isOpen, onClose }: SheetShareD
             onUpdate={(shareId, perm) =>
               updateMutation.mutate(
                 { shareId, permission: perm },
-                { onError: (err) => toast.error(err.message) },
+                { onError: (err) => toast.error(getErrorMessage(err)) },
               )
             }
             onDelete={(shareId) =>
               deleteMutation.mutate(shareId, {
                 onSuccess: () => toast.success(t('sheets.sharing.revoked')),
-                onError: (err) => toast.error(err.message),
+                onError: (err) => toast.error(getErrorMessage(err)),
               })
             }
           />

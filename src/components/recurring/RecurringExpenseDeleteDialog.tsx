@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useDeleteRecurringExpense } from '@/hooks/useRecurringExpenses';
 import type { RecurringExpense } from '@/types/recurringExpense';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 interface Props {
   template: RecurringExpense | null;
@@ -33,7 +34,7 @@ export default function RecurringExpenseDeleteDialog({
         toast.success(t('recurring.deleted'));
         onClose();
       },
-      onError: (err) => toast.error(err.message),
+      onError: (err) => toast.error(getErrorMessage(err)),
     });
   }
 

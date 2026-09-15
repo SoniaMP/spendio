@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ErrorCode } from '../../shared/errorCodes.ts';
 import db from '../db.ts';
 import { hasSheetAccess } from '../helpers/sheetAccess.ts';
 import {
@@ -24,20 +25,20 @@ function validateMutableFields(
   body: UpdateRecurringExpenseBody,
   existing?: RecurringExpenseRow,
 ): string | null {
-  if (body.amount !== undefined && body.amount <= 0) return 'Importe debe ser mayor que 0';
+  if (body.amount !== undefined && body.amount <= 0) return ErrorCode.AmountMustBePositive;
   if (body.period !== undefined && !ALLOWED_PERIODS.includes(body.period)) {
-    return 'Periodo debe ser mensual o anual';
+    return ErrorCode.InvalidPeriod;
   }
   if (body.startDate !== undefined && body.startDate < todayIso()) {
-    return 'La fecha de inicio no puede ser anterior a hoy';
+    return ErrorCode.StartDateInPast;
   }
   if (body.noticeDays !== undefined && body.noticeDays < 0) {
-    return 'Días de aviso no pueden ser negativos';
+    return ErrorCode.NoticeDaysNegative;
   }
   const startDate = body.startDate ?? existing?.start_date;
   const endDate = body.endDate === undefined ? existing?.end_date : body.endDate;
   if (endDate && startDate && endDate < startDate) {
-    return 'La fecha de fin no puede ser anterior al inicio';
+    return ErrorCode.EndDateBeforeStart;
   }
   return null;
 }
@@ -59,7 +60,7 @@ function selectTemplate(id: number | bigint): RecurringExpenseRow {
 router.get('/', (req, res) => {
   const sheetId = req.query.sheetId ? Number(req.query.sheetId) : null;
   if (sheetId !== null && !hasSheetAccess(db, sheetId, req.userId, 'read')) {
-    res.status(403).json({ error: 'No autorizado' });
+    res.status(403).json({ error: ErrorCode.NotAuthorized });
     return;
   }
   const sql = sheetId
@@ -75,7 +76,7 @@ router.post('/', (req, res, next) => {
     const body = req.body as CreateRecurringExpenseBody & { sheetId: number };
     if (!body.amount || !body.categoryId || !body.period || !body.startDate || !body.sheetId) {
       res.status(400).json({
-        error: 'Importe, categoría, periodo, fecha de inicio y hoja son obligatorios',
+        error: ErrorCode.MissingRecurringFields,
       });
       return;
     }
@@ -85,7 +86,7 @@ router.post('/', (req, res, next) => {
       return;
     }
     if (!hasSheetAccess(db, body.sheetId, req.userId, 'edit')) {
-      res.status(403).json({ error: 'No autorizado' });
+      res.status(403).json({ error: ErrorCode.NotAuthorized });
       return;
     }
 
@@ -135,7 +136,7 @@ router.put('/:id', (req, res, next) => {
     const id = Number(req.params.id);
     const existing = findOwn(id, req.userId);
     if (!existing) {
-      res.status(404).json({ error: 'Recurrente no encontrado' });
+      res.status(404).json({ error: ErrorCode.RecurringNotFound });
       return;
     }
     const body = req.body as UpdateRecurringExpenseBody;
@@ -156,12 +157,12 @@ router.patch('/:id/active', (req, res, next) => {
     const id = Number(req.params.id);
     const { isActive } = req.body as ToggleRecurringExpenseBody;
     if (typeof isActive !== 'boolean') {
-      res.status(400).json({ error: 'isActive debe ser boolean' });
+      res.status(400).json({ error: ErrorCode.IsActiveMustBeBoolean });
       return;
     }
     const existing = findOwn(id, req.userId);
     if (!existing) {
-      res.status(404).json({ error: 'Recurrente no encontrado' });
+      res.status(404).json({ error: ErrorCode.RecurringNotFound });
       return;
     }
     const today = todayIso();
@@ -189,7 +190,7 @@ router.delete('/:id', (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!findOwn(id, req.userId)) {
-      res.status(404).json({ error: 'Recurrente no encontrado' });
+      res.status(404).json({ error: ErrorCode.RecurringNotFound });
       return;
     }
     const today = todayIso();

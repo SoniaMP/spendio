@@ -6,6 +6,7 @@ export const CREATE_TABLES = `
     name          TEXT    NOT NULL DEFAULT '',
     picture       TEXT    NOT NULL DEFAULT '',
     password_hash TEXT,
+    language      TEXT    NOT NULL DEFAULT 'es',
     created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );

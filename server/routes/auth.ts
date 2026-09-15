@@ -7,23 +7,28 @@ import { sendEmail } from '../services/email.ts';
 import { passwordResetEmail } from '../templates/passwordReset.ts';
 import { accountActivationEmail } from '../templates/accountActivation.ts';
 import type { UserRow } from '../types.ts';
+import { ErrorCode } from '../../shared/errorCodes.ts';
 
 const router = Router();
 const SALT_ROUNDS = 10;
+// Kept in sync with the client catalogs by a test.
+const SUPPORTED_LANGUAGES = ['es', 'en'];
+const DEFAULT_LANGUAGE = 'es';
 const TOKEN_TTL_MINUTES = 30;
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MINUTES = 60;
 
 router.post('/register', async (req, res, next) => {
   try {
-    const { email, password, name } = req.body as {
+    const { email, password, name, language } = req.body as {
       email?: string;
       password?: string;
       name?: string;
+      language?: string;
     };
 
     if (!email || !password || !name) {
-      res.status(400).json({ error: 'Email, contraseña y nombre son obligatorios' });
+      res.status(400).json({ error: ErrorCode.MissingRegistrationFields });
       return;
     }
 
@@ -34,15 +39,23 @@ router.post('/register', async (req, res, next) => {
       | undefined;
 
     if (existing) {
-      res.status(409).json({ error: 'El email ya está registrado' });
+      res.status(409).json({ error: ErrorCode.EmailAlreadyRegistered });
       return;
     }
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
+    // Registering in English should not send Spanish emails.
+    const resolvedLanguage =
+      language && SUPPORTED_LANGUAGES.includes(language)
+        ? language
+        : DEFAULT_LANGUAGE;
+
     const result = db
-      .prepare('INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)')
-      .run(normalizedEmail, name, passwordHash);
+      .prepare(
+        'INSERT INTO users (email, name, password_hash, language) VALUES (?, ?, ?, ?)',
+      )
+      .run(normalizedEmail, name, passwordHash, resolvedLanguage);
 
     const user = db
       .prepare('SELECT * FROM users WHERE id = ?')
@@ -68,7 +81,7 @@ router.post('/login', async (req, res, next) => {
     const { email, password } = req.body as { email?: string; password?: string };
 
     if (!email || !password) {
-      res.status(400).json({ error: 'Email y contraseña son obligatorios' });
+      res.status(400).json({ error: ErrorCode.MissingCredentials });
       return;
     }
 
@@ -79,13 +92,13 @@ router.post('/login', async (req, res, next) => {
       | undefined;
 
     if (!user?.password_hash) {
-      res.status(401).json({ error: 'Email o contraseña incorrectos' });
+      res.status(401).json({ error: ErrorCode.InvalidCredentials });
       return;
     }
 
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
-      res.status(401).json({ error: 'Email o contraseña incorrectos' });
+      res.status(401).json({ error: ErrorCode.InvalidCredentials });
       return;
     }
 
@@ -98,7 +111,7 @@ router.post('/login', async (req, res, next) => {
 
 router.get('/me', (req, res) => {
   if (!req.session.userId) {
-    res.status(401).json({ error: 'No autenticado' });
+    res.status(401).json({ error: ErrorCode.NotAuthenticated });
     return;
   }
 
@@ -108,11 +121,41 @@ router.get('/me', (req, res) => {
 
   if (!user) {
     req.session.destroy(() => {});
-    res.status(401).json({ error: 'Usuario no encontrado' });
+    res.status(401).json({ error: ErrorCode.UserNotFound });
     return;
   }
 
-  res.json({ id: user.id, email: user.email, name: user.name, picture: user.picture });
+  res.json({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    picture: user.picture,
+    language: user.language,
+  });
+});
+
+router.patch('/language', (req, res, next) => {
+  try {
+    if (!req.session.userId) {
+      res.status(401).json({ error: ErrorCode.NotAuthenticated });
+      return;
+    }
+
+    const { language } = req.body as { language?: string };
+
+    if (!language || !SUPPORTED_LANGUAGES.includes(language)) {
+      res.status(400).json({ error: ErrorCode.UnsupportedLanguage });
+      return;
+    }
+
+    db.prepare('UPDATE users SET language = ? WHERE id = ?').run(
+      language,
+      req.session.userId,
+    );
+    res.json({ language });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.post('/logout', (req, res) => {
@@ -125,10 +168,11 @@ router.post('/logout', (req, res) => {
 router.post('/forgot-password', async (req, res, next) => {
   try {
     const { email } = req.body as { email?: string };
-    const message = 'Si el correo está registrado, recibirás un enlace de recuperación en breve.';
 
+    // Always the same answer so the endpoint cannot be used to probe which
+    // emails exist. The client renders its own translated copy.
     if (!email) {
-      res.json({ message });
+      res.json({ success: true });
       return;
     }
 
@@ -138,7 +182,7 @@ router.post('/forgot-password', async (req, res, next) => {
       | undefined;
 
     if (!user) {
-      res.json({ message });
+      res.json({ success: true });
       return;
     }
 
@@ -152,7 +196,7 @@ router.post('/forgot-password', async (req, res, next) => {
     ).count;
 
     if (recentCount >= RATE_LIMIT_MAX) {
-      res.status(429).json({ error: 'Demasiadas solicitudes. Inténtalo más tarde.' });
+      res.status(429).json({ error: ErrorCode.TooManyRequests });
       return;
     }
 
@@ -183,7 +227,7 @@ router.post('/forgot-password', async (req, res, next) => {
       : passwordResetEmail({ resetUrl, userName: user.name });
 
     await sendEmail({ to: user.email, ...emailContent });
-    res.json({ message });
+    res.json({ success: true });
   } catch (err) {
     next(err);
   }
@@ -194,12 +238,12 @@ router.post('/reset-password', async (req, res, next) => {
     const { token, password } = req.body as { token?: string; password?: string };
 
     if (!token || !password) {
-      res.status(400).json({ error: 'Token y contraseña son obligatorios' });
+      res.status(400).json({ error: ErrorCode.MissingTokenOrPassword });
       return;
     }
 
     if (password.length < 6) {
-      res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+      res.status(400).json({ error: ErrorCode.PasswordTooShort });
       return;
     }
 
@@ -216,17 +260,17 @@ router.post('/reset-password', async (req, res, next) => {
       | undefined;
 
     if (!row) {
-      res.status(400).json({ error: 'Enlace de restablecimiento inválido o expirado' });
+      res.status(400).json({ error: ErrorCode.InvalidResetLink });
       return;
     }
 
     if (row.used_at) {
-      res.status(400).json({ error: 'Este enlace ya ha sido utilizado' });
+      res.status(400).json({ error: ErrorCode.ResetLinkAlreadyUsed });
       return;
     }
 
     if (new Date(row.expires_at) < new Date()) {
-      res.status(400).json({ error: 'Este enlace ha expirado' });
+      res.status(400).json({ error: ErrorCode.ResetLinkExpired });
       return;
     }
 
@@ -244,7 +288,7 @@ router.post('/reset-password', async (req, res, next) => {
     });
     applyReset();
 
-    res.json({ message: 'Contraseña restablecida correctamente' });
+    res.json({ success: true });
   } catch (err) {
     next(err);
   }

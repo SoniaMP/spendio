@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { CardContent, CardFooter } from '@/components/ui/card';
 import AuthHeader from '@/components/auth/AuthHeader';
 import { Separator } from '@/components/ui/separator';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 function FeatureItem({ label }: { label: string }) {
   return (
@@ -53,80 +54,82 @@ export default function LoginPage() {
     <>
       <AuthHeader title="Spendio" description={t('auth.tagline')} />
       <CardContent className="flex flex-col gap-4">
-          <ul className="space-y-2">
-            <FeatureItem label={t('auth.features.categories')} />
-            <FeatureItem label={t('auth.features.charts')} />
-            <FeatureItem label={t('auth.features.export')} />
-          </ul>
+        <ul className="space-y-2">
+          <FeatureItem label={t('auth.features.categories')} />
+          <FeatureItem label={t('auth.features.charts')} />
+          <FeatureItem label={t('auth.features.export')} />
+        </ul>
 
-          <Separator />
+        <Separator />
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            {isRegister && (
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="name">{t('auth.fields.name')}</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-            )}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {isRegister && (
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">{t('auth.fields.email')}</Label>
+              <Label htmlFor="name">{t('auth.fields.name')}</Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">{t('auth.fields.password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending
-                ? t('auth.signingIn')
-                : isRegister
-                  ? t('auth.createAccount')
-                  : t('auth.signIn')}
-            </Button>
-            {!isRegister && (
-              <Link
-                to="/forgot-password"
-                className="text-muted-foreground hover:text-foreground text-right text-sm underline-offset-4 hover:underline"
-              >
-                {t('auth.forgotPasswordLink')}
-              </Link>
-            )}
-          </form>
-
-          {error && (
-            <p className="text-destructive text-center text-sm">{error.message}</p>
           )}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="email">{t('auth.fields.email')}</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="password">{t('auth.fields.password')}</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending
+              ? t('auth.signingIn')
+              : isRegister
+                ? t('auth.createAccount')
+                : t('auth.signIn')}
+          </Button>
+          {!isRegister && (
+            <Link
+              to="/forgot-password"
+              className="text-muted-foreground hover:text-foreground text-right text-sm underline-offset-4 hover:underline"
+            >
+              {t('auth.forgotPasswordLink')}
+            </Link>
+          )}
+        </form>
 
-          <button
-            type="button"
-            className="text-muted-foreground hover:text-foreground text-center text-sm underline-offset-4 hover:underline"
-            onClick={() => {
-              setIsRegister((v) => !v);
-              loginMutation.reset();
-              registerMutation.reset();
-            }}
-          >
-            {isRegister ? t('auth.haveAccount') : t('auth.createNewAccount')}
-          </button>
+        {error && (
+          <p className="text-destructive text-center text-sm">
+            {getErrorMessage(error)}
+          </p>
+        )}
+
+        <button
+          type="button"
+          className="text-muted-foreground hover:text-foreground text-center text-sm underline-offset-4 hover:underline"
+          onClick={() => {
+            setIsRegister((v) => !v);
+            loginMutation.reset();
+            registerMutation.reset();
+          }}
+        >
+          {isRegister ? t('auth.haveAccount') : t('auth.createNewAccount')}
+        </button>
       </CardContent>
 
       <CardFooter className="justify-center pb-6">

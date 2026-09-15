@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ErrorCode } from '../../../shared/errorCodes.ts';
 
 const mockRun = vi.fn();
 const mockGet = vi.fn();
@@ -93,7 +94,7 @@ describe('POST /forgot-password', () => {
     const { req, res, next } = createMockReqRes({});
     await handler(req, res, next);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: expect.any(String) }),
+      expect.objectContaining({ success: true }),
     );
   });
 
@@ -102,7 +103,7 @@ describe('POST /forgot-password', () => {
     const { req, res, next } = createMockReqRes({ email: 'nobody@test.com' });
     await handler(req, res, next);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: expect.any(String) }),
+      expect.objectContaining({ success: true }),
     );
     expect(sendEmail).not.toHaveBeenCalled();
   });
@@ -177,7 +178,7 @@ describe('POST /reset-password', () => {
     await handler(req, res, next);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'Enlace de restablecimiento inválido o expirado' }),
+      expect.objectContaining({ error: ErrorCode.InvalidResetLink }),
     );
   });
 
@@ -193,7 +194,7 @@ describe('POST /reset-password', () => {
     await handler(req, res, next);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'Este enlace ya ha sido utilizado' }),
+      expect.objectContaining({ error: ErrorCode.ResetLinkAlreadyUsed }),
     );
   });
 
@@ -209,7 +210,7 @@ describe('POST /reset-password', () => {
     await handler(req, res, next);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'Este enlace ha expirado' }),
+      expect.objectContaining({ error: ErrorCode.ResetLinkExpired }),
     );
   });
 
@@ -226,7 +227,7 @@ describe('POST /reset-password', () => {
     const { req, res, next } = createMockReqRes({ token: 'abc', password: '123456' });
     await handler(req, res, next);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Contraseña restablecida correctamente' }),
+      expect.objectContaining({ success: true }),
     );
   });
 });

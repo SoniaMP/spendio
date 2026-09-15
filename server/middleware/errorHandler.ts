@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler } from 'express';
+import { ErrorCode } from '../../shared/errorCodes.ts';
 
 interface SqliteError extends Error {
   code?: string;
@@ -9,9 +10,9 @@ export const errorHandler: ErrorRequestHandler = (err: SqliteError, _req, res, _
   console.error(err);
 
   if (err.code === 'SQLITE_CONSTRAINT_FOREIGNKEY' || err.code === 'SQLITE_CONSTRAINT') {
-    res.status(409).json({ error: 'Constraint violation', detail: err.message });
+    res.status(409).json({ error: ErrorCode.ConstraintViolation });
     return;
   }
 
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ error: ErrorCode.InternalError });
 };

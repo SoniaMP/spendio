@@ -161,23 +161,35 @@ Ejecutada 2026-09-15. 313 tests verdes, `tsc`, `eslint` y `vite build` limpios.
 
 ---
 
-## RETOMAR AQUÍ — fase 4: códigos de error del servidor
+## Fase 4 — HECHA: códigos de error del servidor + idioma del usuario
 
-Pendiente. Decisión ya tomada (opción A, ver sección 2.1 y sección 7):
+Ejecutada 2026-09-15. 327 tests verdes, `tsc`, `eslint` y `vite build` limpios.
 
-- El backend deja de devolver copy: `{ error: 'Email o contraseña incorrectos' }` pasa a un código tipo `INVALID_CREDENTIALS`. Son ~50 sitios en 9 rutas de `server/routes/`.
-- El cliente traduce el código. Hoy hay **32 `toast.error(err.message)`** que pintan el texto del servidor tal cual; hay que hacerlos pasar por el catálogo.
-- Falta además la columna **`users.language`** con su migración: la UI se arregla con `localStorage`, pero los emails se envían desde el cron de recurrentes, fuera de la petición, así que necesitan el idioma persistido.
-- Hay que decidir el detalle menor de si las categorías por defecto (`server/schema.ts:147`) se siembran en el idioma del registro o siempre en castellano.
-- Tests de rutas a revisar: `server/__tests__/routes/` (auth, expenses, recurringExpenses, sheetShares, passwordReset, summary) — algunos assertan los mensajes en castellano.
+- **Nuevo `shared/errorCodes.ts`** — contrato compartido entre API y cliente, con el patrón const-object del `CLAUDE.md`. Hizo falta un directorio `shared/` nuevo, incluido en `tsconfig.app.json` y `tsconfig.server.json`, con alias `@shared/*` en `tsconfig.app.json`, `vite.config.ts` y `vitest.config.ts`.
+- **56 sustituciones en 7 rutas**: el servidor ya no devuelve una sola cadena en castellano. Verificado con grep.
+- **`errorHandler` ya no filtra `err.message` al cliente** — antes mandaba el texto crudo de SQLite en el campo `detail`.
+- **Cliente**: `src/lib/errorMessage.ts` con `getErrorMessage` (traduce el código, cae a un mensaje genérico si no lo conoce, así que nunca se pinta un identificador crudo) e `isErrorCode`. 17 `toast.error(err.message)` más 5 sitios que pintaban el error en pantalla.
+- **`CategoryDeleteDialog` deja de olfatear texto**: antes buscaba `'restrict'`/`'constraint'`/`'foreign'` dentro del mensaje; ahora compara con `ErrorCode.CategoryHasExpenses`.
+- **Columna `users.language`** con migración para BDs existentes (verificada contra un backup anterior: añade la columna y deja los usuarios en `es`), presente también en el `CREATE TABLE` y en el rebuild de `users_new`. Expuesta en `GET /me`.
+- **`PATCH /api/auth/language`** valida contra los idiomas soportados. `useLanguageSync` lo llama desde `AppLayout` cuando el idioma cambia y hay sesión; los fallos se ignoran a propósito, porque la UI ya funciona sin esto.
+- **El registro siembra el idioma activo**, así que quien se registre en inglés no recibe emails en castellano.
+- **Dos `message` en castellano eran copy muerta**: `/forgot-password` y `/reset-password` los devolvían y ningún componente los pintaba (las pantallas muestran su propio texto traducido). Ahora responden `{ success: true }`.
+- **Corrección a lo dicho en su momento**: sí había tests de servidor asserteando mensajes en castellano — 4, con `expect.objectContaining`, que el primer grep no cogió. Pasan a assertar códigos.
 
-Después queda la **fase 5** (4 plantillas de email × 2 idiomas × html/text). Ver sección 6 sobre el orden respecto a la SL: si la SL va a reescribir pantallas, los emails son lo más sensato de aplazar.
+### Lo que queda para la fase 5 (emails)
+
+Las 4 plantillas de `server/templates/` siguen enteras en castellano: `accountActivation`, `passwordReset`, `recurringExpenseAlert`, `recurringExpenseDeactivated`. Cada una duplica el texto en HTML y en texto plano → 8 cuerpos a traducir.
+
+**La pieza que faltaba ya está**: el idioma del usuario está persistido, así que el cron de recurrentes puede leerlo (`SELECT language FROM users`) y elegir plantilla sin depender de la petición.
+
+Ver sección 6 sobre el orden respecto a la SL: si la SL va a reescribir pantallas, los emails son lo más sensato de aplazar.
 
 **Recordatorio de entorno**: `nvm use` (Node 22.19.0). Cuenta de test local: `test@spendio.es` / `admin123`.
 
 **Deuda anotada, fuera del alcance de i18n:**
 - El `engine-strict` solo cubre `npm install`, no `npm run dev`. Falta un script `predev` que compruebe la versión de Node y falle diciendo «ejecuta `nvm use`». Sin él se llega a errores ilegibles de `dlopen`.
-- El README documenta `VITE_GOOGLE_CLIENT_ID` como obligatoria y `VITE_AUTH_BYPASS`; **ninguna de las dos existe en el código**. La sección «Dev Login» ya se eliminó; la tabla de variables de entorno sigue mintiendo.
+- El README documenta `VITE_GOOGLE_CLIENT_ID` como obligatoria y `VITE_AUTH_BYPASS`; **ninguna de las dos existe en el código**.
+- El bundle va por 1,33 MB y Vite avisa en cada build. No es de i18n (i18next aportó ~15 kB), pero algún día toca partirlo.
 
 ## 7. Decisiones
 

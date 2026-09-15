@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useDeleteCategory } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
+import { getErrorMessage, isErrorCode } from '@/lib/errorMessage';
+import { ErrorCode } from '@shared/errorCodes';
 
 interface CategoryDeleteDialogProps {
   category: Category | null;
@@ -34,12 +36,13 @@ export default function CategoryDeleteDialog({
         onClose();
       },
       onError: (err) => {
-        const message = err.message.toLowerCase().includes('restrict')
-          || err.message.toLowerCase().includes('constraint')
-          || err.message.toLowerCase().includes('foreign')
-          ? t('categories.deleteBlocked')
-          : err.message;
-        toast.error(message);
+        // The server distinguishes this case now, so no message sniffing.
+        const isBlocked =
+          isErrorCode(err, ErrorCode.CategoryHasExpenses) ||
+          isErrorCode(err, ErrorCode.ConstraintViolation);
+        toast.error(
+          isBlocked ? t('categories.deleteBlocked') : getErrorMessage(err),
+        );
       },
     });
   }

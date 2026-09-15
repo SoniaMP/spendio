@@ -22,6 +22,7 @@ import { useUpdateExpense } from '@/hooks/useExpenses';
 import { useSheets } from '@/hooks/useSheets';
 import { clampDayToMonth } from '@/helpers/clampDayToMonth';
 import type { ExpenseWithCategory } from '@/types/expense';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 export interface MoveSuccessInfo {
   targetSheetId: number;
@@ -92,7 +93,7 @@ export default function MoveExpenseDialog({
           onSuccess({ targetSheetId, targetYear: year, targetMonth: month });
           onClose();
         },
-        onError: (err) => setErrorMessage(err.message),
+        onError: (err) => setErrorMessage(getErrorMessage(err)),
       },
     );
   }

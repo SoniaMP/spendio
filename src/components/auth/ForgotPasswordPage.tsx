@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CardContent } from '@/components/ui/card';
 import AuthHeader from '@/components/auth/AuthHeader';
+import { getErrorMessage } from '@/lib/errorMessage';
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();
@@ -58,7 +59,9 @@ export default function ForgotPasswordPage() {
               </form>
 
               {mutation.error && (
-                <p className="text-destructive text-center text-sm">{mutation.error.message}</p>
+                <p className="text-destructive text-center text-sm">
+                    {getErrorMessage(mutation.error)}
+                  </p>
               )}
 
               <Link

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ErrorCode } from '../../../shared/errorCodes.ts';
 
 const { mockDb } = vi.hoisted(() => ({
   mockDb: { prepare: vi.fn() },
@@ -136,6 +137,6 @@ describe('POST / (create share)', () => {
     handler(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'No puedes compartir contigo mismo' });
+    expect(res.json).toHaveBeenCalledWith({ error: ErrorCode.CannotShareWithSelf });
   });
 });

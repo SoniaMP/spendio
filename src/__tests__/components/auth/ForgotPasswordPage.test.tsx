@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { ErrorCode } from '@shared/errorCodes';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -53,10 +54,16 @@ describe('ForgotPasswordPage', () => {
     expect(screen.getByText('Volver al inicio de sesión')).toBeInTheDocument();
   });
 
-  it('shows error message on failure', () => {
-    mockState = { isPending: false, isSuccess: false, error: new Error('Too many requests') };
+  it('translates the API error code', () => {
+    mockState = {
+      isPending: false,
+      isSuccess: false,
+      error: new Error(ErrorCode.TooManyRequests),
+    };
     renderPage();
-    expect(screen.getByText('Too many requests')).toBeInTheDocument();
+    expect(
+      screen.getByText('Demasiadas solicitudes. Inténtalo más tarde.'),
+    ).toBeInTheDocument();
   });
 
   it('has a link back to login', () => {

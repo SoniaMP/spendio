@@ -138,7 +138,9 @@
       "equal": "Igual que {{month}}",
       "change": "{{arrow}} {{percentage}}% vs {{month}}"
     },
-    "loadError": "Error al cargar los gastos."
+    "loadError": "Error al cargar los gastos.",
+    "sheetName": "Gastos",
+    "exportFileName": "gastos-{{month}}.xlsx"
   },
   "categories": {
     "new": "Nueva categoría",

@@ -147,33 +147,37 @@ Esto revierte parte de la fase 1, donde se eligió la pestaña con el argumento 
 
 ---
 
-## RETOMAR AQUÍ — fase 3: capa de formato
+## Fase 3 — HECHA: capa de formato
 
-Estado a 2026-09-15: fases 1, 2 y 2.5 hechas, árbol limpio, 307 tests verdes, `tsc` y `eslint` limpios. La app arranca y se ve en los dos idiomas.
+Ejecutada 2026-09-15. 313 tests verdes, `tsc`, `eslint` y `vite build` limpios.
 
-**Qué hay que hacer, en orden:**
-
-1. **`src/helpers/formatDate.ts`** — `locale: es` de date-fns hardcodeado. Resolver el locale desde el idioma activo de i18next. Como los helpers son funciones puras (no componentes), no pueden usar `useTranslation`: lo más limpio es un módulo `src/i18n/dateLocale.ts` que mapee código de idioma → locale de date-fns y lea `i18next.resolvedLanguage`. Importar los locales de date-fns explícitamente (`es`, `enUS`), nunca dinámicamente, o Vite se trae los ~100 al bundle.
-2. **`src/helpers/dateHelpers.ts`** — mismo `locale: es` en `getMonthLabel` y `formatDateRangeLabel`. Reutiliza el módulo del punto 1.
-3. **`src/helpers/formatCurrency.ts`** — `Intl.NumberFormat('es-ES', { currency: 'EUR' })`. **EUR se queda fijo**; lo que cambia es el formateo según idioma (`1.234,56 €` → `€1,234.56`). Ojo: el formatter está creado a nivel de módulo, así que hay que construirlo por llamada o memoizarlo por locale, si no el cambio de idioma no se refleja.
-4. **`MonthComparisonBadge.tsx`** — `percentageChange.toFixed(1).replace('.', ',')` fuerza coma decimal a mano. Sustituir por `Intl.NumberFormat` con el locale activo.
-5. **`src/helpers/exportToExcel.ts`** — las cabeceras son las **claves del objeto** `ExportRow` (`Fecha`, `Descripción`, `Categoría`, `Importe`) y la hoja se llama `Gastos`. Hay que separar clave técnica de etiqueta: construir las filas con claves en inglés y pasar las cabeceras traducidas, o montar el AOA a mano. El nombre de fichero (`gastos-<mes>.xlsx`) también sale de `ExportButton.tsx`.
-
-**Tests que van a romper y hay que mirar** (hoy asumen formato español): `formatDate.test.ts`, `dateHelpers.test.ts` (14 tests), `formatCurrency.test.ts`, `exportToExcel.test.ts` y `MonthComparisonBadge.test.tsx` (asserts como `'▼ 15,3% vs febrero'`). Siguen siendo válidos como caso `es`; hay que añadir el caso `en` al lado, no reescribirlos.
-
-**Trampa a evitar**: `src/test/setup.ts` fija el idioma a `es`, así que los tests de formato que quieran el caso inglés tienen que cambiar el idioma ellos mismos y restaurarlo en `afterEach`, como ya hace `src/__tests__/i18n/languageSwitch.test.tsx`.
-
-**Recordatorio de entorno**: `nvm use` antes de todo (Node 22.19.0). Cuenta de test local: `test@spendio.es` / `admin123`.
-
-**Después de la fase 3** quedan: fase 4 (códigos de error del servidor + columna `users.language` + migración) y fase 5 (las 4 plantillas de email × 2 idiomas × html/text). Ver sección 6 sobre el orden respecto a la SL: si la SL va a reescribir pantallas, los emails son lo más sensato de aplazar.
-
-**Deuda anotada, fuera del alcance de i18n:**
-- El `engine-strict` solo cubre `npm install`, no `npm run dev`. Falta un script `predev` que compruebe la versión de Node y falle diciendo «ejecuta `nvm use`». Sin él se llega a errores ilegibles de `dlopen`.
-- El README sigue documentando `VITE_GOOGLE_CLIENT_ID` como obligatoria y `VITE_AUTH_BYPASS`; **ninguna de las dos existe en el código**. La sección «Dev Login» ya se eliminó; la tabla de variables de entorno sigue mintiendo.
+- **Nuevo `src/i18n/activeLocale.ts`** — resuelve el locale activo para los helpers, que al ser funciones puras no pueden usar `useTranslation`. Expone `getDateLocale()` (date-fns) y `getIntlLocale()` (`Intl`). Los dos mapas se tipan con `Record<keyof typeof resources, ...>`, así que añadir un idioma a `resources` sin darle locale **es error de compilación**: no se introduce una segunda lista de idiomas que mantener. Los locales de date-fns se importan estáticamente a propósito.
+- **`formatDate` y `formatDateRangeLabel` pasan de `'d MMM yyyy'` a `'PP'`.** Hallazgo de la fase: con un patrón explícito, date-fns **solo traduce el nombre del mes y mantiene el orden de campos español** — salía `4 Mar 2026` en inglés. El token localizado `PP` sí reordena: `4 mar 2026` en castellano (idéntico a antes, byte a byte) y `Mar 4, 2026` en inglés.
+- **`formatCurrency`**: EUR fijo, formateo por locale. El formatter estaba creado a nivel de módulo, así que se memoiza en un `Map` por locale; si no, el cambio de idioma no se reflejaba. `1234,50 €` → `€1,234.50`.
+- **`MonthComparisonBadge`**: fuera el `.replace('.', ',')` manual, ahora `Intl.NumberFormat`.
+- **`exportToExcel`**: cabeceras, nombre de hoja y nombre de fichero traducidos (`gastos-…xlsx` → `expenses-…xlsx`). `json_to_sheet` usa las claves del objeto como cabeceras, así que las claves **son** las etiquetas traducidas y `ExportRow` pasa a `Record<string, string>`. Usa `i18next.t` directamente, igual que `activeLocale`, por no ser un hook.
+- **Coste en bundle**: +0,68 kB. Confirmado que no entraron los ~100 locales de date-fns.
+- **Los 5 ficheros de test que se preveía romper pasaron sin tocarse**, porque en castellano la salida es idéntica. El caso inglés se añadió aparte en `src/__tests__/i18n/formatting.test.ts` y en un bloque nuevo de `MonthComparisonBadge.test.tsx`, incluida la vuelta a formato español con un idioma no soportado.
 
 ---
 
-**Hallazgo ajeno a i18n, pero bloqueante**: el suite de tests no arrancaba con **Node v20.16.0**. jsdom 28 y sus dependencias exigen `^20.19.0 || ^22.12.0 || >=24.0.0` (las versiones donde `require()` de un módulo ESM funciona). Se resolvió fijando **22.19.0** (`.nvmrc`, `engines`, `Dockerfile`) y recompilando `better-sqlite3` (ABI 115 → 127). Commit `26b1295`.
+## RETOMAR AQUÍ — fase 4: códigos de error del servidor
+
+Pendiente. Decisión ya tomada (opción A, ver sección 2.1 y sección 7):
+
+- El backend deja de devolver copy: `{ error: 'Email o contraseña incorrectos' }` pasa a un código tipo `INVALID_CREDENTIALS`. Son ~50 sitios en 9 rutas de `server/routes/`.
+- El cliente traduce el código. Hoy hay **32 `toast.error(err.message)`** que pintan el texto del servidor tal cual; hay que hacerlos pasar por el catálogo.
+- Falta además la columna **`users.language`** con su migración: la UI se arregla con `localStorage`, pero los emails se envían desde el cron de recurrentes, fuera de la petición, así que necesitan el idioma persistido.
+- Hay que decidir el detalle menor de si las categorías por defecto (`server/schema.ts:147`) se siembran en el idioma del registro o siempre en castellano.
+- Tests de rutas a revisar: `server/__tests__/routes/` (auth, expenses, recurringExpenses, sheetShares, passwordReset, summary) — algunos assertan los mensajes en castellano.
+
+Después queda la **fase 5** (4 plantillas de email × 2 idiomas × html/text). Ver sección 6 sobre el orden respecto a la SL: si la SL va a reescribir pantallas, los emails son lo más sensato de aplazar.
+
+**Recordatorio de entorno**: `nvm use` (Node 22.19.0). Cuenta de test local: `test@spendio.es` / `admin123`.
+
+**Deuda anotada, fuera del alcance de i18n:**
+- El `engine-strict` solo cubre `npm install`, no `npm run dev`. Falta un script `predev` que compruebe la versión de Node y falle diciendo «ejecuta `nvm use`». Sin él se llega a errores ilegibles de `dlopen`.
+- El README documenta `VITE_GOOGLE_CLIENT_ID` como obligatoria y `VITE_AUTH_BYPASS`; **ninguna de las dos existe en el código**. La sección «Dev Login» ya se eliminó; la tabla de variables de entorno sigue mintiendo.
 
 ## 7. Decisiones
 

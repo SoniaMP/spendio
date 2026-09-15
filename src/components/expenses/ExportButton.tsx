@@ -16,8 +16,8 @@ export default function ExportButton({
   const { t } = useTranslation();
 
   function handleExport() {
-    const fileName = `gastos-${monthLabel.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
-    exportToExcel(expenses, fileName);
+    const month = monthLabel.replace(/\s+/g, '-').toLowerCase();
+    exportToExcel(expenses, t('expenses.exportFileName', { month }));
   }
 
   return (

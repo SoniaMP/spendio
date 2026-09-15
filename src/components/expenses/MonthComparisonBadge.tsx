@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { getIntlLocale } from '@/i18n/activeLocale';
 import { Badge } from '@/components/ui/badge';
 import type { MonthComparison } from '@/helpers/calcMonthComparison';
 
@@ -41,7 +42,10 @@ export default function MonthComparisonBadge({
 
   const isDown = comparison.direction === 'down';
   const arrow = isDown ? '▼' : '▲';
-  const formatted = comparison.percentageChange.toFixed(1).replace('.', ',');
+  const formatted = new Intl.NumberFormat(getIntlLocale(), {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(comparison.percentageChange);
 
   return (
     <Badge variant={isDown ? 'default' : 'destructive'}>

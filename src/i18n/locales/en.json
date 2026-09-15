@@ -138,7 +138,9 @@
       "equal": "Same as {{month}}",
       "change": "{{arrow}} {{percentage}}% vs {{month}}"
     },
-    "loadError": "Could not load the expenses."
+    "loadError": "Could not load the expenses.",
+    "sheetName": "Expenses",
+    "exportFileName": "expenses-{{month}}.xlsx"
   },
   "categories": {
     "new": "New category",

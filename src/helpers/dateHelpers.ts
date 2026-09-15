@@ -7,7 +7,7 @@ import {
   startOfYear,
   endOfYear,
 } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateLocale } from '@/i18n/activeLocale';
 
 export const DatePreset = {
   ThisMonth: 'this-month',
@@ -29,7 +29,7 @@ export function getMonthKey(year: number, month: number): string {
 
 export function getMonthLabel(year: number, month: number): string {
   const date = new Date(year, month - 1);
-  return format(date, 'MMMM yyyy', { locale: es });
+  return format(date, 'MMMM yyyy', { locale: getDateLocale() });
 }
 
 export function getPreviousMonth(year: number, month: number): { year: number; month: number } {
@@ -68,7 +68,8 @@ export function getDateRangeForPreset(preset: DatePreset, today: Date = new Date
 }
 
 export function formatDateRangeLabel(from: string, to: string): string {
-  const fromLabel = format(parseISO(from), 'd MMM yyyy', { locale: es });
-  const toLabel = format(parseISO(to), 'd MMM yyyy', { locale: es });
+  const locale = getDateLocale();
+  const fromLabel = format(parseISO(from), 'PP', { locale });
+  const toLabel = format(parseISO(to), 'PP', { locale });
   return `${fromLabel} – ${toLabel}`;
 }

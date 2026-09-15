@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
+import i18next from 'i18next';
 import { render, screen } from '@testing-library/react';
 import MonthComparisonBadge from '@/components/expenses/MonthComparisonBadge';
 
@@ -56,5 +57,23 @@ describe('MonthComparisonBadge', () => {
       />,
     );
     expect(screen.getByText('▲ 8,5% vs enero')).toBeInTheDocument();
+  });
+
+  describe('in English', () => {
+    afterEach(async () => {
+      await i18next.changeLanguage('es');
+    });
+
+    it('uses a dot as the decimal separator', async () => {
+      await i18next.changeLanguage('en');
+      render(
+        <MonthComparisonBadge
+          comparison={{ percentageChange: 15.3, direction: 'down' }}
+          previousMonthLabel="February"
+          isLoading={false}
+        />,
+      );
+      expect(screen.getByText('▼ 15.3% vs February')).toBeInTheDocument();
+    });
   });
 });

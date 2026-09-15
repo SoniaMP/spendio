@@ -104,7 +104,37 @@ Traducido de momento solo lo que se tocaba: navegación, cerrar sesión y el pro
 
 Pendiente y consciente, va en la fase 3: `exportToExcel.ts` (cabeceras `Fecha/Descripción/Importe` y hoja `Gastos`), el `.replace('.', ',')` de `MonthComparisonBadge`, y el `locale: es` de date-fns.
 
-**Hallazgo ajeno a i18n, pero bloqueante**: el suite de tests no arrancaba con **Node v20.16.0**. jsdom 28 y sus dependencias exigen `^20.19.0 || ^22.12.0 || >=24.0.0` (las versiones donde `require()` de un módulo ESM funciona). Con **v20.20.2**, que ya tienes instalada, pasan los 307 tests y además se mantiene el ABI nativo de `better-sqlite3` — con Node 22 habría que recompilarlo (ABI 115 vs 127). Vale la pena fijarlo con un `.nvmrc`.
+Commits: `cc01ef7` (fase 1), `98c2be8` (fase 2), `3a2ea0d` (README), `26b1295` (pin de Node).
+
+---
+
+## RETOMAR AQUÍ — fase 3: capa de formato
+
+Estado a 2026-09-13: fases 1 y 2 commiteadas, árbol limpio, 307 tests verdes, `tsc` y `eslint` limpios. La app arranca y se ve en los dos idiomas.
+
+**Qué hay que hacer, en orden:**
+
+1. **`src/helpers/formatDate.ts`** — `locale: es` de date-fns hardcodeado. Resolver el locale desde el idioma activo de i18next. Como los helpers son funciones puras (no componentes), no pueden usar `useTranslation`: lo más limpio es un módulo `src/i18n/dateLocale.ts` que mapee código de idioma → locale de date-fns y lea `i18next.resolvedLanguage`. Importar los locales de date-fns explícitamente (`es`, `enUS`), nunca dinámicamente, o Vite se trae los ~100 al bundle.
+2. **`src/helpers/dateHelpers.ts`** — mismo `locale: es` en `getMonthLabel` y `formatDateRangeLabel`. Reutiliza el módulo del punto 1.
+3. **`src/helpers/formatCurrency.ts`** — `Intl.NumberFormat('es-ES', { currency: 'EUR' })`. **EUR se queda fijo**; lo que cambia es el formateo según idioma (`1.234,56 €` → `€1,234.56`). Ojo: el formatter está creado a nivel de módulo, así que hay que construirlo por llamada o memoizarlo por locale, si no el cambio de idioma no se refleja.
+4. **`MonthComparisonBadge.tsx`** — `percentageChange.toFixed(1).replace('.', ',')` fuerza coma decimal a mano. Sustituir por `Intl.NumberFormat` con el locale activo.
+5. **`src/helpers/exportToExcel.ts`** — las cabeceras son las **claves del objeto** `ExportRow` (`Fecha`, `Descripción`, `Categoría`, `Importe`) y la hoja se llama `Gastos`. Hay que separar clave técnica de etiqueta: construir las filas con claves en inglés y pasar las cabeceras traducidas, o montar el AOA a mano. El nombre de fichero (`gastos-<mes>.xlsx`) también sale de `ExportButton.tsx`.
+
+**Tests que van a romper y hay que mirar** (hoy asumen formato español): `formatDate.test.ts`, `dateHelpers.test.ts` (14 tests), `formatCurrency.test.ts`, `exportToExcel.test.ts` y `MonthComparisonBadge.test.tsx` (asserts como `'▼ 15,3% vs febrero'`). Siguen siendo válidos como caso `es`; hay que añadir el caso `en` al lado, no reescribirlos.
+
+**Trampa a evitar**: `src/test/setup.ts` fija el idioma a `es`, así que los tests de formato que quieran el caso inglés tienen que cambiar el idioma ellos mismos y restaurarlo en `afterEach`, como ya hace `src/__tests__/i18n/languageSwitch.test.tsx`.
+
+**Recordatorio de entorno**: `nvm use` antes de todo (Node 22.19.0). Cuenta de test local: `test@spendio.es` / `admin123`.
+
+**Después de la fase 3** quedan: fase 4 (códigos de error del servidor + columna `users.language` + migración) y fase 5 (las 4 plantillas de email × 2 idiomas × html/text). Ver sección 6 sobre el orden respecto a la SL: si la SL va a reescribir pantallas, los emails son lo más sensato de aplazar.
+
+**Deuda anotada, fuera del alcance de i18n:**
+- El `engine-strict` solo cubre `npm install`, no `npm run dev`. Falta un script `predev` que compruebe la versión de Node y falle diciendo «ejecuta `nvm use`». Sin él se llega a errores ilegibles de `dlopen`.
+- El README sigue documentando `VITE_GOOGLE_CLIENT_ID` como obligatoria y `VITE_AUTH_BYPASS`; **ninguna de las dos existe en el código**. La sección «Dev Login» ya se eliminó; la tabla de variables de entorno sigue mintiendo.
+
+---
+
+**Hallazgo ajeno a i18n, pero bloqueante**: el suite de tests no arrancaba con **Node v20.16.0**. jsdom 28 y sus dependencias exigen `^20.19.0 || ^22.12.0 || >=24.0.0` (las versiones donde `require()` de un módulo ESM funciona). Se resolvió fijando **22.19.0** (`.nvmrc`, `engines`, `Dockerfile`) y recompilando `better-sqlite3` (ABI 115 → 127). Commit `26b1295`.
 
 ## 7. Decisiones
 

@@ -8,12 +8,14 @@ import { passwordResetEmail } from '../templates/passwordReset.ts';
 import { accountActivationEmail } from '../templates/accountActivation.ts';
 import type { UserRow } from '../types.ts';
 import { ErrorCode } from '../../shared/errorCodes.ts';
+import {
+  SUPPORTED_LANGUAGES,
+  resolveLanguage,
+  type Language,
+} from '../../shared/languages.ts';
 
 const router = Router();
 const SALT_ROUNDS = 10;
-// Kept in sync with the client catalogs by a test.
-const SUPPORTED_LANGUAGES = ['es', 'en'];
-const DEFAULT_LANGUAGE = 'es';
 const TOKEN_TTL_MINUTES = 30;
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MINUTES = 60;
@@ -46,10 +48,7 @@ router.post('/register', async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     // Registering in English should not send Spanish emails.
-    const resolvedLanguage =
-      language && SUPPORTED_LANGUAGES.includes(language)
-        ? language
-        : DEFAULT_LANGUAGE;
+    const resolvedLanguage = resolveLanguage(language);
 
     const result = db
       .prepare(
@@ -143,7 +142,7 @@ router.patch('/language', (req, res, next) => {
 
     const { language } = req.body as { language?: string };
 
-    if (!language || !SUPPORTED_LANGUAGES.includes(language)) {
+    if (!language || !SUPPORTED_LANGUAGES.includes(language as Language)) {
       res.status(400).json({ error: ErrorCode.UnsupportedLanguage });
       return;
     }
@@ -223,8 +222,16 @@ router.post('/forgot-password', async (req, res, next) => {
 
     const isStubAccount = !user.password_hash;
     const emailContent = isStubAccount
-      ? accountActivationEmail({ resetUrl, userName: user.name })
-      : passwordResetEmail({ resetUrl, userName: user.name });
+      ? accountActivationEmail({
+          resetUrl,
+          userName: user.name,
+          language: resolveLanguage(user.language),
+        })
+      : passwordResetEmail({
+          resetUrl,
+          userName: user.name,
+          language: resolveLanguage(user.language),
+        });
 
     await sendEmail({ to: user.email, ...emailContent });
     res.json({ success: true });

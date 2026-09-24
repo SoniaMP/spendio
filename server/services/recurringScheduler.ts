@@ -6,6 +6,7 @@ import { materializeHorizon, todayIso } from './recurringMaterializer.ts';
 import { sendEmail } from './email.ts';
 import { recurringExpenseAlertEmail } from '../templates/recurringExpenseAlert.ts';
 import { recurringExpenseDeactivatedEmail } from '../templates/recurringExpenseDeactivated.ts';
+import { resolveLanguage } from '../../shared/languages.ts';
 import type { RecurringExpenseRow } from '../types.ts';
 
 const APP_BASE_URL = process.env.APP_BASE_URL ?? 'https://spendio.app';
@@ -13,11 +14,12 @@ const APP_BASE_URL = process.env.APP_BASE_URL ?? 'https://spendio.app';
 interface UserContact {
   email: string;
   name: string;
+  language: string;
 }
 
 function fetchUser(userId: number): UserContact | null {
   const row = db
-    .prepare('SELECT email, name FROM users WHERE id = ?')
+    .prepare('SELECT email, name, language FROM users WHERE id = ?')
     .get(userId) as UserContact | undefined;
   return row ?? null;
 }
@@ -37,6 +39,7 @@ async function deactivateAndNotify(template: RecurringExpenseRow) {
     userName: user.name,
     description: template.description,
     sheetName: fetchSheetName(template.sheet_id),
+    language: resolveLanguage(user.language),
   });
   await sendEmail({ to: user.email, subject, html, text });
 }
@@ -63,6 +66,7 @@ async function maybeNotifyReminder(template: RecurringExpenseRow, today: string)
       amount: template.amount,
       dueDate,
       sheetUrl: `${APP_BASE_URL}/expenses`,
+      language: resolveLanguage(user.language),
     });
     await sendEmail({ to: user.email, subject, html, text });
   }

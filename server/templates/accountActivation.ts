@@ -1,36 +1,55 @@
+import { Language } from '../../shared/languages.ts';
+import { greeting, renderEmailLayout } from './emailLayout.ts';
+
 interface AccountActivationEmailParams {
   resetUrl: string;
   userName: string;
+  language: Language;
 }
 
-export function accountActivationEmail({ resetUrl, userName }: AccountActivationEmailParams) {
-  const subject = 'Activa tu cuenta de Spendio';
+const COPY: Record<
+  Language,
+  { subject: string; heading: string; intro: string; action: string; expiry: string }
+> = {
+  [Language.Spanish]: {
+    subject: 'Activa tu cuenta de Spendio',
+    heading: '¡Bienvenido a Spendio!',
+    intro:
+      'Alguien compartió una hoja de gastos contigo en Spendio. Establece una contraseña para activar tu cuenta y empezar a colaborar:',
+    action: 'Activar cuenta',
+    expiry:
+      'Este enlace caduca en 30 minutos. Si no esperabas este correo, puedes ignorarlo.',
+  },
+  [Language.English]: {
+    subject: 'Activate your Spendio account',
+    heading: 'Welcome to Spendio!',
+    intro:
+      'Someone shared an expense sheet with you on Spendio. Set a password to activate your account and start collaborating:',
+    action: 'Activate account',
+    expiry:
+      'This link expires in 30 minutes. If you were not expecting this email, you can ignore it.',
+  },
+};
 
-  const html = `
-    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
-      <h2 style="color: #111; margin-bottom: 16px;">¡Bienvenido a Spendio!</h2>
-      <p>Hola ${userName || ''},</p>
-      <p>Alguien compartió una hoja de gastos contigo en Spendio. Establece una contraseña para activar tu cuenta y empezar a colaborar:</p>
-      <a href="${resetUrl}"
-         style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0;">
-        Activar cuenta
-      </a>
-      <p style="color: #666; font-size: 14px;">Este enlace caduca en 30 minutos. Si no esperabas este correo, puedes ignorarlo.</p>
-      <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-      <p style="color: #999; font-size: 12px;">Spendio — Controla tus gastos, visualiza tu dinero</p>
-    </div>
-  `.trim();
+export function accountActivationEmail({
+  resetUrl,
+  userName,
+  language,
+}: AccountActivationEmailParams) {
+  const copy = COPY[language];
+  const hello = greeting(language, userName);
 
-  const text = [
-    `Hola ${userName || ''},`,
-    '',
-    'Alguien compartió una hoja de gastos contigo en Spendio.',
-    'Establece una contraseña para activar tu cuenta y empezar a colaborar:',
-    '',
-    resetUrl,
-    '',
-    'Este enlace caduca en 30 minutos. Si no esperabas este correo, puedes ignorarlo.',
-  ].join('\n');
+  const html = renderEmailLayout({
+    language,
+    heading: copy.heading,
+    body: `
+      <p>${hello}</p>
+      <p>${copy.intro}</p>`,
+    cta: { url: resetUrl, label: copy.action },
+    note: copy.expiry,
+  });
 
-  return { subject, html, text };
+  const text = [hello, '', copy.intro, '', resetUrl, '', copy.expiry].join('\n');
+
+  return { subject: copy.subject, html, text };
 }

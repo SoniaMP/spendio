@@ -1,36 +1,55 @@
+import { Language } from '../../shared/languages.ts';
+import { greeting, renderEmailLayout } from './emailLayout.ts';
+
 interface PasswordResetEmailParams {
   resetUrl: string;
   userName: string;
+  language: Language;
 }
 
-export function passwordResetEmail({ resetUrl, userName }: PasswordResetEmailParams) {
-  const subject = 'Restablecer tu contraseña de Spendio';
+const COPY: Record<
+  Language,
+  { subject: string; heading: string; intro: string; action: string; expiry: string }
+> = {
+  [Language.Spanish]: {
+    subject: 'Restablecer tu contraseña de Spendio',
+    heading: 'Restablecer contraseña',
+    intro:
+      'Recibimos una solicitud para restablecer tu contraseña de Spendio. Haz clic en el botón para establecer una nueva contraseña:',
+    action: 'Restablecer contraseña',
+    expiry:
+      'Este enlace caduca en 30 minutos. Si no solicitaste este cambio, puedes ignorar este correo.',
+  },
+  [Language.English]: {
+    subject: 'Reset your Spendio password',
+    heading: 'Reset password',
+    intro:
+      'We received a request to reset your Spendio password. Click the button to set a new one:',
+    action: 'Reset password',
+    expiry:
+      'This link expires in 30 minutes. If you did not request this change, you can ignore this email.',
+  },
+};
 
-  const html = `
-    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
-      <h2 style="color: #111; margin-bottom: 16px;">Restablecer contraseña</h2>
-      <p>Hola ${userName || ''},</p>
-      <p>Recibimos una solicitud para restablecer tu contraseña de Spendio. Haz clic en el botón para establecer una nueva contraseña:</p>
-      <a href="${resetUrl}"
-         style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0;">
-        Restablecer contraseña
-      </a>
-      <p style="color: #666; font-size: 14px;">Este enlace caduca en 30 minutos. Si no solicitaste este cambio, puedes ignorar este correo.</p>
-      <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-      <p style="color: #999; font-size: 12px;">Spendio — Controla tus gastos, visualiza tu dinero</p>
-    </div>
-  `.trim();
+export function passwordResetEmail({
+  resetUrl,
+  userName,
+  language,
+}: PasswordResetEmailParams) {
+  const copy = COPY[language];
+  const hello = greeting(language, userName);
 
-  const text = [
-    `Hola ${userName || ''},`,
-    '',
-    'Recibimos una solicitud para restablecer tu contraseña de Spendio.',
-    'Haz clic en el enlace para establecer una nueva contraseña:',
-    '',
-    resetUrl,
-    '',
-    'Este enlace caduca en 30 minutos. Si no solicitaste este cambio, puedes ignorar este correo.',
-  ].join('\n');
+  const html = renderEmailLayout({
+    language,
+    heading: copy.heading,
+    body: `
+      <p>${hello}</p>
+      <p>${copy.intro}</p>`,
+    cta: { url: resetUrl, label: copy.action },
+    note: copy.expiry,
+  });
 
-  return { subject, html, text };
+  const text = [hello, '', copy.intro, '', resetUrl, '', copy.expiry].join('\n');
+
+  return { subject: copy.subject, html, text };
 }

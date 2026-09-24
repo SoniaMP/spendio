@@ -176,20 +176,32 @@ Ejecutada 2026-09-15. 327 tests verdes, `tsc`, `eslint` y `vite build` limpios.
 - **Dos `message` en castellano eran copy muerta**: `/forgot-password` y `/reset-password` los devolvían y ningún componente los pintaba (las pantallas muestran su propio texto traducido). Ahora responden `{ success: true }`.
 - **Corrección a lo dicho en su momento**: sí había tests de servidor asserteando mensajes en castellano — 4, con `expect.objectContaining`, que el primer grep no cogió. Pasan a assertar códigos.
 
-### Lo que queda para la fase 5 (emails)
+## Fase 5 — HECHA: emails en los dos idiomas
 
-Las 4 plantillas de `server/templates/` siguen enteras en castellano: `accountActivation`, `passwordReset`, `recurringExpenseAlert`, `recurringExpenseDeactivated`. Cada una duplica el texto en HTML y en texto plano → 8 cuerpos a traducir.
+Ejecutada 2026-09-24. 343 tests verdes, `tsc`, `eslint` y `vite build` limpios. **Con esto el i18n está completo: no queda copy en castellano fuera de los catálogos.**
 
-**La pieza que faltaba ya está**: el idioma del usuario está persistido, así que el cron de recurrentes puede leerlo (`SELECT language FROM users`) y elegir plantilla sin depender de la petición.
+- **Nuevo `shared/languages.ts`** — fuente única de idiomas (`Language`, `SUPPORTED_LANGUAGES`, `DEFAULT_LANGUAGE`, `resolveLanguage`). Lo usan el servidor, las plantillas, `activeLocale`, `config` y el desplegable. `auth.ts` tenía su propia lista `['es','en']` hardcodeada.
+- **Nuevo `server/templates/emailLayout.ts`** — el envoltorio que las 4 plantillas repetían (div, cabecera, botón, nota, pie). Cada plantilla lleva su copy en un `Record<Language, ...>`, así que **añadir un idioma sin traducir un email es error de compilación**.
+- **`recurringExpenseAlert`**: fuera `formatDateEs` y `formatAmountEs` (que hacían `.replace('.', ',')` a mano); ahora `Intl` con el locale, EUR fijo igual que en la UI. El formateo de fecha va con `timeZone: 'UTC'` para que el día no se desplace según dónde corra el cron.
+- **Llamantes**: `auth.ts` pasa `resolveLanguage(user.language)`; `recurringScheduler.fetchUser` añade `language` a su `SELECT`.
+- **Tests**: `server/__tests__/templates/emailTemplates.test.ts` recorre los 4 emails × 2 idiomas comprobando asunto/html/texto no vacíos, saludo, pie una sola vez y cero placeholders sin resolver, más los formatos de importe y fecha por idioma.
+- **Deuda de la fase 4 saldada**: había dejado en `auth.ts` el comentario «Kept in sync with the client catalogs by a test» y ese test **no existía**. Ahora sí: `src/__tests__/i18n/supportedLanguages.test.ts` comprueba que `SUPPORTED_LANGUAGES` y los catálogos del cliente coinciden exactamente.
 
-Ver sección 6 sobre el orden respecto a la SL: si la SL va a reescribir pantallas, los emails son lo más sensato de aplazar.
+### Estado final del i18n
+
+Fases 1, 2, 2.5, 3, 4 y 5 hechas. 343 tests. Lo que queda son decisiones de producto, no trabajo pendiente:
+
+- Añadir un tercer idioma = un JSON en `src/i18n/locales/`, su entrada en `resources.ts` y en `shared/languages.ts`; el compilador y los tests señalan todo lo que falte (locale de date-fns, `Intl`, copy de los 4 emails).
+- Corregir una traducción sigue exigiendo build y redeploy (decisión consciente, ver sección 7).
+- Erratas preexistentes del castellano conservadas a propósito (`categorias`, `Graficos`, `Iniciar sesion`, `Se le compartira`). Corregirlas es un commit de copy aparte y romperá el assert `'Iniciar sesion'` de `LoginPage.test`.
 
 **Recordatorio de entorno**: `nvm use` (Node 22.19.0). Cuenta de test local: `test@spendio.es` / `admin123`.
 
 **Deuda anotada, fuera del alcance de i18n:**
-- El `engine-strict` solo cubre `npm install`, no `npm run dev`. Falta un script `predev` que compruebe la versión de Node y falle diciendo «ejecuta `nvm use`». Sin él se llega a errores ilegibles de `dlopen`.
+- El `engine-strict` solo cubre `npm install`, no `npm run dev`. Falta un script `predev` que compruebe la versión de Node y falle diciendo «ejecuta `nvm use`».
 - El README documenta `VITE_GOOGLE_CLIENT_ID` como obligatoria y `VITE_AUTH_BYPASS`; **ninguna de las dos existe en el código**.
-- El bundle va por 1,33 MB y Vite avisa en cada build. No es de i18n (i18next aportó ~15 kB), pero algún día toca partirlo.
+- El bundle va por 1,33 MB y Vite avisa en cada build.
+- **Pendiente de verificar en real**: ningún email se ha enviado de verdad en inglés. Los tests cubren el contenido, no el envío.
 
 ## 7. Decisiones
 

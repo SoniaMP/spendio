@@ -7,9 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import resources from '@/i18n/resources';
-
-const LANGUAGE_CODES = Object.keys(resources);
+import { SUPPORTED_LANGUAGES } from '@shared/languages';
 
 /**
  * Deliberately not flags: a flag names a country, not a language. The trigger
@@ -22,7 +20,7 @@ function getNativeLanguageName(code: string): string {
 
 export default function LanguageDropdown() {
   const { t, i18n } = useTranslation();
-  const activeCode = i18n.resolvedLanguage ?? LANGUAGE_CODES[0];
+  const activeCode = i18n.resolvedLanguage ?? SUPPORTED_LANGUAGES[0];
 
   return (
     <DropdownMenu>
@@ -38,7 +36,7 @@ export default function LanguageDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {LANGUAGE_CODES.map((code) => (
+        {SUPPORTED_LANGUAGES.map((code) => (
           <DropdownMenuItem
             key={code}
             onClick={() => void i18n.changeLanguage(code)}

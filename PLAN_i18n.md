@@ -201,7 +201,8 @@ Fases 1, 2, 2.5, 3, 4 y 5 hechas. 343 tests. Lo que queda son decisiones de prod
 - El `engine-strict` solo cubre `npm install`, no `npm run dev`. Falta un script `predev` que compruebe la versión de Node y falle diciendo «ejecuta `nvm use`».
 - El README documenta `VITE_GOOGLE_CLIENT_ID` como obligatoria y `VITE_AUTH_BYPASS`; **ninguna de las dos existe en el código**.
 - El bundle va por 1,33 MB y Vite avisa en cada build.
-- **Pendiente de verificar en real**: ningún email se ha enviado de verdad en inglés. Los tests cubren el contenido, no el envío.
+- **El envío de correo estaba roto en silencio, y ya no.** `RESEND_FROM_EMAIL=no-reply@email.com` usa un dominio ajeno: Resend responde 403 «The email.com domain is not verified». Y el SDK **no lanza** en error, devuelve `{ data, error }`, que `sendEmail` descartaba — un envío rechazado era indistinguible de uno correcto. Ahora `sendEmail` comprueba `error`, registra el motivo y lanza `EmailDeliveryError`; `/forgot-password` devuelve 500 en vez de fingir éxito. El cron aísla el fallo por plantilla: un email rechazado ya no aborta la generación de los demás, y no marca el recordatorio como enviado, así que se reintenta en la siguiente pasada.
+- **Acción tuya pendiente**: verificar `soniadev.es` en resend.com/domains y poner `RESEND_FROM_EMAIL=no-reply@soniadev.es` en el `.env` local **y en el del VPS**. Hasta entonces no sale ningún correo, ni en local ni en producción. Ningún email se ha enviado nunca en inglés (ni en castellano, con esa configuración).
 
 ## 7. Decisiones
 

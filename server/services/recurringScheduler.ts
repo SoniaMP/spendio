@@ -41,7 +41,14 @@ async function deactivateAndNotify(template: RecurringExpenseRow) {
     sheetName: fetchSheetName(template.sheet_id),
     language: resolveLanguage(user.language),
   });
-  await sendEmail({ to: user.email, subject, html, text });
+
+  // The template is already deactivated; a failed notification must not stop
+  // the run for everyone else.
+  try {
+    await sendEmail({ to: user.email, subject, html, text });
+  } catch (err) {
+    console.error(`Could not notify deactivation of template ${template.id}`, err);
+  }
 }
 
 async function maybeNotifyReminder(template: RecurringExpenseRow, today: string) {
@@ -68,7 +75,15 @@ async function maybeNotifyReminder(template: RecurringExpenseRow, today: string)
       sheetUrl: `${APP_BASE_URL}/expenses`,
       language: resolveLanguage(user.language),
     });
-    await sendEmail({ to: user.email, subject, html, text });
+
+    try {
+      await sendEmail({ to: user.email, subject, html, text });
+    } catch (err) {
+      // Leave last_notified_period_index untouched so the next run retries
+      // this reminder instead of dropping it.
+      console.error(`Could not send reminder for template ${template.id}`, err);
+      return;
+    }
   }
   db.prepare(
     'UPDATE recurring_expenses SET last_notified_period_index = ? WHERE id = ?',

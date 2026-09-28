@@ -180,3 +180,57 @@ describe('runRecurringGeneration', () => {
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
 });
+
+describe('when an email cannot be delivered', () => {
+  function setupNotifiableTemplate() {
+    const template = templateFixture({
+      last_generated_period_index: 0,
+      last_notified_period_index: -1,
+      notice_days: 30,
+    });
+    const runs: Array<{ sql: string; args: unknown[] }> = [];
+
+    mockDb.prepare.mockImplementation((sql: string) => ({
+      get: vi.fn(() => (sql.includes('FROM users') ? { email: 'a@b.test', name: 'Sonia', language: 'en' } : template)),
+      all: vi.fn(() => [template]),
+      run: vi.fn((...args: unknown[]) => runs.push({ sql, args })),
+    }));
+
+    return runs;
+  }
+
+  // A rejected send used to abort the whole run, so one broken address stopped
+  // every other user's reminders.
+  it('keeps going instead of aborting the run', async () => {
+    setupNotifiableTemplate();
+    mockSendEmail.mockRejectedValue(new Error('Email delivery failed: domain not verified'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(
+      runRecurringGeneration(new Date('2026-06-15T10:00:00Z')),
+    ).resolves.toBeUndefined();
+
+    expect(mockSendEmail).toHaveBeenCalled();
+  });
+
+  it('does not mark the reminder as sent, so the next run retries it', async () => {
+    const runs = setupNotifiableTemplate();
+    mockSendEmail.mockRejectedValue(new Error('Email delivery failed'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await runRecurringGeneration(new Date('2026-06-15T10:00:00Z'));
+
+    const notified = runs.filter((r) => r.sql.includes('last_notified_period_index'));
+    expect(notified).toEqual([]);
+  });
+
+  it('marks it as sent when delivery succeeds', async () => {
+    const runs = setupNotifiableTemplate();
+    mockSendEmail.mockResolvedValue(undefined);
+
+    await runRecurringGeneration(new Date('2026-06-15T10:00:00Z'));
+
+    const notified = runs.filter((r) => r.sql.includes('last_notified_period_index'));
+    expect(notified).toHaveLength(1);
+  });
+});

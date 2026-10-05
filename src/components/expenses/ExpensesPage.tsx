@@ -27,6 +27,7 @@ import ExpenseChart from '@/components/expenses/ExpenseChart';
 import MonthlySummary from '@/components/expenses/MonthlySummary';
 import CategoryFilter from '@/components/expenses/CategoryFilter';
 import RecurringExpensesDialog from '@/components/recurring/RecurringExpensesDialog';
+import MonthlyIncomeChip from '@/components/income/MonthlyIncomeChip';
 
 export default function ExpensesPage() {
   const { activeSheetId, activeSheetPermission } = useOutletContext<OutletContext>();
@@ -183,11 +184,14 @@ export default function ExpensesPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <MonthPicker
-          label={monthLabel}
-          onPrevious={goToPreviousMonth}
-          onNext={goToNextMonth}
-        />
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <MonthPicker
+            label={monthLabel}
+            onPrevious={goToPreviousMonth}
+            onNext={goToNextMonth}
+          />
+          <MonthlyIncomeChip monthKey={monthKey} />
+        </div>
         <div className="flex items-center gap-2">
           <CategoryFilter
             value={filterCategoryId}

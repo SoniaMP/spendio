@@ -8,6 +8,7 @@ import {
   type CreateRecurringInput,
   type UpdateRecurringInput,
 } from '@/api/recurring';
+import { invalidateExpenseDependents } from '@/lib/invalidateExpenseDependents';
 
 const RECURRING_KEY = ['recurring-expenses'] as const;
 
@@ -29,7 +30,7 @@ export function useCreateRecurringExpense() {
     mutationFn: (body: CreateRecurringInput) => createRecurringExpense(body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RECURRING_KEY });
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      invalidateExpenseDependents(queryClient);
     },
   });
 }
@@ -41,7 +42,7 @@ export function useUpdateRecurringExpense() {
       updateRecurringExpense(id, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RECURRING_KEY });
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      invalidateExpenseDependents(queryClient);
     },
   });
 }
@@ -53,7 +54,7 @@ export function useToggleRecurringExpense() {
       toggleRecurringExpense(id, isActive),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RECURRING_KEY });
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      invalidateExpenseDependents(queryClient);
     },
   });
 }
@@ -64,7 +65,7 @@ export function useDeleteRecurringExpense() {
     mutationFn: deleteRecurringExpense,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RECURRING_KEY });
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      invalidateExpenseDependents(queryClient);
     },
   });
 }

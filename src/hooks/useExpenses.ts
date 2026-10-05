@@ -11,8 +11,10 @@ import {
   type DuplicateExpenseInput,
   type RecurringScope,
 } from '@/api/expenses';
+import { invalidateExpenseDependents } from '@/lib/invalidateExpenseDependents';
+import { QueryKeyRoot } from '@/lib/queryKeys';
 
-const EXPENSES_KEY = ['expenses'] as const;
+const EXPENSES_KEY = [QueryKeyRoot.Expenses] as const;
 
 function expensesQueryKey(sheetId: number, month?: string) {
   return month
@@ -45,7 +47,7 @@ export function useCreateExpense() {
   return useMutation({
     mutationFn: (body: CreateExpenseInput) => createExpense(body),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
+      invalidateExpenseDependents(queryClient);
     },
   });
 }
@@ -61,7 +63,7 @@ export function useUpdateExpense() {
     }: { id: number; scope?: RecurringScope } & UpdateExpenseInput) =>
       updateExpense(id, body, scope),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
+      invalidateExpenseDependents(queryClient);
       queryClient.invalidateQueries({ queryKey: ['recurring-expenses'] });
     },
   });
@@ -74,7 +76,7 @@ export function useDuplicateExpense() {
     mutationFn: ({ id, ...body }: { id: number } & DuplicateExpenseInput) =>
       duplicateExpense(id, body),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
+      invalidateExpenseDependents(queryClient);
     },
   });
 }
@@ -86,7 +88,7 @@ export function useDeleteExpense() {
     mutationFn: ({ id, scope }: { id: number; scope?: RecurringScope }) =>
       deleteExpense(id, scope),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY });
+      invalidateExpenseDependents(queryClient);
       queryClient.invalidateQueries({ queryKey: ['recurring-expenses'] });
     },
   });

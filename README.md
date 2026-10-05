@@ -74,6 +74,23 @@ npm run dev
 
 The SQLite database is created automatically in the `data/` directory on first run.
 
+### Docker
+
+```bash
+docker compose up --build -d   # build image and start
+docker compose logs -f         # follow logs
+docker compose down            # stop
+```
+
+Serves the built frontend and the API on `http://localhost:3001`.
+
+`--build` is required after any change under `server/`, `shared/` or `src/` — the
+image copies them at build time and there is no bind mount. `./data` is bind-mounted,
+so the SQLite database survives rebuilds.
+
+Reads `.env` via `env_file`. `VITE_GOOGLE_CLIENT_ID` is inlined at build time, so
+changing it requires `--build`.
+
 ### Test account
 
 | Email | Password |

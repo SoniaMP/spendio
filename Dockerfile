@@ -17,6 +17,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && apk del python3 make g++
 
 COPY server/ ./server/
+COPY shared/ ./shared/
 COPY --from=build /app/dist ./dist/
 
 EXPOSE 3001

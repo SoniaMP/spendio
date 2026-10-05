@@ -148,3 +148,43 @@ export interface CreateSheetShareBody {
 export interface UpdateSheetShareBody {
   permission: 'read' | 'edit';
 }
+
+/**
+ * One source of income for a user, valid from `start_month` until `end_month`
+ * (`null` = still in force). Months are `'YYYY-MM'`, which compares correctly as
+ * a string and is enforced by a GLOB check in the schema.
+ *
+ * The line type is derived, never stored: `end_month === null` → in-force
+ * recurring; `start_month === end_month` → single month; otherwise → closed
+ * recurring (history).
+ */
+export interface IncomeLineRow {
+  id: number;
+  user_id: number;
+  label: string;
+  amount: number;
+  start_month: string;
+  end_month: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Everything the income chip needs for one month, in a single response: the
+ * reference figure, what the actor spent that month across all sheets, and the
+ * difference. `spent` never includes other users' expenses, not even on shared
+ * sheets.
+ */
+export interface MonthlyIncomeResponse {
+  amount: number;
+  spent: number;
+  remaining: number;
+  lines: IncomeLineRow[];
+}
+
+export interface CreateIncomeLineBody {
+  label: string;
+  amount: number;
+  month: string;
+  isRecurring: boolean;
+}

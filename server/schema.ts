@@ -94,6 +94,23 @@ export const CREATE_TABLES = `
   CREATE INDEX IF NOT EXISTS idx_recurring_expenses_active
     ON recurring_expenses(is_active, user_id);
 
+  CREATE TABLE IF NOT EXISTS income_lines (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    label       TEXT    NOT NULL,
+    amount      REAL    NOT NULL CHECK (amount > 0),
+    start_month TEXT    NOT NULL CHECK (start_month GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]'),
+    end_month   TEXT             CHECK (end_month IS NULL OR (
+                                   end_month GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]'
+                                   AND end_month >= start_month
+                                 )),
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_income_lines_user_month
+    ON income_lines(user_id, start_month);
+
   CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -141,6 +158,13 @@ export const CREATE_TABLES = `
     FOR EACH ROW
     BEGIN
       UPDATE recurring_expenses SET updated_at = datetime('now') WHERE id = NEW.id;
+    END;
+
+  CREATE TRIGGER IF NOT EXISTS income_lines_updated_at
+    AFTER UPDATE ON income_lines
+    FOR EACH ROW
+    BEGIN
+      UPDATE income_lines SET updated_at = datetime('now') WHERE id = NEW.id;
     END;
 `;
 

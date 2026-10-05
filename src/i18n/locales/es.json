@@ -41,8 +41,13 @@
     "END_DATE_BEFORE_START": "La fecha de fin no puede ser anterior al inicio",
     "EXPENSE_NOT_FOUND": "Gasto no encontrado",
     "FROM_AFTER_TO": "La fecha inicial no puede ser posterior a la final",
+    "INCOME_LABEL_REQUIRED": "El nombre del ingreso es obligatorio",
+    "INCOME_LINE_NOT_FOUND": "Línea de ingreso no encontrada",
+    "INCOME_RECURRENCE_REQUIRED": "Indica si el ingreso es recurrente",
     "INTERNAL_ERROR": "Ha ocurrido un error inesperado",
     "INVALID_CREDENTIALS": "Email o contraseña incorrectos",
+    "INVALID_INCOME_CHANGE_SCOPE": "El alcance del cambio no es válido",
+    "INVALID_MONTH_FORMAT": "El mes no es válido",
     "INVALID_PERIOD": "Periodo debe ser mensual o anual",
     "INVALID_PERMISSION": "El permiso indicado no es válido",
     "INVALID_RESET_LINK": "Enlace de restablecimiento inválido o expirado",
@@ -51,6 +56,7 @@
     "MISSING_CREDENTIALS": "Email y contraseña son obligatorios",
     "MISSING_DUPLICATE_FIELDS": "Faltan la hoja y la fecha destino",
     "MISSING_EXPENSE_FIELDS": "Importe, fecha, categoría y hoja son obligatorios",
+    "MISSING_MONTH": "El mes es obligatorio",
     "MISSING_RECURRING_FIELDS": "Faltan importe, categoría, periodo, fecha de inicio u hoja",
     "MISSING_REGISTRATION_FIELDS": "Email, contraseña y nombre son obligatorios",
     "MISSING_SUMMARY_PARAMS": "Faltan las hojas y el rango de fechas",
@@ -185,6 +191,12 @@
     "loadError": "Error al cargar los gastos.",
     "sheetName": "Gastos",
     "exportFileName": "gastos-{{month}}.xlsx"
+  },
+  "income": {
+    "add": "Ingresos",
+    "label": "Ingresos",
+    "remainingLabel": "quedan",
+    "tooltip": "Quedan {{remaining}} de {{amount}}. Gastado {{spent}} en todas las hojas."
   },
   "categories": {
     "new": "Nueva categoría",

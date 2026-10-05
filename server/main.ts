@@ -12,6 +12,8 @@ import sheetsRouter from './routes/sheets.ts';
 import sheetSharesRouter from './routes/sheetShares.ts';
 import summaryRouter from './routes/summary.ts';
 import recurringExpensesRouter from './routes/recurringExpenses.ts';
+import monthlyIncomeRouter from './routes/monthlyIncome.ts';
+import incomeLinesRouter from './routes/incomeLines.ts';
 import { runRecurringGeneration } from './services/recurringScheduler.ts';
 import { errorHandler } from './middleware/errorHandler.ts';
 
@@ -43,6 +45,8 @@ app.use('/api/sheets', sheetsRouter);
 app.use('/api/sheets/:id/shares', sheetSharesRouter);
 app.use('/api/summary', summaryRouter);
 app.use('/api/recurring-expenses', recurringExpensesRouter);
+app.use('/api/monthly-income', monthlyIncomeRouter);
+app.use('/api/income-lines', incomeLinesRouter);
 
 app.use(errorHandler);
 

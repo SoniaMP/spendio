@@ -60,6 +60,14 @@ export const ErrorCode = {
   // Summary
   MissingSummaryParams: 'MISSING_SUMMARY_PARAMS',
   FromAfterTo: 'FROM_AFTER_TO',
+
+  // Monthly income (amount validation reuses AmountMustBePositive above)
+  MissingMonth: 'MISSING_MONTH',
+  InvalidMonthFormat: 'INVALID_MONTH_FORMAT',
+  IncomeLabelRequired: 'INCOME_LABEL_REQUIRED',
+  IncomeLineNotFound: 'INCOME_LINE_NOT_FOUND',
+  IncomeRecurrenceRequired: 'INCOME_RECURRENCE_REQUIRED',
+  InvalidIncomeChangeScope: 'INVALID_INCOME_CHANGE_SCOPE',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

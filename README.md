@@ -10,6 +10,7 @@ A full-stack web application to track personal expenses. Organize spending into 
 - **Category management** — Create and manage custom spending categories.
 - **Charts** — Pie and bar charts showing spending distribution by category.
 - **Monthly summary** — View totals per category with month-over-month comparison.
+- **Monthly income** — Optional income lines per user; shows what is left of the month after your expenses on every sheet.
 - **Category filter** — Filter the expenses table by a specific category.
 - **Excel export** — Download the current month's expenses as an `.xlsx` file.
 

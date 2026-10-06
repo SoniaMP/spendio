@@ -28,6 +28,7 @@ import MonthlySummary from '@/components/expenses/MonthlySummary';
 import CategoryFilter from '@/components/expenses/CategoryFilter';
 import RecurringExpensesDialog from '@/components/recurring/RecurringExpensesDialog';
 import MonthlyIncomeChip from '@/components/income/MonthlyIncomeChip';
+import IncomeLinesDialog from '@/components/income/IncomeLinesDialog';
 
 export default function ExpensesPage() {
   const { activeSheetId, activeSheetPermission } = useOutletContext<OutletContext>();
@@ -77,6 +78,7 @@ export default function ExpensesPage() {
   const [duplicatingExpense, setDuplicatingExpense] =
     useState<ExpenseWithCategory | null>(null);
   const [isRecurringOpen, setIsRecurringOpen] = useState(false);
+  const [isIncomeOpen, setIsIncomeOpen] = useState(false);
   const [filterState, setFilterState] = useState<{
     monthKey: string;
     categoryId: number | null;
@@ -190,7 +192,10 @@ export default function ExpensesPage() {
             onPrevious={goToPreviousMonth}
             onNext={goToNextMonth}
           />
-          <MonthlyIncomeChip monthKey={monthKey} />
+          <MonthlyIncomeChip
+            monthKey={monthKey}
+            onOpenLines={() => setIsIncomeOpen(true)}
+          />
         </div>
         <div className="flex items-center gap-2">
           <CategoryFilter
@@ -263,6 +268,12 @@ export default function ExpensesPage() {
         sheetId={activeSheetId}
         isOpen={isRecurringOpen}
         onClose={() => setIsRecurringOpen(false)}
+      />
+
+      <IncomeLinesDialog
+        monthKey={monthKey}
+        isOpen={isIncomeOpen}
+        onClose={() => setIsIncomeOpen(false)}
       />
     </div>
   );

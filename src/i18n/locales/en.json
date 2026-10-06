@@ -194,8 +194,36 @@
   },
   "income": {
     "add": "Income",
+    "badge": {
+      "recurring": "Recurring",
+      "singleMonth": "This month only",
+      "until": "Until {{month}}"
+    },
+    "cancel": {
+      "title": "Cancel income",
+      "action": "Cancel {{label}}",
+      "confirm": "Cancel <name>{{label}}</name> from {{month}} onwards?",
+      "hint": "Earlier months keep counting it: history is not rewritten."
+    },
+    "cancelled": "Income cancelled",
+    "created": "Income added",
+    "description": "Income lines in force in {{month}}. The figure is the sum of all of them.",
+    "empty": "No income this month",
+    "emptyHint": "Add your salary or another source of income to see what is left as you spend.",
+    "form": {
+      "createTitle": "New income",
+      "createDescription": "It will apply from {{month}} onwards.",
+      "label": "Name",
+      "labelPlaceholder": "e.g. Salary",
+      "amount": "Amount",
+      "recurrence": "Recurrence",
+      "recurring": "Every month from {{month}}",
+      "singleMonth": "Only in {{month}}"
+    },
     "label": "Income",
     "remainingLabel": "left",
+    "spentAllSheets": "Spent (all sheets)",
+    "title": "Income this month",
     "tooltip": "{{remaining}} left of {{amount}}. {{spent}} spent across all sheets."
   },
   "categories": {

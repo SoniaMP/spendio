@@ -194,8 +194,36 @@
   },
   "income": {
     "add": "Ingresos",
+    "badge": {
+      "recurring": "Recurrente",
+      "singleMonth": "Solo este mes",
+      "until": "Hasta {{month}}"
+    },
+    "cancel": {
+      "title": "Cancelar ingreso",
+      "action": "Cancelar {{label}}",
+      "confirm": "¿Cancelar <name>{{label}}</name> a partir de {{month}}?",
+      "hint": "Los meses anteriores seguirán contándolo: no se altera el historial."
+    },
+    "cancelled": "Ingreso cancelado",
+    "created": "Ingreso añadido",
+    "description": "Líneas de ingreso vigentes en {{month}}. El total es la suma de todas.",
+    "empty": "Sin ingresos este mes",
+    "emptyHint": "Añade tu nómina u otra fuente de ingresos para ver cuánto te queda a medida que gastas.",
+    "form": {
+      "createTitle": "Nuevo ingreso",
+      "createDescription": "Se añadirá a partir de {{month}}.",
+      "label": "Nombre",
+      "labelPlaceholder": "Ej: Nómina",
+      "amount": "Importe",
+      "recurrence": "Periodicidad",
+      "recurring": "Todos los meses desde {{month}}",
+      "singleMonth": "Solo en {{month}}"
+    },
     "label": "Ingresos",
     "remainingLabel": "quedan",
+    "spentAllSheets": "Gastado (todas las hojas)",
+    "title": "Ingresos del mes",
     "tooltip": "Quedan {{remaining}} de {{amount}}. Gastado {{spent}} en todas las hojas."
   },
   "categories": {

@@ -57,9 +57,11 @@ describe('MonthlyIncomeChip', () => {
 
     render(<MonthlyIncomeChip monthKey="2026-10" />);
 
-    expect(screen.getByText('Ingresos')).toBeInTheDocument();
-    expect(screen.getByText(byCurrency(2000))).toBeInTheDocument();
     expect(screen.getByText(byCurrency(200))).toBeInTheDocument();
+    expect(screen.getByText(byCurrency(2000))).toBeInTheDocument();
+    // No words: the icon labels the box and the accessible name carries the rest.
+    expect(screen.queryByText('Ingresos')).not.toBeInTheDocument();
+    expect(screen.queryByText('quedan')).not.toBeInTheDocument();
   });
 
   it('marks a negative remaining as destructive', () => {

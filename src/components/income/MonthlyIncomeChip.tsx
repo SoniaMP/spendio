@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Plus } from 'lucide-react';
+import { ArrowDownToLine, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/helpers/formatCurrency';
 import { useMonthlyIncome } from '@/hooks/useMonthlyIncome';
@@ -11,16 +11,27 @@ interface MonthlyIncomeChipProps {
   onOpenLines?: () => void;
 }
 
+const BOX_CLASSES = 'rounded-md bg-muted/50 px-2.5 py-1';
+
 /**
- * Shows the month's income figure and what is left of it after everything the
- * user spent — the number the whole feature exists for.
+ * Shows what is left of the month's income after everything the user spent —
+ * the number the whole feature exists for.
  *
  * It lives in the expenses toolbar because that is the only place that knows
  * which month is on screen, and because it is where expenses get logged, so the
- * figure visibly drops as the user works. Note that `spent` covers **every
- * sheet**, unlike the `MonthTotal` next to it, which is scoped to the active
- * sheet; the tooltip spells that out so the two numbers do not read as
- * contradictory.
+ * figure visibly drops as the user works. Note that the spent side covers
+ * **every sheet**, unlike the `MonthTotal` further down, which is scoped to the
+ * active sheet; the box groups these numbers so the two do not read as one, and
+ * the accessible name spells the difference out.
+ *
+ * Design notes, decided deliberately:
+ * - No words. The icon labels the box, the remaining leads because it answers
+ *   the user's question, and the income figure trails as muted context.
+ * - Recessive through hierarchy (soft background, muted token, smaller size),
+ *   never through `opacity`, which would drop a number people have to read
+ *   below the accessible contrast ratio.
+ * - Colour is reserved for one thing: a negative remaining. The remaining is
+ *   never dimmed — overspending is the moment the chip should be loud.
  */
 export default function MonthlyIncomeChip({
   monthKey,
@@ -44,7 +55,7 @@ export default function MonthlyIncomeChip({
   }
 
   const isOverspent = data.remaining < 0;
-  const tooltip = t('income.tooltip', {
+  const accessibleName = t('income.tooltip', {
     remaining: formatCurrency(data.remaining),
     amount: formatCurrency(data.amount),
     spent: formatCurrency(data.spent),
@@ -52,12 +63,7 @@ export default function MonthlyIncomeChip({
 
   const content = (
     <>
-      <span className="text-muted-foreground">{t('income.label')}</span>
-      <span className="tabular-nums">{formatCurrency(data.amount)}</span>
-      <span className="text-muted-foreground">·</span>
-      <span className="text-muted-foreground hidden sm:inline">
-        {t('income.remainingLabel')}
-      </span>
+      <ArrowDownToLine className="size-3.5 shrink-0 text-muted-foreground" />
       <span
         className={`font-semibold tabular-nums ${
           isOverspent ? 'text-destructive' : 'text-foreground'
@@ -65,15 +71,19 @@ export default function MonthlyIncomeChip({
       >
         {formatCurrency(data.remaining)}
       </span>
+      <span className="hidden text-muted-foreground sm:inline">·</span>
+      <span className="hidden text-xs text-muted-foreground tabular-nums sm:inline">
+        {formatCurrency(data.amount)}
+      </span>
     </>
   );
 
   if (!onOpenLines) {
     return (
       <div
-        className="flex items-center gap-1.5 text-sm"
-        title={tooltip}
-        aria-label={tooltip}
+        className={`flex items-center gap-1.5 text-sm ${BOX_CLASSES}`}
+        title={accessibleName}
+        aria-label={accessibleName}
       >
         {content}
       </div>
@@ -84,10 +94,10 @@ export default function MonthlyIncomeChip({
     <Button
       variant="ghost"
       size="sm"
-      className="gap-1.5"
+      className={`gap-1.5 hover:bg-muted ${BOX_CLASSES}`}
       onClick={onOpenLines}
-      title={tooltip}
-      aria-label={tooltip}
+      title={accessibleName}
+      aria-label={accessibleName}
     >
       {content}
     </Button>

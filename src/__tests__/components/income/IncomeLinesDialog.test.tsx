@@ -7,7 +7,6 @@ const { mockUseMonthlyIncome } = vi.hoisted(() => ({
 }));
 vi.mock('@/hooks/useMonthlyIncome', () => ({
   useMonthlyIncome: mockUseMonthlyIncome,
-  useCreateIncomeLine: () => ({ mutate: vi.fn(), isPending: false }),
   useCancelIncomeLine: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
@@ -34,14 +33,25 @@ function mockIncome(data: Partial<MonthlyIncome>, isLoading = false) {
   });
 }
 
+const onAddLine = vi.fn();
+const onEditLine = vi.fn();
+
 function renderDialog() {
   return render(
-    <IncomeLinesDialog monthKey="2026-10" isOpen onClose={vi.fn()} />,
+    <IncomeLinesDialog
+      monthKey="2026-10"
+      isOpen
+      onClose={vi.fn()}
+      onAddLine={onAddLine}
+      onEditLine={onEditLine}
+    />,
   );
 }
 
 beforeEach(() => {
   mockUseMonthlyIncome.mockReset();
+  onAddLine.mockReset();
+  onEditLine.mockReset();
 });
 
 describe('IncomeLinesDialog', () => {
@@ -111,13 +121,27 @@ describe('IncomeLinesDialog', () => {
     expect(screen.queryByText('Sin ingresos este mes')).not.toBeInTheDocument();
   });
 
-  it('exposes a cancel action naming the line, for screen readers', () => {
+  it('exposes edit and cancel actions naming the line, for screen readers', () => {
     mockIncome({ lines: [line(1, 'Nómina', 2000, null)] });
 
     renderDialog();
 
     expect(
+      screen.getByRole('button', { name: 'Editar Nómina' }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('button', { name: 'Cancelar Nómina' }),
     ).toBeInTheDocument();
+  });
+
+  it('hands the line up to be edited', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event');
+    const salary = line(1, 'Nómina', 2000, null);
+    mockIncome({ lines: [salary] });
+
+    renderDialog();
+    await userEvent.click(screen.getByRole('button', { name: 'Editar Nómina' }));
+
+    expect(onEditLine).toHaveBeenCalledWith(salary);
   });
 });

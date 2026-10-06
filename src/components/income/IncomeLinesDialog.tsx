@@ -14,7 +14,6 @@ import { useMonthlyIncome } from '@/hooks/useMonthlyIncome';
 import { formatCurrency } from '@/helpers/formatCurrency';
 import { formatMonthKey } from '@/helpers/formatMonthKey';
 import IncomeLineRow from '@/components/income/IncomeLineRow';
-import IncomeLineFormDialog from '@/components/income/IncomeLineFormDialog';
 import IncomeLineCancelDialog from '@/components/income/IncomeLineCancelDialog';
 import type { IncomeLine } from '@/types/income';
 
@@ -22,6 +21,10 @@ interface Props {
   monthKey: string;
   isOpen: boolean;
   onClose: () => void;
+  /** Opens the new-line form, owned by MonthlyIncomeSection. */
+  onAddLine: () => void;
+  /** Opens the edit dialog for a line, also owned by the section. */
+  onEditLine: (line: IncomeLine) => void;
 }
 
 /**
@@ -29,10 +32,15 @@ interface Props {
  * grouping key is needed: intervals of one line never overlap, so each line
  * shows up exactly once for any given month.
  */
-export default function IncomeLinesDialog({ monthKey, isOpen, onClose }: Props) {
+export default function IncomeLinesDialog({
+  monthKey,
+  isOpen,
+  onClose,
+  onAddLine,
+  onEditLine,
+}: Props) {
   const { t } = useTranslation();
   const { data, isLoading } = useMonthlyIncome(monthKey);
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [cancellingLine, setCancellingLine] = useState<IncomeLine | null>(null);
 
   // Sorted by amount descending, like the category breakdown: the SQL order is
@@ -53,7 +61,7 @@ export default function IncomeLinesDialog({ monthKey, isOpen, onClose }: Props) 
           <ArrowDownToLine className="h-10 w-10" />
           <p className="font-medium text-foreground">{t('income.empty')}</p>
           <p className="text-sm">{t('income.emptyHint')}</p>
-          <Button onClick={() => setIsFormOpen(true)}>
+          <Button onClick={() => onAddLine()}>
             <Plus /> {t('common.new')}
           </Button>
         </div>
@@ -64,7 +72,12 @@ export default function IncomeLinesDialog({ monthKey, isOpen, onClose }: Props) 
       <>
         <div className="flex flex-col gap-2">
           {lines.map((line) => (
-            <IncomeLineRow key={line.id} line={line} onCancel={setCancellingLine} />
+            <IncomeLineRow
+              key={line.id}
+              line={line}
+              onEdit={onEditLine}
+              onCancel={setCancellingLine}
+            />
           ))}
         </div>
 
@@ -94,7 +107,7 @@ export default function IncomeLinesDialog({ monthKey, isOpen, onClose }: Props) 
         </dl>
 
         <div className="flex justify-end">
-          <Button onClick={() => setIsFormOpen(true)}>
+          <Button onClick={() => onAddLine()}>
             <Plus /> {t('common.new')}
           </Button>
         </div>
@@ -115,12 +128,6 @@ export default function IncomeLinesDialog({ monthKey, isOpen, onClose }: Props) 
           {renderBody()}
         </DialogContent>
       </Dialog>
-
-      <IncomeLineFormDialog
-        monthKey={monthKey}
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-      />
 
       <IncomeLineCancelDialog
         line={cancellingLine}

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ErrorCode } from '../../../shared/errorCodes.ts';
+import { IncomeChangeScope } from '../../../shared/incomeChangeScope.ts';
 
 const { testDb } = await vi.hoisted(async () => {
   const { default: Database } = await import('better-sqlite3');
@@ -58,6 +59,21 @@ function createLine(body: Record<string, unknown>) {
 
 function cancelLine(id: number, month: string) {
   return call('delete', '/:id', { params: { id: String(id) }, query: { month } });
+}
+
+function updateLine(id: number, body: Record<string, unknown>) {
+  return call('put', '/:id', { params: { id: String(id) }, body });
+}
+
+function amountsByMonth(month: string): number[] {
+  return (
+    testDb
+      .prepare(
+        `SELECT amount FROM income_lines
+         WHERE user_id = ? AND start_month <= ? AND (end_month IS NULL OR end_month >= ?)`,
+      )
+      .all(ACTOR, month, month) as { amount: number }[]
+  ).map((row) => row.amount);
 }
 
 function readLine(id: number): IncomeLineRow | undefined {
@@ -266,6 +282,160 @@ describe('DELETE /api/income-lines/:id — cancel', () => {
 
   it('404s on a line that does not exist', () => {
     const { status } = cancelLine(12345, '2026-07');
+    expect(status).toHaveBeenCalledWith(404);
+  });
+});
+
+describe('PUT /api/income-lines/:id', () => {
+  function createRecurring(month = '2026-01') {
+    return createLine({
+      label: 'Nómina',
+      amount: 1600,
+      month,
+      isRecurring: true,
+    }).body;
+  }
+
+  it('demands a scope for an amount change on a multi-month line', () => {
+    // No safe default exists: "from now on" would overwrite a one-off, and
+    // "this month" would quietly fail to apply a raise.
+    const line = createRecurring();
+
+    const { status, body } = updateLine(line.id, { amount: 2200, month: '2026-06' });
+
+    expect(status).toHaveBeenCalledWith(400);
+    expect(body).toEqual({ error: ErrorCode.InvalidIncomeChangeScope });
+  });
+
+  it('rejects an unknown scope', () => {
+    const line = createRecurring();
+
+    const { body } = updateLine(line.id, {
+      amount: 2200,
+      month: '2026-06',
+      scope: 'whenever',
+    });
+
+    expect(body).toEqual({ error: ErrorCode.InvalidIncomeChangeScope });
+  });
+
+  it('applies a raise from the month on screen', () => {
+    const line = createRecurring();
+
+    updateLine(line.id, {
+      amount: 2200,
+      month: '2026-06',
+      scope: IncomeChangeScope.FromNowOn,
+    });
+
+    expect(amountsByMonth('2026-05')).toEqual([1600]);
+    expect(amountsByMonth('2026-06')).toEqual([2200]);
+  });
+
+  it('applies an exceptional month without touching its neighbours', () => {
+    const line = createRecurring();
+
+    updateLine(line.id, {
+      amount: 1900,
+      month: '2026-06',
+      scope: IncomeChangeScope.ThisMonth,
+    });
+
+    expect(amountsByMonth('2026-05')).toEqual([1600]);
+    expect(amountsByMonth('2026-06')).toEqual([1900]);
+    expect(amountsByMonth('2026-07')).toEqual([1600]);
+  });
+
+  it('needs no scope for a single-month line', () => {
+    const line = createLine({
+      label: 'Paga extra',
+      amount: 300,
+      month: '2026-06',
+      isRecurring: false,
+    }).body;
+
+    const { status } = updateLine(line.id, { amount: 450, month: '2026-06' });
+
+    expect(status).not.toHaveBeenCalledWith(400);
+    expect(amountsByMonth('2026-06')).toEqual([450]);
+  });
+
+  it('renames without asking for a scope, and propagates forward', () => {
+    const line = createRecurring();
+    updateLine(line.id, {
+      amount: 2200,
+      month: '2026-06',
+      scope: IncomeChangeScope.FromNowOn,
+    });
+
+    const { status } = updateLine(line.id, { label: 'Salario', month: '2026-03' });
+
+    expect(status).not.toHaveBeenCalledWith(400);
+    const labels = (
+      testDb.prepare('SELECT DISTINCT label FROM income_lines').all() as {
+        label: string;
+      }[]
+    ).map((row) => row.label);
+    // Both slices renamed: the same income is not called two things.
+    expect(labels).toEqual(['Salario']);
+  });
+
+  it('carries a simultaneous rename into the slices a raise creates', () => {
+    const line = createRecurring();
+
+    updateLine(line.id, {
+      label: 'Salario',
+      amount: 2200,
+      month: '2026-06',
+      scope: IncomeChangeScope.FromNowOn,
+    });
+
+    const labels = (
+      testDb.prepare('SELECT DISTINCT label FROM income_lines').all() as {
+        label: string;
+      }[]
+    ).map((row) => row.label);
+    expect(labels).toEqual(['Salario']);
+  });
+
+  it('refuses a month the line does not cover', () => {
+    const line = createRecurring('2026-06');
+
+    const { status, body } = updateLine(line.id, {
+      amount: 2200,
+      month: '2026-03',
+      scope: IncomeChangeScope.FromNowOn,
+    });
+
+    expect(status).toHaveBeenCalledWith(400);
+    expect(body).toEqual({ error: ErrorCode.IncomeLineNotInForce });
+  });
+
+  it('rejects a blank label and a non-positive amount', () => {
+    const line = createRecurring();
+
+    expect(updateLine(line.id, { label: '  ', month: '2026-06' }).body).toEqual({
+      error: ErrorCode.IncomeLabelRequired,
+    });
+    expect(updateLine(line.id, { amount: 0, month: '2026-06' }).body).toEqual({
+      error: ErrorCode.AmountMustBePositive,
+    });
+  });
+
+  it('404s on another user\'s line', () => {
+    testDb
+      .prepare(
+        `INSERT INTO income_lines (id, user_id, label, amount, start_month, end_month)
+         VALUES (77, ?, 'Ajena', 9000, '2026-01', NULL)`,
+      )
+      .run(OTHER);
+
+    const { status } = updateLine(77, {
+      amount: 1,
+      month: '2026-06',
+      scope: IncomeChangeScope.FromNowOn,
+    });
+
     expect(status).toHaveBeenCalledWith(404);
   });
 });

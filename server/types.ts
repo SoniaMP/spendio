@@ -188,3 +188,11 @@ export interface CreateIncomeLineBody {
   month: string;
   isRecurring: boolean;
 }
+
+export interface UpdateIncomeLineBody {
+  label?: string;
+  amount?: number;
+  /** Month on screen. The amount change is applied relative to it. */
+  month: string;
+  scope?: string;
+}

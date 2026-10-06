@@ -39,6 +39,8 @@ function mockIncome(
 
 beforeEach(() => {
   mockUseMonthlyIncome.mockReset();
+  onAddLine.mockReset();
+  onManageLines.mockReset();
 });
 
 /**
@@ -51,11 +53,24 @@ function byCurrency(amount: number) {
   return (content: string) => content.replace(/\s/g, ' ') === expected;
 }
 
+const onAddLine = vi.fn();
+const onManageLines = vi.fn();
+
+function renderChip() {
+  return render(
+    <MonthlyIncomeChip
+      monthKey="2026-10"
+      onAddLine={onAddLine}
+      onManageLines={onManageLines}
+    />,
+  );
+}
+
 describe('MonthlyIncomeChip', () => {
   it('shows the figure and what is left', () => {
     mockIncome({ amount: 2000, spent: 1800, remaining: 200, lines: [line()] });
 
-    render(<MonthlyIncomeChip monthKey="2026-10" />);
+    renderChip();
 
     expect(screen.getByText(byCurrency(200))).toBeInTheDocument();
     expect(screen.getByText(byCurrency(2000))).toBeInTheDocument();
@@ -67,7 +82,7 @@ describe('MonthlyIncomeChip', () => {
   it('marks a negative remaining as destructive', () => {
     mockIncome({ amount: 1000, spent: 1200, remaining: -200, lines: [line()] });
 
-    render(<MonthlyIncomeChip monthKey="2026-10" />);
+    renderChip();
 
     expect(screen.getByText(byCurrency(-200)).className).toContain(
       'text-destructive',
@@ -77,7 +92,7 @@ describe('MonthlyIncomeChip', () => {
   it('does not mark a positive remaining as destructive', () => {
     mockIncome({ amount: 1000, spent: 200, remaining: 800, lines: [line()] });
 
-    render(<MonthlyIncomeChip monthKey="2026-10" />);
+    renderChip();
 
     expect(screen.getByText(byCurrency(800)).className).not.toContain(
       'text-destructive',
@@ -87,7 +102,7 @@ describe('MonthlyIncomeChip', () => {
   it('explains that spent covers every sheet, unlike MonthTotal next to it', () => {
     mockIncome({ amount: 2000, spent: 1800, remaining: 200, lines: [line()] });
 
-    render(<MonthlyIncomeChip monthKey="2026-10" />);
+    renderChip();
 
     expect(screen.getByLabelText(/todas las hojas/i)).toBeInTheDocument();
   });
@@ -95,7 +110,7 @@ describe('MonthlyIncomeChip', () => {
   it('renders nothing while loading, so the toolbar does not flash', () => {
     mockIncome(null, { isLoading: true });
 
-    const { container } = render(<MonthlyIncomeChip monthKey="2026-10" />);
+    const { container } = renderChip();
 
     expect(container).toBeEmptyDOMElement();
   });
@@ -103,36 +118,43 @@ describe('MonthlyIncomeChip', () => {
   it('renders nothing on error — income must not break the expenses toolbar', () => {
     mockIncome(null, { isError: true });
 
-    const { container } = render(<MonthlyIncomeChip monthKey="2026-10" />);
+    const { container } = renderChip();
 
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders nothing with no line in force and no way to add one', () => {
+  it('collapses to a single add affordance when the month has no line', () => {
     mockIncome({ lines: [] });
 
-    const { container } = render(<MonthlyIncomeChip monthKey="2026-10" />);
+    renderChip();
 
-    expect(container).toBeEmptyDOMElement();
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveTextContent('Ingresos');
   });
 
-  it('offers to add income when there is no line in force for the month', () => {
-    mockIncome({ lines: [] });
-    const onOpenLines = vi.fn();
-
-    render(<MonthlyIncomeChip monthKey="2026-10" onOpenLines={onOpenLines} />);
-
-    expect(screen.getByRole('button')).toBeInTheDocument();
-  });
-
-  it('is a button that opens the lines panel when a handler is given', async () => {
+  it('exposes adding and managing as explicit labelled buttons', async () => {
+    // Not a clickable box: nobody should have to discover that a figure is
+    // secretly a link.
     const { default: userEvent } = await import('@testing-library/user-event');
     mockIncome({ amount: 2000, spent: 1800, remaining: 200, lines: [line()] });
-    const onOpenLines = vi.fn();
 
-    render(<MonthlyIncomeChip monthKey="2026-10" onOpenLines={onOpenLines} />);
-    await userEvent.click(screen.getByRole('button'));
+    renderChip();
+    await userEvent.click(screen.getByRole('button', { name: 'Añadir ingreso' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Gestionar ingresos' }));
 
-    expect(onOpenLines).toHaveBeenCalledOnce();
+    expect(onAddLine).toHaveBeenCalledOnce();
+    expect(onManageLines).toHaveBeenCalledOnce();
+  });
+
+  it('does not nest the actions inside a clickable container', () => {
+    mockIncome({ amount: 2000, spent: 1800, remaining: 200, lines: [line()] });
+
+    renderChip();
+
+    // Nested buttons are invalid HTML and break keyboard navigation.
+    for (const button of screen.getAllByRole('button')) {
+      expect(button.closest('button')).toBe(button);
+    }
   });
 });

@@ -1,17 +1,16 @@
 import { useTranslation } from 'react-i18next';
-import { ArrowDownToLine, Plus } from 'lucide-react';
+import { ArrowDownToLine, Pencil, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/helpers/formatCurrency';
 import { useMonthlyIncome } from '@/hooks/useMonthlyIncome';
 
 interface MonthlyIncomeChipProps {
   /** Month currently shown by the expenses view, `'YYYY-MM'`. */
   monthKey: string;
-  /** Opens the income lines panel. The chip is display-only without it. */
-  onOpenLines?: () => void;
+  onAddLine: () => void;
+  onManageLines: () => void;
 }
-
-const BOX_CLASSES = 'rounded-md bg-muted/50 px-2.5 py-1';
 
 /**
  * Shows what is left of the month's income after everything the user spent —
@@ -25,8 +24,12 @@ const BOX_CLASSES = 'rounded-md bg-muted/50 px-2.5 py-1';
  * the accessible name spells the difference out.
  *
  * Design notes, decided deliberately:
- * - No words. The icon labels the box, the remaining leads because it answers
- *   the user's question, and the income figure trails as muted context.
+ * - No words for the figures. The icon labels the box, the remaining leads
+ *   because it answers the user's question, and the income figure trails as
+ *   muted context that hides on narrow screens.
+ * - The actions are **explicit buttons**, not a clickable box: nothing should
+ *   require knowing that a figure is secretly a link. They sit inside the
+ *   border so the toolbar reads as one income control instead of loose buttons.
  * - Recessive through hierarchy (soft background, muted token, smaller size),
  *   never through `opacity`, which would drop a number people have to read
  *   below the accessible contrast ratio.
@@ -35,7 +38,8 @@ const BOX_CLASSES = 'rounded-md bg-muted/50 px-2.5 py-1';
  */
 export default function MonthlyIncomeChip({
   monthKey,
-  onOpenLines,
+  onAddLine,
+  onManageLines,
 }: MonthlyIncomeChipProps) {
   const { t } = useTranslation();
   const { data, isLoading, isError } = useMonthlyIncome(monthKey);
@@ -46,9 +50,8 @@ export default function MonthlyIncomeChip({
   if (isLoading || isError || !data) return null;
 
   if (data.lines.length === 0) {
-    if (!onOpenLines) return null;
     return (
-      <Button variant="ghost" size="sm" onClick={onOpenLines}>
+      <Button variant="ghost" size="sm" onClick={onAddLine}>
         <Plus /> <span className="hidden sm:inline">{t('income.add')}</span>
       </Button>
     );
@@ -61,13 +64,15 @@ export default function MonthlyIncomeChip({
     spent: formatCurrency(data.spent),
   });
 
-  const content = (
-    <>
+  return (
+    <div className="flex items-center gap-1.5 rounded-md border bg-muted/50 py-1 pl-2.5 pr-1 text-sm">
       <ArrowDownToLine className="size-3.5 shrink-0 text-muted-foreground" />
       <span
         className={`font-semibold tabular-nums ${
           isOverspent ? 'text-destructive' : 'text-foreground'
         }`}
+        title={accessibleName}
+        aria-label={accessibleName}
       >
         {formatCurrency(data.remaining)}
       </span>
@@ -75,31 +80,27 @@ export default function MonthlyIncomeChip({
       <span className="hidden text-xs text-muted-foreground tabular-nums sm:inline">
         {formatCurrency(data.amount)}
       </span>
-    </>
-  );
 
-  if (!onOpenLines) {
-    return (
-      <div
-        className={`flex items-center gap-1.5 text-sm ${BOX_CLASSES}`}
-        title={accessibleName}
-        aria-label={accessibleName}
+      <Separator orientation="vertical" className="mx-0.5 !h-4" />
+
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        onClick={onAddLine}
+        aria-label={t('income.addLine')}
+        title={t('income.addLine')}
       >
-        {content}
-      </div>
-    );
-  }
-
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className={`gap-1.5 hover:bg-muted ${BOX_CLASSES}`}
-      onClick={onOpenLines}
-      title={accessibleName}
-      aria-label={accessibleName}
-    >
-      {content}
-    </Button>
+        <Plus />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        onClick={onManageLines}
+        aria-label={t('income.manage')}
+        title={t('income.manage')}
+      >
+        <Pencil />
+      </Button>
+    </div>
   );
 }

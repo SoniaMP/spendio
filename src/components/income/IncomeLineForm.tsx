@@ -19,26 +19,37 @@ export interface IncomeLineFormValues {
 }
 
 interface Props {
-  /** Localized label of the month the line will start in. */
+  /** Localized label of the month the line starts in, or is being edited from. */
   monthLabel: string;
+  /** Present when editing: prefills the fields and hides the recurrence choice. */
+  initialValues?: { label: string; amount: number };
   isPending: boolean;
   onSubmit: (values: IncomeLineFormValues) => void;
 }
 
 export default function IncomeLineForm({
   monthLabel,
+  initialValues,
   isPending,
   onSubmit,
 }: Props) {
   const { t } = useTranslation();
-  const [label, setLabel] = useState('');
-  const [amount, setAmount] = useState('');
+  const isEditing = initialValues !== undefined;
+  const [label, setLabel] = useState(initialValues?.label ?? '');
+  const [amount, setAmount] = useState(
+    initialValues?.amount?.toString() ?? '',
+  );
   const [recurrence, setRecurrence] = useState<IncomeRecurrence>(
     IncomeRecurrence.Recurring,
   );
 
   const parsedAmount = parseFloat(amount);
   const isValid = label.trim() !== '' && parsedAmount > 0;
+
+  function submitLabel(): string {
+    if (isPending) return isEditing ? t('common.saving') : t('common.creating');
+    return isEditing ? t('common.save') : t('common.create');
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -76,6 +87,7 @@ export default function IncomeLineForm({
         />
       </div>
 
+      {!isEditing && (
       <div className="flex flex-col gap-2">
         <Label htmlFor="income-recurrence">{t('income.form.recurrence')}</Label>
         <Select
@@ -95,9 +107,10 @@ export default function IncomeLineForm({
           </SelectContent>
         </Select>
       </div>
+      )}
 
       <Button type="submit" disabled={!isValid || isPending}>
-        {isPending ? t('common.creating') : t('common.create')}
+        {submitLabel()}
       </Button>
     </form>
   );

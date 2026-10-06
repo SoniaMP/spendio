@@ -2,7 +2,14 @@ import { Router } from 'express';
 import { ErrorCode } from '../../shared/errorCodes.ts';
 import db from '../db.ts';
 import { isValidMonthKey, previousMonthKey } from '../helpers/monthKeys.ts';
-import type { CreateIncomeLineBody, IncomeLineRow } from '../types.ts';
+import { applyIncomeChange } from '../helpers/applyIncomeChange.ts';
+import { listIncomeLinesForMonth } from '../helpers/listIncomeLinesForMonth.ts';
+import { IncomeChangeScope } from '../../shared/incomeChangeScope.ts';
+import type {
+  CreateIncomeLineBody,
+  UpdateIncomeLineBody,
+  IncomeLineRow,
+} from '../types.ts';
 
 const router = Router();
 
@@ -63,6 +70,95 @@ router.post('/', (req, res, next) => {
       .get(result.lastInsertRowid) as IncomeLineRow;
 
     res.status(201).json(row);
+  } catch (err) {
+    next(err);
+  }
+});
+
+function isInForce(line: IncomeLineRow, month: string): boolean {
+  return (
+    line.start_month <= month &&
+    (line.end_month === null || line.end_month >= month)
+  );
+}
+
+const CHANGE_SCOPES: string[] = Object.values(IncomeChangeScope);
+
+/**
+ * Edits a line's label, its amount, or both (UC-INC-04).
+ *
+ * A label change is **not** scoped: the question "this month or from now on?"
+ * only makes sense for a figure. It propagates to the in-force row and every
+ * later row carrying the same label, so renaming a line does not leave the same
+ * income called two different things in different months.
+ *
+ * An amount change on a line that spans more than one month **requires** a
+ * scope, because there is no safe default: assuming "from now on" would quietly
+ * overwrite a one-off, and assuming "this month" would quietly fail to apply a
+ * raise.
+ */
+router.put('/:id', (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const { label, amount, month, scope } = req.body as UpdateIncomeLineBody;
+
+    const monthError = validateMonth(month);
+    if (monthError) {
+      res.status(400).json({ error: monthError });
+      return;
+    }
+
+    const line = findOwn(id, req.userId);
+    if (!line) {
+      res.status(404).json({ error: ErrorCode.IncomeLineNotFound });
+      return;
+    }
+
+    if (!isInForce(line, month)) {
+      res.status(400).json({ error: ErrorCode.IncomeLineNotInForce });
+      return;
+    }
+
+    if (label !== undefined && (typeof label !== 'string' || label.trim() === '')) {
+      res.status(400).json({ error: ErrorCode.IncomeLabelRequired });
+      return;
+    }
+
+    if (amount !== undefined && (typeof amount !== 'number' || amount <= 0)) {
+      res.status(400).json({ error: ErrorCode.AmountMustBePositive });
+      return;
+    }
+
+    const isSingleMonth = line.end_month === line.start_month;
+    const hasAmountChange = amount !== undefined && amount !== line.amount;
+
+    if (hasAmountChange && !isSingleMonth && !CHANGE_SCOPES.includes(scope ?? '')) {
+      res.status(400).json({ error: ErrorCode.InvalidIncomeChangeScope });
+      return;
+    }
+
+    const newLabel = label?.trim();
+    if (newLabel !== undefined && newLabel !== line.label) {
+      db.prepare(
+        `UPDATE income_lines SET label = ?
+         WHERE user_id = ? AND label = ? AND start_month >= ?`,
+      ).run(newLabel, req.userId, line.label, line.start_month);
+    }
+
+    if (hasAmountChange) {
+      // Carry the new label into the rows the split creates, so a rename and a
+      // raise in the same request do not leave half the slices renamed.
+      applyIncomeChange(
+        db,
+        { ...line, label: newLabel ?? line.label },
+        month,
+        amount as number,
+        scope as IncomeChangeScope,
+      );
+    }
+
+    const rows = listIncomeLinesForMonth(db, req.userId, month);
+    res.json(rows);
   } catch (err) {
     next(err);
   }

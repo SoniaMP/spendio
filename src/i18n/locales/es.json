@@ -43,6 +43,7 @@
     "FROM_AFTER_TO": "La fecha inicial no puede ser posterior a la final",
     "INCOME_LABEL_REQUIRED": "El nombre del ingreso es obligatorio",
     "INCOME_LINE_NOT_FOUND": "Línea de ingreso no encontrada",
+    "INCOME_LINE_NOT_IN_FORCE": "Ese ingreso no está vigente en el mes seleccionado",
     "INCOME_RECURRENCE_REQUIRED": "Indica si el ingreso es recurrente",
     "INTERNAL_ERROR": "Ha ocurrido un error inesperado",
     "INVALID_CREDENTIALS": "Email o contraseña incorrectos",
@@ -194,6 +195,7 @@
   },
   "income": {
     "add": "Ingresos",
+    "addLine": "Añadir ingreso",
     "badge": {
       "recurring": "Recurrente",
       "singleMonth": "Solo este mes",
@@ -208,23 +210,33 @@
     "cancelled": "Ingreso cancelado",
     "created": "Ingreso añadido",
     "description": "Líneas de ingreso vigentes en {{month}}. El total es la suma de todas.",
+    "edit": {
+      "action": "Editar {{label}}"
+    },
     "empty": "Sin ingresos este mes",
     "emptyHint": "Añade tu nómina u otra fuente de ingresos para ver cuánto te queda a medida que gastas.",
     "form": {
-      "createTitle": "Nuevo ingreso",
+      "amount": "Importe",
       "createDescription": "Se añadirá a partir de {{month}}.",
+      "createTitle": "Nuevo ingreso",
+      "editDescription": "Cambia el nombre o el importe. Elige a qué meses afecta.",
+      "editSingleMonthDescription": "Este ingreso solo aplica a {{month}}.",
+      "editTitle": "Editar ingreso",
       "label": "Nombre",
       "labelPlaceholder": "Ej: Nómina",
-      "amount": "Importe",
       "recurrence": "Periodicidad",
       "recurring": "Todos los meses desde {{month}}",
+      "scopeFromNowOn": "Desde {{month}} en adelante (una subida, un cambio definitivo)",
+      "scopeThisMonth": "Solo en {{month}} (un mes excepcional)",
       "singleMonth": "Solo en {{month}}"
     },
     "label": "Ingresos",
+    "manage": "Gestionar ingresos",
     "remainingLabel": "quedan",
     "spentAllSheets": "Gastado (todas las hojas)",
     "title": "Ingresos del mes",
-    "tooltip": "Quedan {{remaining}} de {{amount}}. Gastado {{spent}} en todas las hojas."
+    "tooltip": "Quedan {{remaining}} de {{amount}}. Gastado {{spent}} en todas las hojas.",
+    "updated": "Ingreso actualizado"
   },
   "categories": {
     "new": "Nueva categoría",

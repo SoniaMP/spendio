@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/helpers/formatCurrency';
@@ -8,6 +8,7 @@ import type { IncomeLine } from '@/types/income';
 
 interface Props {
   line: IncomeLine;
+  onEdit: (line: IncomeLine) => void;
   onCancel: (line: IncomeLine) => void;
 }
 
@@ -23,7 +24,7 @@ function useLineBadge(line: IncomeLine): string {
   return t('income.badge.until', { month: formatMonthKey(line.end_month) });
 }
 
-export default function IncomeLineRow({ line, onCancel }: Props) {
+export default function IncomeLineRow({ line, onEdit, onCancel }: Props) {
   const { t } = useTranslation();
   const badge = useLineBadge(line);
 
@@ -38,14 +39,24 @@ export default function IncomeLineRow({ line, onCancel }: Props) {
           {formatCurrency(line.amount)}
         </span>
       </div>
-      <Button
-        variant="ghost"
-        size="icon-xs"
-        aria-label={t('income.cancel.action', { label: line.label })}
-        onClick={() => onCancel(line)}
-      >
-        <Trash2 />
-      </Button>
+      <div className="flex shrink-0 items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={t('income.edit.action', { label: line.label })}
+          onClick={() => onEdit(line)}
+        >
+          <Pencil />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={t('income.cancel.action', { label: line.label })}
+          onClick={() => onCancel(line)}
+        >
+          <Trash2 />
+        </Button>
+      </div>
     </div>
   );
 }

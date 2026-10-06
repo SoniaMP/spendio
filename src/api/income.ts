@@ -1,3 +1,4 @@
+import type { IncomeChangeScope } from '@shared/incomeChangeScope';
 import type { IncomeLine, MonthlyIncome } from '@/types/income';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
@@ -29,6 +30,30 @@ export async function createIncomeLine(
   if (!res.ok) {
     const data = await res.json().catch(() => null);
     throw new Error(data?.error ?? 'Failed to create income line');
+  }
+  return res.json();
+}
+
+export interface UpdateIncomeLineInput {
+  label?: string;
+  amount?: number;
+  /** Month on screen; the amount change is applied relative to it. */
+  month: string;
+  scope?: IncomeChangeScope;
+}
+
+export async function updateIncomeLine(
+  id: number,
+  body: UpdateIncomeLineInput,
+): Promise<IncomeLine[]> {
+  const res = await fetchWithAuth(`${INCOME_LINES_URL}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? 'Failed to update income line');
   }
   return res.json();
 }

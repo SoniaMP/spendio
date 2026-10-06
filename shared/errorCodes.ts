@@ -67,6 +67,7 @@ export const ErrorCode = {
   IncomeLabelRequired: 'INCOME_LABEL_REQUIRED',
   IncomeLineNotFound: 'INCOME_LINE_NOT_FOUND',
   IncomeRecurrenceRequired: 'INCOME_RECURRENCE_REQUIRED',
+  IncomeLineNotInForce: 'INCOME_LINE_NOT_IN_FORCE',
   InvalidIncomeChangeScope: 'INVALID_INCOME_CHANGE_SCOPE',
 } as const;
 

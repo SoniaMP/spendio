@@ -43,6 +43,7 @@
     "FROM_AFTER_TO": "The start date cannot be after the end date",
     "INCOME_LABEL_REQUIRED": "The income name is required",
     "INCOME_LINE_NOT_FOUND": "Income line not found",
+    "INCOME_LINE_NOT_IN_FORCE": "That income is not in force in the selected month",
     "INCOME_RECURRENCE_REQUIRED": "Specify whether the income is recurring",
     "INTERNAL_ERROR": "Something went wrong",
     "INVALID_CREDENTIALS": "Wrong email or password",
@@ -194,6 +195,7 @@
   },
   "income": {
     "add": "Income",
+    "addLine": "Add income",
     "badge": {
       "recurring": "Recurring",
       "singleMonth": "This month only",
@@ -208,23 +210,33 @@
     "cancelled": "Income cancelled",
     "created": "Income added",
     "description": "Income lines in force in {{month}}. The figure is the sum of all of them.",
+    "edit": {
+      "action": "Edit {{label}}"
+    },
     "empty": "No income this month",
     "emptyHint": "Add your salary or another source of income to see what is left as you spend.",
     "form": {
-      "createTitle": "New income",
+      "amount": "Amount",
       "createDescription": "It will apply from {{month}} onwards.",
+      "createTitle": "New income",
+      "editDescription": "Change the name or the amount. Choose which months it affects.",
+      "editSingleMonthDescription": "This income only applies to {{month}}.",
+      "editTitle": "Edit income",
       "label": "Name",
       "labelPlaceholder": "e.g. Salary",
-      "amount": "Amount",
       "recurrence": "Recurrence",
       "recurring": "Every month from {{month}}",
+      "scopeFromNowOn": "From {{month}} onwards (a raise, a permanent change)",
+      "scopeThisMonth": "Only in {{month}} (an exceptional month)",
       "singleMonth": "Only in {{month}}"
     },
     "label": "Income",
+    "manage": "Manage income",
     "remainingLabel": "left",
     "spentAllSheets": "Spent (all sheets)",
     "title": "Income this month",
-    "tooltip": "{{remaining}} left of {{amount}}. {{spent}} spent across all sheets."
+    "tooltip": "{{remaining}} left of {{amount}}. {{spent}} spent across all sheets.",
+    "updated": "Income updated"
   },
   "categories": {
     "new": "New category",

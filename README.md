@@ -1,6 +1,6 @@
 # Spendio
 
-A full-stack web application to track personal expenses. Organize spending into categories and sheets, visualize monthly breakdowns with charts, compare spending across months, and export data to Excel.
+A full-stack web application to track personal expenses. Organize spending into categories and sheets, compare months with charts and breakdowns, and export any month to Excel. Recurring charges are generated for you, a single sheet can be shared without exposing the rest, and an optional monthly income shows what is left as you spend.
 
 ## Features
 

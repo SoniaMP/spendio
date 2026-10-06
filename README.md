@@ -5,6 +5,7 @@ A full-stack web application to track personal expenses. Organize spending into 
 ## Features
 
 - **Expense tracking** — Add, edit, and delete expenses with date, amount, description, and category.
+- **Recurring expenses** — Templates that generate expenses monthly or yearly, with an email reminder ahead of each charge.
 - **Multiple sheets** — Separate expenses into different sheets (e.g., personal, shared, trips).
 - **Month navigation** — Filter expenses by month and compare totals against previous months.
 - **Category management** — Create and manage custom spending categories.

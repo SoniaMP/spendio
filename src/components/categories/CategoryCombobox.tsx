@@ -19,11 +19,18 @@ import {
 import { useCategories, useCreateCategory } from '@/hooks/useCategories';
 
 interface CategoryComboboxProps {
+  /**
+   * Id of the trigger button, so the form's `<Label htmlFor>` names it. Required
+   * rather than optional: without it a screen reader announces the control as
+   * just "combobox", with no clue what it picks.
+   */
+  id: string;
   value: number | null;
   onChange: (categoryId: number) => void;
 }
 
 export default function CategoryCombobox({
+  id,
   value,
   onChange,
 }: CategoryComboboxProps) {
@@ -76,6 +83,7 @@ export default function CategoryCombobox({
     <Popover open={isOpen} onOpenChange={setIsOpen} modal>
       <PopoverTrigger asChild>
         <Button
+          id={id}
           variant="outline"
           role="combobox"
           aria-expanded={isOpen}

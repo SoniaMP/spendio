@@ -92,8 +92,12 @@ export default function ExpenseForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label>{t('expenses.columns.category')}</Label>
-        <CategoryCombobox value={categoryId} onChange={setCategoryId} />
+        <Label htmlFor="expense-category">{t('expenses.columns.category')}</Label>
+        <CategoryCombobox
+          id="expense-category"
+          value={categoryId}
+          onChange={setCategoryId}
+        />
       </div>
 
       <Button type="submit" disabled={isPending || !isValid}>

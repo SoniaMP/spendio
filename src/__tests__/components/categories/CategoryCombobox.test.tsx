@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { Label } from '@/components/ui/label';
 import CategoryCombobox from '@/components/categories/CategoryCombobox';
 
 const mockCategories = [
@@ -14,17 +15,30 @@ vi.mock('@/hooks/useCategories', () => ({
 
 describe('CategoryCombobox', () => {
   it('renders the trigger button', () => {
-    render(<CategoryCombobox value={null} onChange={vi.fn()} />);
+    render(<CategoryCombobox id="category" value={null} onChange={vi.fn()} />);
     expect(screen.getByRole('combobox')).toBeInTheDocument();
   });
 
   it('shows placeholder when no value selected', () => {
-    render(<CategoryCombobox value={null} onChange={vi.fn()} />);
+    render(<CategoryCombobox id="category" value={null} onChange={vi.fn()} />);
     expect(screen.getByText('Seleccionar categoría...')).toBeInTheDocument();
   });
 
   it('shows selected category name when value is provided', () => {
-    render(<CategoryCombobox value={1} onChange={vi.fn()} />);
+    render(<CategoryCombobox id="category" value={1} onChange={vi.fn()} />);
     expect(screen.getByText('Alimentación')).toBeInTheDocument();
+  });
+
+  it('is named by the form label that points at it', () => {
+    // Without the id the control is announced as a bare "combobox", with no
+    // clue what it picks.
+    render(
+      <>
+        <Label htmlFor="category">Categoría</Label>
+        <CategoryCombobox id="category" value={null} onChange={vi.fn()} />
+      </>,
+    );
+
+    expect(screen.getByLabelText('Categoría')).toBe(screen.getByRole('combobox'));
   });
 });

@@ -87,8 +87,12 @@ export default function RecurringExpenseForm({
           onChange={(e) => setDescription(e.target.value)} placeholder={t('recurring.form.descriptionPlaceholder')} />
       </div>
       <div className="flex flex-col gap-2">
-        <Label>{t('expenses.columns.category')}</Label>
-        <CategoryCombobox value={categoryId} onChange={setCategoryId} />
+        <Label htmlFor="recurring-category">{t('expenses.columns.category')}</Label>
+        <CategoryCombobox
+          id="recurring-category"
+          value={categoryId}
+          onChange={setCategoryId}
+        />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">

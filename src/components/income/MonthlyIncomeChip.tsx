@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ArrowDownToLine, Pencil, Plus } from 'lucide-react';
+import { ArrowDown, Pencil, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/helpers/formatCurrency';
@@ -66,7 +66,7 @@ export default function MonthlyIncomeChip({
 
   return (
     <div className="flex items-center gap-1.5 rounded-md border bg-muted/50 py-1 pl-2.5 pr-1 text-sm">
-      <ArrowDownToLine className="size-3.5 shrink-0 text-muted-foreground" />
+      <ArrowDown className="size-3.5 shrink-0 text-muted-foreground" />
       <span
         className={`font-semibold tabular-nums ${
           isOverspent ? 'text-destructive' : 'text-foreground'

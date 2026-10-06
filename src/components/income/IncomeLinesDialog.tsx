@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowDownToLine, Plus } from 'lucide-react';
+import { ArrowDown, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -58,7 +58,7 @@ export default function IncomeLinesDialog({
     if (lines.length === 0) {
       return (
         <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground">
-          <ArrowDownToLine className="h-10 w-10" />
+          <ArrowDown className="h-10 w-10" />
           <p className="font-medium text-foreground">{t('income.empty')}</p>
           <p className="text-sm">{t('income.emptyHint')}</p>
           <Button onClick={() => onAddLine()}>

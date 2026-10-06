@@ -67,7 +67,13 @@ export default function CategoryCombobox({
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    /* `modal` is what makes the category list scrollable. This combobox is
+       always rendered inside a Dialog, and Radix's dialog overlay wraps the page
+       in `RemoveScroll` with only the dialog content as an allowed region. The
+       popover is portaled to `document.body`, i.e. outside that region, so wheel
+       and touch events over the list were being swallowed. A modal popover
+       mounts its own `RemoveScroll`, declaring itself a scrollable region. */
+    <Popover open={isOpen} onOpenChange={setIsOpen} modal>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

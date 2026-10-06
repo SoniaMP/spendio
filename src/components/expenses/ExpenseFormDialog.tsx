@@ -89,28 +89,36 @@ export default function ExpenseFormDialog({
         </DialogHeader>
         {canChooseScope && (
           <div className="flex flex-col gap-2">
-            <label className="flex items-start gap-2 cursor-pointer">
+          {/* `htmlFor` rather than wrapping the Label in another `<label>`:
+              shadcn's Label renders a `<label>` of its own, and nested labels
+              are invalid HTML — the text stops activating the radio, leaving
+              only the small circle clickable. */}
+            <div className="flex items-start gap-2">
               <input
+                id="edit-scope-this"
                 type="radio"
                 name="edit-scope"
                 checked={scope === 'this'}
                 onChange={() => setScope('this')}
                 className="mt-1"
               />
-              <Label className="cursor-pointer">{t('expenses.form.scopeThis')}</Label>
-            </label>
-            <label className="flex items-start gap-2 cursor-pointer">
+              <Label htmlFor="edit-scope-this" className="cursor-pointer">
+                {t('expenses.form.scopeThis')}
+              </Label>
+            </div>
+            <div className="flex items-start gap-2">
               <input
+                id="edit-scope-future"
                 type="radio"
                 name="edit-scope"
                 checked={scope === 'future'}
                 onChange={() => setScope('future')}
                 className="mt-1"
               />
-              <Label className="cursor-pointer">
+              <Label htmlFor="edit-scope-future" className="cursor-pointer">
                 {t('expenses.form.scopeFuture')}
               </Label>
-            </label>
+            </div>
           </div>
         )}
         <ExpenseForm

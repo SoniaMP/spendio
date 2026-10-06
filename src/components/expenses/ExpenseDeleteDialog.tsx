@@ -75,8 +75,13 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
 
         {canChooseScope && (
           <div className="flex flex-col gap-2">
-            <label className="flex items-start gap-2 cursor-pointer">
+            {/* `htmlFor` rather than wrapping the Label in another `<label>`:
+                shadcn's Label renders a `<label>` of its own, and nested labels
+                are invalid HTML — the text stops activating the radio, leaving
+                only the small circle clickable. */}
+            <div className="flex items-start gap-2">
               <input
+                id="delete-scope-this"
                 type="radio"
                 name="scope"
                 checked={scope === 'this'}
@@ -84,14 +89,17 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
                 className="mt-1"
               />
               <div>
-                <Label className="cursor-pointer">{t('expenses.delete.scopeThis')}</Label>
+                <Label htmlFor="delete-scope-this" className="cursor-pointer">
+                  {t('expenses.delete.scopeThis')}
+                </Label>
                 <p className="text-sm text-muted-foreground">
                   {t('expenses.delete.scopeThisHint')}
                 </p>
               </div>
-            </label>
-            <label className="flex items-start gap-2 cursor-pointer">
+            </div>
+            <div className="flex items-start gap-2">
               <input
+                id="delete-scope-future"
                 type="radio"
                 name="scope"
                 checked={scope === 'future'}
@@ -99,12 +107,14 @@ export default function ExpenseDeleteDialog({ expense, isOpen, onClose }: Props)
                 className="mt-1"
               />
               <div>
-                <Label className="cursor-pointer">{t('expenses.delete.scopeFuture')}</Label>
+                <Label htmlFor="delete-scope-future" className="cursor-pointer">
+                  {t('expenses.delete.scopeFuture')}
+                </Label>
                 <p className="text-sm text-muted-foreground">
                   {t('expenses.delete.scopeFutureHint')}
                 </p>
               </div>
-            </label>
+            </div>
           </div>
         )}
 
